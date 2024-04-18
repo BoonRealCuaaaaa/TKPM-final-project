@@ -1,0 +1,142 @@
+<!-- Permission form with half info -->
+<div
+class="modal fade"
+id="viewPermitRequestModal"
+aria-hidden="true"
+aria-labelledby="viewPermitRequestModal"
+tabindex="-1"
+>
+<div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="container d-flex flex-column align-items-center">
+        <h1 class="modal-title fs-5">
+          Yêu cầu cấp phép quảng cáo ID: <span id="viewPermitRequestID"></span>
+        </h1>
+        <p class="modal-title">ID Bảng QC: <span id="viewBoardID"></span></p>
+      </div>
+      <div class="align-self-start">
+        <button
+          type="button align-self-start"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <!-- Body 1 -->
+      <form action="#" method="POST" id="">
+        <div class="row">
+          <div class="col">
+            <!-- First row -->
+        <div class="row">
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                class="form-control"
+                id="viewCompanyName"
+                name="viewCompanyName"
+              />
+              <label for="viewCompanyName"
+                >Tên công ty đăng ký quảng cáo</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="email"
+                class="form-control"
+                id="viewEmail"
+                name="viewEmail"
+                placeholder="name@example.com"
+              />
+              <label for="viewEmail">Email</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">+84</span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Số điện thoại"
+                id="viewPhone"
+                name="viewPhone"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Địa chỉ"
+                id="viewAddress"
+                name="viewAddress"
+              />
+              <label for="viewAddress">Địa chỉ</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="date"
+                class="form-control"
+                id="viewStartDate"
+                name="viewStartDate"
+                placeholder="Từ"
+              />
+              <label for="viewStartDate">Ngày bắt đầu hợp đồng</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="date"
+                class="form-control"
+                id="viewEndDate"
+                name="viewEndDate"
+                placeholder="Đến"
+              />
+              <label for="viewEndDate">Ngày kết thúc hợp đồng</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-floating">
+              <textarea
+                class="form-control"
+                placeholder="Leave a comment here"
+                id="viewContent"
+                name="viewContent"
+                style="height: 100px"
+              ></textarea>
+              <label for="viewContent">Nội dung quảng cáo</label>
+            </div>
+          </div>
+        </div>
+          </div>
+          <div class="col">
+            <div class="mb-3">
+              <label for="viewImage" class="form-label">Hình ảnh</label>
+              <div class="container">
+                <img class="w-100" id="viewImage" src="" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>

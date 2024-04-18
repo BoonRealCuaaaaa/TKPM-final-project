@@ -1,0 +1,31 @@
+<style>
+    a.nav-link.active {
+    color: #0D6EFD !important;
+    border-bottom: 3px solid #0D6EFD;
+  }
+</style>
+
+<nav class="sidenavbar navbar-expand d-flex flex-column align-item-start" id="sidebar">
+    <ul class="navbar-nav d-flex flex-column w-100 ">
+      <li class="nav-item w-100 d-flex flex-row align-items-center  my-1 <% if(path.includes('/home')){ %>active<%}%>" id="homeTab">
+        <img src="/images/Folder.png" alt="" class="img-fluid mx-2 ">
+        <a href="/<%= accountType %>/home" class="nav-link sidenav-link <% if(path.includes('/home')){ %>active<%}%>">Trang chủ</a>
+      </li>
+      <li class="nav-item w-100 d-flex flex-row align-items-center my-1 <% if(path.includes('/list-adsplacements')){ %>active<%}%>" id="adsplacementTab">
+        <img src="/images/signboard.png" alt="" class="img-fluid mx-2">
+        <a href="/<%= accountType %>/list-adsplacements" class="nav-link sidenav-link <% if(path.includes('/list-adsplacements')){ %>active<%}%>">Danh sách điểm đặt quảng cáo</a>
+      </li>
+      <li class="nav-item w-100 d-flex flex-row align-items-center my-1 <% if(path.includes('/list-boards')){ %>active<%}%>">
+        <img src="/images/acceptReports.png" alt="" class="img-fluid mx-2">
+        <a href="/<%= accountType %>/list-boards" class="nav-link sidenav-link <% if(path.includes('/list-boards')){ %>active<%}%>">Danh sách bảng quảng cáo</a>
+      </li>
+      <li class="nav-item w-100 d-flex flex-row align-items-center my-1 <% if(path.includes('/my-requests')){ %>active<%}%>">
+        <img src="/images/acceptReports.png" alt="" class="img-fluid mx-2">
+        <a href="/<%= accountType %>/my-requests" class="nav-link sidenav-link <% if(path.includes('/my-requests')){ %>active<%}%>">Yêu cầu của tôi</a>
+      </li>
+      <li class="nav-item w-100 d-flex flex-row align-items-center my-1 <% if(path.includes('/list-reports')){ %>active<%}%>">
+        <img src="/images/report.png" alt="" class="img-fluid mx-2">
+        <a href="/<%= accountType %>/list-reports" class="nav-link sidenav-link <% if(path.includes('/list-reports')){ %>active<%}%>">Xử lý báo cáo</a>
+      </li>
+    </ul>
+</nav>

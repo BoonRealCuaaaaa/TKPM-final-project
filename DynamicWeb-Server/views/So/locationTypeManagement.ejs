@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title>Sở | Quản lý loại đất điểm quảng cáo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+
+    <!-- Font awesome -->
+    <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+
+    <!--Css link -->
+    <link rel="stylesheet" href="/css/So/style.css">
+    <link rel="stylesheet" href="/css/So/table.css">
+    <link rel="stylesheet" href="/css/toggleNavigation.css">
+    <link rel="stylesheet" href="/css/alert.css">
+    <link rel="stylesheet" href="/css/So/customDropbox.css">
+    <link rel="stylesheet" href="/css/So/passwordStrengthIndicator.css">
+</head>
+
+<body>
+    <%- include("../partials/header.ejs") %>
+        <!-- Navbar content -->
+        <%- include("./subPartials/navbar.ejs") %>
+
+            <% if (message !=null){ %>
+                <div class="alert-container" id="create-alert-container">
+                    <div class="alert alert-<%=message.status%> mb-0" role="alert" id="registerAlert">
+                        <i class="fa-regular fa-circle-check fa-2xl"></i>
+                        <span class="ms-3 fs-5">
+                            <%= message.content %>
+                        </span>
+                    </div>
+                    <div class="progress progress-<%= message.status %>"></div>
+                </div>
+                <% } %>
+                    <!-- Main content -->
+                    <main class="dynamic-container container-fluid">
+
+                        <div class="table-container border border-2 rounded-3">
+                            <div class="table-header">
+                                <h2>Quản lý loại đất điểm quảng cáo</h2>
+                                <div class="button-container">
+                                    <button class="green-button px-3 py-1 rounded" data-bs-toggle="modal"
+                                        data-bs-target="#createModal">
+                                        <i class="fas fa-plus-circle" style="color: #ffffff;"></i>
+                                        Thêm loại đất
+                                    </button>
+                                </div>
+                            </div>
+                            <table class="table-body table table-striped table-responsive mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Loại đất</th>
+                                        <th scope="col">Số lượng điểm</th>
+                                        <th scope="col" style="text-align: center;">Chức năng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (pagination.rows && pagination.rows.length> 0) { %>
+                                        <% for (let i=0; i < pagination.rows.length; i++) { %>
+                                            <tr>
+                                                <td>
+                                                    <%= pagination.rows[i].locationType %> %>
+                                                </td>
+                                                <td>
+                                                    <%= pagination.rows[i].AdsPlacements.length %> điểm quảng cáo
+                                                </td>
+
+                                                <td class="function-icons text-center">
+                                                    <i class="fas fa-pen" style="color: #f29d38;" data-bs-toggle="modal"
+                                                        data-bs-target="#editModal"
+                                                        data-id="<%= pagination.rows[i].id %>"
+                                                        data-name="<%= pagination.rows[i].locationType %>"
+                                                        onclick="showEditLocationTypeModal(this)"></i>
+                                                    <i class="fas fa-trash" style="color: #EB3223;"
+                                                        data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                        data-id="<%= pagination.rows[i].id %>"
+                                                        onclick="showDeleteLocationTypeModal(this)"></i>
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="7" class="text-center fs-5"> Không có bất kì hình
+                                                            thức
+                                                            điểm cáo nào</td>
+                                                    </tr>
+                                                    <% } %>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div
+                            class="pagination-container d-flex flex-sm-row flex-column justify-content-between align-items-center py-2">
+                            <p class="pagination-text mb-0">Showing <b>
+                                    <%= pagination.currentPage %>
+                                </b> Out of <b>
+                                    <%= pagination.maxPage %>
+                                </b></p>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination mb-0">
+                                    <% if (pagination.currentPage===pagination.minPage) { %>
+                                        <li class="page-item"><button class="page-link text-dark fw-bold border-0"
+                                                disabled>Previous</button></li>
+                                        <% }else{%>
+                                            <li class="page-item"><a class="page-link text-dark fw-bold border-0"
+                                                    href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage - 1) %>">Previous</a>
+                                            </li>
+                                            <% } %>
+
+                                                <% for (let i=pagination.currentPage - pagination.limitPage; i <
+                                                    pagination.currentPage; i++) { %>
+                                                    <% if (i>= pagination.minPage){ %>
+                                                        <li class="page-item"><a
+                                                                class="page-link text-dark fw-bold border-0"
+                                                                href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', i) %>">
+                                                                <%=i%>
+                                                            </a></li>
+                                                        <% } %>
+                                                            <% } %>
+
+                                                                <li class="page-item" aria-current="page"><a
+                                                                        class="page-link text-dark fw-bold border-0"
+                                                                        href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage) %>"
+                                                                        style="background-color: #0FC2C0;">
+                                                                        <%= pagination.currentPage %>
+                                                                    </a></li>
+
+                                                                <% for (let i=pagination.currentPage + 1; i
+                                                                    <=pagination.currentPage + pagination.limitPage;
+                                                                    i++) { %>
+                                                                    <% if (i <=pagination.maxPage) { %>
+                                                                        <li class="page-item"><a
+                                                                                class="page-link text-dark fw-bold border-0"
+                                                                                href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', i) %>">
+                                                                                <%=i%>
+                                                                            </a></li>
+                                                                        <% } %>
+                                                                            <% } %>
+
+                                                                                <% if
+                                                                                    (pagination.currentPage===pagination.maxPage)
+                                                                                    { %>
+                                                                                    <li class="page-item"><button
+                                                                                            class="page-link text-dark fw-bold border-0"
+                                                                                            disabled>Next</a></li>
+                                                                                    <% }else{%>
+                                                                                        <li class="page-item"><a
+                                                                                                class="page-link text-dark fw-bold border-0"
+                                                                                                href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage + 1)%>">Next</a>
+                                                                                        </li>
+                                                                                        <% } %>
+
+                                </ul>
+                            </nav>
+                        </div>
+
+                        <!-- Create Modal -->
+                        <div class="modal fade" id="createModal" data-bs-backdrop="static">
+                            <div class="modal-dialog modal-dialog-centered modal-lg align-items-start"
+                                style="margin-top: 10px;">
+                                <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Tạo loại đất quảng cáo</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            id="close-create-button"></button>
+                                    </div>
+
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                        <form action="/department/locationTypeManagement" method="POST">
+                                            <fieldset class="container">
+                                                <div class="row fw-semibold fs-4 mb-2">Nhập tên loại đất</div>
+
+                                                <div class="row mb-3">
+
+                                                    <div class="mb-0 form-floating is-invalid">
+                                                        <input type="text" <% if(createErr.error.Name.length>
+                                                        0){ %> class="form-control is-invalid"
+                                                        <% } else { %>
+                                                            class="form-control"
+                                                            <% } %>
+                                                                value="<%= createErr.value.Name %>"
+                                                                    id="nameCreateModal"
+                                                                    name="nameCreateModal" autocomplete="true"
+                                                                    placeholder="Tên" required>
+                                                    </div>
+                                                    <% if(createErr.error.Name.length> 0) { %>
+                                                        <div class="invalid-feedback">
+                                                            <%= createErr.error.Name[0] %>
+                                                        </div>
+                                                        <% } %>
+                                                </div>
+
+
+                                            </fieldset>
+
+                                            <button type="submit" class="mt-4 btn btn-success w-100"
+                                                id="registerButton">Tạo loại đất quảng cáo</button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal" data-bs-backdrop="static">
+                            <div class="modal-dialog modal-dialog-centered modal-lg align-items-start"
+                                style="margin-top: 10px;">
+                                <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Chỉnh sửa đất quảng cáo</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            id="close-create-button"></button>
+                                    </div>
+
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                        <form action="#" id="editForm">
+                                            <input type="hidden" id="idEditModal" name="idEditModal">
+
+                                            <fieldset class="container">
+                                                <div class="row fw-semibold fs-4 mb-2">Tên loại đất</div>
+                                                <div class="row mb-3">
+                                                    <div class="mb-0 form-floating is-invalid">
+                                                        <input type="text" class="form-control" id="nameEditModal"
+                                                            name="nameEditModal" autocomplete="true" placeholder="Tên"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+
+                                            <button type="submit" class="mt-4 btn btn-success w-100"
+                                                id="confirm-edit-button">Chỉnh sửa loại đất</button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal" data-bs-backdrop="static">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Xóa loại đất điểm quảng cáo</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <!-- Modal body -->
+                                    <div class="modal-body" style="white-space: nowrap;">
+                                        Xác nhận xóa loại đất quảng cáo<br>
+                                        <input type="hidden" value="" name="locationTypeId" id="idDeleteModal">
+                                    </div>
+
+
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn gray-button" data-bs-dismiss="modal">Hủy
+                                            bỏ</button>
+                                        <button class="btn red-button" id="confirm-delete-button"
+                                            data-bs-dismiss="modal">Xóa</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </main>
+
+                    <!-- Footer -->
+                    <%- include("../partials/footer.ejs") %>
+
+                        <!-- Javascript -->
+                        <script src="/javascript/So/locationTypeManagement.js"></script>
+                        <script src="/javascript/So/boardManagement.js"></script>
+                        <script src="/javascript/So/passwordStrengthIndicator.js"></script>
+                        <script src="/javascript/toggleNavigation.js"></script>
+
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"></script>
+
+
+</html>

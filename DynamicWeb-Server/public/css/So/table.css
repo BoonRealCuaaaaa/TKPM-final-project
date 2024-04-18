@@ -1,0 +1,89 @@
+:root {
+    --red-color: #E12828;
+    --green-color: #A0C949;
+    --gray-color: #9C8A8A;
+    --blue-color: #71DAFB;
+}
+
+main.dynamic-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.table-container {
+    width: 80%;
+    overflow: auto;
+    margin-top: 30px;
+}
+
+.table-header {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #4D5556;
+    color: #fff;
+    font-weight: bold;
+    width: 100%;
+}
+
+.button-container button {
+    color: #fff;
+}
+
+.button-container button:nth-child(1) {
+    margin-right: 15px;
+}
+
+.red-button {
+    background-color: var(--red-color);
+    color: #fff;
+}
+
+.green-button {
+    background-color: var(--green-color);
+    color: #fff;
+}
+
+.gray-button {
+    background-color: var(--gray-color);
+    color: #fff;
+
+}
+
+.red-button:hover {
+    background-color: transparent;
+    color: var(--red-color);
+    border: 2px solid var(--red-color);
+}
+
+.green-button:hover {
+    background-color: transparent;
+    color: var(--green-color);
+    border: 2px solid var(--green-color);
+
+}
+
+.gray-button:hover {
+    background-color: transparent;
+    color: var(--gray-color);
+    border: 2px solid var(--gray-color);
+}
+
+.pagination-container {
+    width: 80%;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-bottom: 1px solid black;
+}
+
+.function-icons i {
+    cursor: pointer;
+}
+
+@media only screen and (max-width: 992px)  {
+    .table-container {
+        width: 100%;
+    }
+}

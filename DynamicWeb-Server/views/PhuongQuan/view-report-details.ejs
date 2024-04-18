@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title><%= role %> | <%= tab %></title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+
+    <!-- Font awesome -->
+    <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/So/style.css">
+    <link rel="stylesheet" href="/css/So/table.css">
+    <link rel="stylesheet" href="/css/PhuongQuan/toggleNavigation.css">
+  </head>
+
+  <body>
+  <%- include("../partials/header.ejs") %>
+  <!-- Navbar content -->
+  <%- include("./subPartials/navbar.ejs") %> 
+  <!-- Main content -->
+  <main class="dynamic-container container-md">
+    <div class="container-md mh-4 m-5 px-5" >
+        <div class="row gy-4 gx-5 overflow-y-hidden" >
+            <div class="col-md-6 h-100 ">
+                <div class="card ">
+                    <div class="card-header">
+                      Báo cáo của người dân - Báo cáo <% if (report.BoardId) { %> Bảng QC (ID: <%= report.BoardId %>) <% } else if (report.AdsPlacementId) { %> Điểm đặt QC (ID: <%= report.AdsPlacementId %>) <% } else { %>
+                        Địa điểm
+                        <br><%= report.address %>
+                        <% } %>
+                    </div>
+                    <div class="card-body overflow-y-scroll h-100" style="max-height: 45vh;" >
+                      <h5 class="card-title"><%= report.name %></h5>
+                      <p class="card-text " >
+                        SĐT: <%= report.phone %>
+                        <br>Email: <%= report.email %>
+                      </p>
+                      <h5 class="card-title">Loại: <%= report.ReportType.type %></h5>
+                      <p class="card-text " >
+                        <%- report.reportContent %>
+                      </p>
+                    </div>
+                  </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+
+                    <% if (report.image.split(", ").length==1) {%>
+                    <img src="<%= "/"+ report.image.split(", ")[0] %>" class="card-img-top" alt="...">
+                    <% } else if (report.image.split(", ").length==2) {%>
+                      <img src="<%= "/"+ report.image.split(", ")[0] %>" class="card-img-top" alt="...">
+                      <img src="<%= "/"+ report.image.split(", ")[1] %>" class="card-img-top" alt="...">
+                    <% } %>
+                    <div class="card-body">
+                      <h5 class="card-title">Hình ảnh</h5>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <div class="row my-4">
+          <form action="/<%= accountType %>/list-reports<% if (report.long) { %>/location-report<% } %>" id="responseForm" method="POST">
+            <input type="hidden" name="reportId" id="ReportIdEdit" value="<%= report.id %>"/>
+            <div class="col">
+              <div class="form-floating">
+                  <textarea class="form-control" placeholder="Nhập nội dung phản hồi" id="methodEdit" name="method" style="height: 100px" required><%= report.method %></textarea>
+                  <label for="methodEdit">Phản hồi của cán bộ</label>
+                </div>
+          </div>
+      </div>
+      <div class="container my-4 w-25" >
+          <select class="form-select" aria-label="Default select example" id="statusEdit" data-status="<%= report.status %>" name="status" required>
+              <option value="">Tình trạng</option>
+              <option value="Chưa xử lý">Chưa xử lý</option>
+              <option value="Đang xử lý">Đang xử lý</option>
+              <option value="Đã xử lý">Đã xử lý</option>
+            </select>
+      </div>
+          </form>
+        <div class="row justify-content-center">
+            <button type="submit" form="responseForm" class="btn btn-success btn-lg w-50">Đăng</button>
+        </div>
+    </div>
+    
+  </main> 
+  <!-- Footer -->
+  <%- include("../partials/footer.ejs") %>
+
+  <!-- Modals -->
+  <% if (message) { %> <%- include("./subPartials/message-modal.ejs") %> <% }; %>
+  </body>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"
+  ></script>
+  <script src="/javascript/toggleNavigation.js"></script>
+  <script src="/javascript/PhuongQuan/report-details.js"></script>
+</html>

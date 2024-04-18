@@ -1,0 +1,55 @@
+<div class="modal fade" id="boardChange" tabindex="-1" aria-labelledby="boardChange" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="container d-flex flex-column align-items-center">
+        <h1 class="modal-title fs-5">
+          Yêu cầu thay đổi thông tin bảng quảng cáo
+        </h1>
+        <p class="modal-title">Bước 1/1</p>
+      </div>
+      <div class="align-self-start">
+        <button type="button align-self-start" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="modal-body justify-content-center">
+      <form action="/<%= accountType %>/list-boards" id="editBoardForm" method="POST">
+        <input type="hidden" name="boardId" id="boardIdEdit"/>
+        <div class="row">
+          <div class="col">
+            <div class="form-floating">
+              <select class="form-select" id="typeEdit" name="boardTypeId">
+                <% boardTypes.forEach(type => { %>
+                    <option value="<%= type.id %>"><%= type.type %></option>
+                  <% }); %>
+              </select>
+              <label for="typeEdit">Loại bảng</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control" id="sizeEdit" name="size"/>
+              <label for="sizeEdit">Kích thước</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control" id="quantityEdit" name="quantity"/>
+              <label for="quantityEdit">Số lượng</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+            <div class="form-floating">
+              <textarea class="form-control" placeholder="Lý do thay đổi" id="reasonEdit" name="reason" required></textarea>
+              <label for="reasonEdit">Lý do chỉnh sửa</label>
+            </div>
+          </div>
+          <div class="container my-3">
+            <button type="submit " class="btn btn-success container-fluid">Gửi yêu cầu</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>

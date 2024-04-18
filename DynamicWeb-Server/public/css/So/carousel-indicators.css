@@ -1,0 +1,11 @@
+.carousel-indicators li{
+    width: 17px !important;
+    height: 17px !important;
+    border-radius: 50%;
+    list-style-type: none !important;
+}
+
+.carousel-indicators {
+    column-gap: 5px !important;
+}
+

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <title>Sở | Yêu cầu cấp phép qc</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+
+    <!-- Font awesome -->
+    <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+
+    <!-- Css link -->
+    <link rel="stylesheet" href="/css/So/style.css">
+    <link rel="stylesheet" href="/css/So/table.css">
+    <link rel="stylesheet" href="/css/toggleNavigation.css">
+</head>
+
+<body>
+    <%- include("../partials/header.ejs") %>
+        <!-- Navbar content -->
+        <%- include("./subPartials/navbar.ejs") %>
+            <!-- Main content -->
+            <main class="dynamic-container mb-5 container-fluid">
+                <!-- Main content -->
+                <div class="row w-sm-50 w-100 mt-4 justify-content-end gx-0 gx-sm-3 gy-3">
+                    <a class="btn btn-secondary col-lg-1 col-xl-1 col-sm-2 col-4"
+                        href="/department/acceptOrDenyEditAdplaceRequest">
+                        All
+                    </a>
+                    <div class="col-lg-3 col-xl-2 col-sm-4 col-8">
+                        <div class="dropdown">
+                            <button
+                                class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <% if (currentStatus !=='' ) { %>
+                                    <%= currentStatus %>
+                                <% } else { %>
+                                    Trạng thái 
+                                <% } %>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <% for (let i=0; i < status.length; i++){ %>
+                                    <li>
+                                        <!-- Thêm class "status-item" và data attribute "data-status" -->
+                                        <a class="dropdown-item status-item" data-status="<%= status[i] %>">
+                                            <%= status[i] %>
+                                        </a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-xl-2 col-sm-4 col-8">
+                        <div class="dropdown">
+                            <button
+                                class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <% if (currentDistrict !=='' ) { %>
+                                    <%= currentDistrict %>
+                                        <% } else { %>
+                                            Quận
+                                            <% } %>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <% for (let i=0; i < districts.length; i++){ %>
+                                    <li>
+                                        <a class="dropdown-item"
+                                            href="<%= createWardDistrictPageQueryString(currentUrl, 'district=', districts[i].district)%>">
+                                            <%= districts[i].district %>
+                                        </a>
+                                    </li>
+                                    <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-xl-3 col-sm-5 col-12">
+                        <div class="dropdown">
+                            <button
+                                class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false" <% if (wards.length===0) {
+                                %>
+                                disabled
+                                <% } %>
+                                    >
+                                    <% if (currentWard !=='' ) { %>
+                                        <%= currentWard %>
+                                            <% } else { %>
+                                                Phường
+                                                <% } %>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <% if (wards.length> 0) { %>
+                                    <% for (let i=0; i < wards.length; i++){ %>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="<%= createWardDistrictPageQueryString(currentUrl, 'ward=', wards[i].ward) %>">
+                                                <%= wards[i].ward %>
+                                            </a>
+                                        </li>
+                                        <% } %>
+                                            <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row table-container border border-2 rounded-3 mt-3">
+                    <h2 class="table-header">Yêu cầu chỉnh sửa điểm quảng cáo</h2>
+                    <table class="table-body table table-striped table-responsive mb-0">
+                        <thead>
+                            <tr class="align-top">
+                                <th scope="col-2">Tên người gửi</th>
+                                <th scope="col-3">Địa điểm</th>
+                                <th scope="col-2">Thời gian gửi</th>
+                                <th scope="col-2">Trạng thái</th>
+                                <th scope="col-1">Thông tin yêu cầu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (pagination.rows.length> 0) { %>
+                                <% for (let i=0; i < pagination.rows.length; i++) { %>
+                                    <tr>
+                                        <td>
+                                            <%= pagination.rows[i].Account.lastName %>
+                                                <%= pagination.rows[i].Account.firstName %>
+                                        </td>
+                                        <td>
+                                            <%= pagination.rows[i].AdsPlacement.address %>,
+                                                <%= pagination.rows[i].AdsPlacement.Area.ward %>,
+                                                    <%= pagination.rows[i].AdsPlacement.Area.district %>, Thành phố
+                                                        Hồ
+                                                        Chí Minh
+                                        </td>
+                                        <td>
+                                            <%= formatDate(pagination.rows[i].createdAt) %>
+                                        </td>
+                                        <td>
+                                            <% if (pagination.rows[i].requestStatus==='Chờ phê duyệt' ) { %>
+                                                <button class="btn btn-warning">
+                                                    <%= pagination.rows[i].requestStatus %>
+                                                </button>
+                                                <% } else if (pagination.rows[i].requestStatus==='Bị từ chối' ) { %>
+                                                    <button class="btn btn-danger">
+                                                        <%= pagination.rows[i].requestStatus %>
+                                                    </button>
+                                                    <% } else { %>
+                                                        <button class="btn btn-success">
+                                                            <%= pagination.rows[i].requestStatus %>
+                                                        </button>
+                                                        <% } %>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#locationChange"
+                                                data-address="<%= pagination.rows[i].address %>"
+                                                data-adplaceid="<%= pagination.rows[i].AdsPlacement.id %>"
+                                                data-id="<%= pagination.rows[i].id %>"
+                                                data-locationType="<%= pagination.rows[i].LocationType.locationType %> "
+                                                data-adType="<%= pagination.rows[i].AdsType.type %>"
+                                                data-status="<%= pagination.rows[i].status %>"
+                                                data-reason="<%= pagination.rows[i].reason %>"
+                                                data-ward=" <%= pagination.rows[i].AdsPlacement.Area.ward %>"
+                                                data-district="<%= pagination.rows[i].AdsPlacement.Area.district %>"
+                                                data-locationtypeid="<%= pagination.rows[i].LocationTypeId %>"
+                                                data-adtypeid="<%= pagination.rows[i].AdsTypeId %>"
+                                                data-requeststatus="<%= pagination.rows[i].requestStatus %>"
+                                                onclick="setDataToAdsPlacementRequestModal(this)">
+                                                Xem chi tiết
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="7" class="text-center fs-5">Không có bất kì yêu cầu cấp
+                                                    phép nào</td>
+                                            </tr>
+                                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination section -->
+
+                <div
+                    class="pagination-container d-flex flex-sm-row flex-column justify-content-between align-items-center py-2">
+                    <p class="pagination-text mb-0">Showing <b>
+                            <%= pagination.currentPage %>
+                        </b> Out of <b>
+                            <%= pagination.maxPage %>
+                        </b></p>
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination mb-0">
+                            <% if (pagination.currentPage===pagination.minPage) { %>
+                                <li class="page-item"><button class="page-link text-dark fw-bold border-0"
+                                        disabled>Previous</button>
+                                </li>
+                                <% }else{%>
+                                    <li class="page-item"><a class="page-link text-dark fw-bold border-0"
+                                            href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage - 1) %>">Previous</a>
+                                    </li>
+                                    <% } %>
+
+                                        <% for (let i=pagination.currentPage - pagination.limitPage; i <
+                                            pagination.currentPage; i++) { %>
+                                            <% if (i>= pagination.minPage){ %>
+                                                <li class="page-item"><a class="page-link text-dark fw-bold border-0"
+                                                        href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', i) %>">
+                                                        <%=i%>
+                                                    </a></li>
+                                                <% } %>
+                                                    <% } %>
+
+                                                        <li class="page-item" aria-current="page"><a
+                                                                class="page-link text-dark fw-bold border-0"
+                                                                href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage) %>"
+                                                                style="background-color: #0FC2C0;">
+                                                                <%= pagination.currentPage %>
+                                                            </a></li>
+
+                                                        <% for (let i=pagination.currentPage + 1; i
+                                                            <=pagination.currentPage + pagination.limitPage; i++) { %>
+                                                            <% if (i <=pagination.maxPage) { %>
+                                                                <li class="page-item"><a
+                                                                        class="page-link text-dark fw-bold border-0"
+                                                                        href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', i) %>">
+                                                                        <%=i%>
+                                                                    </a></li>
+                                                                <% } %>
+                                                                    <% } %>
+
+                                                                        <% if
+                                                                            (pagination.currentPage===pagination.maxPage)
+                                                                            { %>
+                                                                            <li class="page-item"><button
+                                                                                    class="page-link text-dark fw-bold border-0"
+                                                                                    disabled>Next</button></li>
+                                                                            <% }else{%>
+                                                                                <li class="page-item"><a
+                                                                                        class="page-link text-dark fw-bold border-0"
+                                                                                        href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage + 1)%>">Next</a>
+                                                                                </li>
+                                                                                <% } %>
+
+                        </ul>
+                    </nav>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <%- include("../partials/footer.ejs") %>
+
+                <!-- AdsPlacementRequest Modal -->
+                <div class="modal fade" id="locationChange" tabindex="-1" aria-labelledby="locationChange"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="container d-flex flex-column align-items-center">
+                                    <h1 class="modal-title fs-5" id="permissionReport-sub">Yêu cầu thay đổi địa điểm
+                                        quảng cáo</h1>
+                                </div>
+                                <div class="align-self-start">
+                                    <button type="button align-self-start" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                            </div>
+                            <div class="modal-body justify-content-center">
+                                <form action="/department/acceptOrDenyEditAdplaceRequest" id="edit-request-form"
+                                    method="POST">
+                                    <input type="hidden" name="adsplacementId" id="adsplacementIdEdit" />
+                                    <input type="hidden" name="result" id="result" />
+                                    <input type="hidden" name="adPlacecRequestId" id="adPlacecRequestId" />
+                                    <input type="hidden" name="adTypeId" id="adTypeId" />
+                                    <input type="hidden" name="locationTypeId" id="locationTypeId" />
+
+
+
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="addressEdit" name="address"
+                                                    required>
+                                                <label for="addressEdit">Địa chỉ</label>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-floating">
+                                                <input readonly type="text" class="form-control" id="area" name="area"
+                                                    autocomplete="true" placeholder="">
+                                                <label for="area" class="mb-2">Khu vực</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-floating">
+                                                <input readonly type="text" class="form-control" id="adsType"
+                                                    name="adsType" autocomplete="true" placeholder="">
+                                                <label for="adsType" class="mb-2">Hình thức quảng cáo</label>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-floating">
+                                                <input readonly type="text" class="form-control" id="locationType"
+                                                    name="locationType" autocomplete="true" placeholder="">
+                                                <label for="locationType" class="mb-2">Loại đất</label>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-floating">
+                                                <input readonly type="text" class="form-control" id="status"
+                                                    name="status" autocomplete="true" placeholder="">
+                                                <label for="status" class="mb-2">Thông tin quy hoạch</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-4">
+                                        <div class="form-floating" style ="height: 200px">
+                                            <textarea class="form-control h-100" placeholder="Lý do thay đổi" id="reasonEdit"
+                                                name="reason"></textarea>
+                                            <label for="floatingTextarea2 h-100">Lý do chỉnh sửa</label>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <button type="submit" class="mt-4 btn btn-success w-100" id="accept-btn"
+                                    onclick="acceptOrDenyEditAdsPlacementRequest(event)">Chấp nhận</button>
+                                <button type="submit" class="mt-2 btn btn-danger w-100" id="deny-btn"
+                                    onclick="acceptOrDenyEditAdsPlacementRequest(event)">Từ chối</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script src="/javascript/toggleNavigation.js"></script>
+                <script>
+                    function setDataToAdsPlacementRequestModal(btn) {
+                        console.log(btn.dataset);
+                        document.getElementById("adsplacementIdEdit").value = btn.dataset.adplaceid;
+                        document.getElementById("adPlacecRequestId").value = btn.dataset.id;
+                        document.getElementById("addressEdit").value = btn.dataset.address;
+                        document.getElementById("area").value = btn.dataset.ward;
+                        document.getElementById("adsType").value = btn.dataset.adtype;
+                        document.getElementById("locationType").value = btn.dataset.locationtype;
+                        document.getElementById("status").value = btn.dataset.status;
+                        document.getElementById("reasonEdit").value = btn.dataset.reason;
+                        document.getElementById("adTypeId").value = btn.dataset.adtypeid;
+                        document.getElementById("locationTypeId").value = btn.dataset.locationtypeid;
+
+                        if (btn.dataset.requeststatus != "Chờ phê duyệt") {
+                            document.getElementById("accept-btn").disabled = true;
+                            document.getElementById("deny-btn").disabled = true;
+                        } else {
+                            document.getElementById("accept-btn").disabled = false;
+                            document.getElementById("deny-btn").disabled = false;
+                        }
+                    }
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const statusItems = document.querySelectorAll('.status-item');
+                
+                        statusItems.forEach(function (item) {
+                            item.addEventListener('click', function () {
+                                const statusValue = this.dataset.status;
+                                console.log(statusValue);
+                
+                                // Chuyển hướng URL với status được thêm vào query string
+                                let currentUrl = window.location.href;
+                                const url = new URL(currentUrl);
+                                const params = new URLSearchParams(url.search);
+
+                                // Loại bỏ tham số status
+                                params.delete('status');
+
+                                currentUrl = `${url.origin}${url.pathname}?${params.toString()}`;
+
+                                const separator = currentUrl.includes('?') ? '&' : '?';
+                                const newUrl = currentUrl + separator + 'status=' + statusValue;
+                                console.log(newUrl);
+                                window.location.href = newUrl;
+                            });
+                        });
+                    });
+                    function acceptOrDenyEditAdsPlacementRequest(e) {
+                        e.preventDefault();
+                        console.log(e.target);
+                        const formData = new FormData(document.getElementById("edit-request-form"));
+                        const data = Object.fromEntries(formData.entries());
+                        if (e.target.matches("#accept-btn")) {
+                            data.result = "Chấp nhận";
+                        } else {
+                            data.result = "Từ chối";
+                        }
+
+                        fetch("/department/acceptOrDenyEditAdplaceRequest", {
+                            method: "POST",
+                            headers: {
+                                "Content-type": "application/json",
+                            },
+                            body: JSON.stringify(data)
+                        }).then(res => res.json())
+                            .then(data => {
+                                console.log(data);
+                                location.reload();
+                            })
+                            .catch(err => { console.log(err) });
+                    }
+                </script>
+                <!-- Bootstrap scripts -->
+                <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+                    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+                    crossorigin="anonymous"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+                    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+                    crossorigin="anonymous"></script>
+                    
+</body>
+
+</html>

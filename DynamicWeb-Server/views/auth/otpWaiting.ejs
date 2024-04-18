@@ -1,0 +1,114 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+  integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+<link rel="stylesheet" href="style.css" />
+
+<style>
+  #form-container {
+    width: 360px;
+  }
+</style>
+<style>
+  .otp-field {
+    display: flex;
+    justify-content: space-between;
+    max-width: 300px;
+    margin: 30px auto;
+  }
+
+  .otp-input {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    font-size: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+  }
+
+  .otp-input:last-child {
+    margin-right: 0;
+  }
+</style>
+
+<body class="bg-light-subtle">
+  <% if (errorMessage.length>0) {%>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <span><%=errorMessage[0] %></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
+  <div class="container d-flex flex-column align-items-center mt-5">
+    <div class="row justify-content-center mb-3">
+      <img src="/images/logo.png" alt="Logo" style="width: 48px" class="p-0" />
+    </div>
+    <div class="row justify-content-center mb-3 fw-semibold fs-3">
+      Xác thực email
+    </div>
+    <div id="form-container" class="row rounded bg-body-secondary p-3">
+      <label class="form-lable mb-2 fw-semibold">Một email đã được gửi cho bạn. Vui lòng nhập dãy số trong email</label>
+      <div class="otp-field">
+        <input class="otp-input form-control" type="text" maxlength="1" autofocus />
+        <input class="otp-input form-control" type="text" maxlength="1" />
+        <input class="otp-input form-control" type="text" maxlength="1" />
+        <input class="otp-input form-control" type="text" maxlength="1" />
+        <input class="otp-input form-control" type="text" maxlength="1" />
+        <input class="otp-input form-control" type="text" maxlength="1" />
+        <input id="account" type="hidden" value="<%= accountId %>" />
+      </div>
+      <button id="submitOtp" class="btn btn-primary">Xác nhận</button>
+    </div>
+</body>
+
+<script>
+  const serverPath = "http://localhost:5000"
+  const accountId = document.querySelector('#account').value
+  const inputs = document.querySelectorAll('.otp-input');
+  inputs.forEach((input, index) => {
+    input.addEventListener('input', (event) => {
+      // Chỉ cho phép nhập số
+      input.value = input.value.replace(/[^0-9]/g, '');
+      if (input.nextElementSibling && input.value) {
+        input.nextElementSibling.focus();
+      }
+    });
+
+    input.addEventListener('keydown', (event) => {
+      if (event.key === "Backspace" && inputs[index - 1] && !input.value) {
+        inputs[index - 1].focus();
+      }
+    });
+  });
+
+  document.getElementById('submitOtp').addEventListener('click', async () => {
+
+    const otpValue = Array.from(inputs).map(input => input.value).join('');
+    if (otpValue.length === inputs.length) {
+      const data = {
+        otp: otpValue,
+        account: accountId
+      }
+      const response = await fetch(`${serverPath}/otp-waiting`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      const res=await response.json()
+      if (res.redirect) {
+        window.location.href = res.redirect;
+      }
+      // if (response.redirected) {
+      //   window.location.href = response.url
+      // }
+    } else {
+      alert('Bạn chưa điền OTP hoặc điền chưa đủ');
+    }
+  });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+  integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+  integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>

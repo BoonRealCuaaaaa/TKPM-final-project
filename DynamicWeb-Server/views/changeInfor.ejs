@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <title><%= role %> | <%= tab %></title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+
+    <!-- Font awesome -->
+    <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+
+    <!-- Chart JS-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!--Css link -->
+    <link rel="stylesheet" href="/css/So/style.css">
+    <link rel="stylesheet" href="/css/toggleNavigation.css">
+
+    <style>
+      .fa-info-circle {
+        cursor: pointer;
+      }
+
+      .chartContainer {
+        overflow-x: auto;
+        max-width: 100%;
+        width: 100%;
+      }
+
+      .chartContainerBody {
+        width: 100%;
+      }
+    </style>
+
+  </head>
+  <body>
+    <!-- Header content -->
+    <%- include("./partials/header.ejs") %>
+    <!-- Navbar content -->
+    <%- include("./partials/navbar.ejs") %> 
+    <!-- Main content -->
+    <main class="dynamic-container">
+      <div class="container py-1 px-5">
+        <div class="container py-1 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100 px-4">
+            <div class="col col-lg-6 mb-4 mb-lg-0">
+              <div class="card mb-3" style="border-radius: .5rem;">
+                <div class="row g-0 px-4">
+                  <div class="col-md-4 gradient-custom text-center text-white"
+                    style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
+                    <img src="/images/Folder.png"
+                      alt="Avatar" class="img-fluid my-5" />
+                    <i class="far fa-edit mb-5"></i>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body p-4 lh-1">
+                      <h6>Information</h6>
+                      <hr class="mt-0 mb-4">
+                        <p>Tên cán bộ: <%= user.lastName %> <%= user.firstName %></p>
+                        <p>Ngày sinh: <%= user.birth.getDate() %>/<%= user.birth.getMonth() + 1 %>/<%= user.birth.getFullYear() %></p>
+                        <p>Email: <%= user.email %></p>
+                        <p>Điện thoại: <%= user.phone %></p>
+                      <h6>Loại toài khoản</h6>
+                      <p>Tài khoản cán bộ <%= role %></p>
+                      <hr class="mt-0 mb-4">
+                        
+                      <div class="d-flex justify-content-start">
+                        <a href="#!"><i class="fab fa-facebook-f fa-lg me-3"></i></a>
+                        <a href="#!"><i class="fab fa-twitter fa-lg me-3"></i></a>
+                        <a href="#!"><i class="fab fa-instagram fa-lg"></i></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-center py-5 px-2">
+        <div class="col col-12 col-md-10 col-lg-8 col-xl-6">
+          <h3 class="text-center">Cập nhật thông tin cá nhân</h3>
+          <form  class="px-4 mt-4" action="/changeInfor" method="POST">
+            <div class="row">
+              <div class="col">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="nameEdit" name="name" placeholder="Họ và tên" value="<%= user.lastName %> <%= user.firstName %>" required>
+                  <label for="nameEdit">Tên cán bộ</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-floating mb-3">
+                  <input type="date" class="form-control" id="birthEdit" name="birth" placeholder="Ngày sinh" value="<%= user.birth.toISOString().substring(0, 10) %>" required>
+                  <label for="birthEdit">Ngày sinh</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-floating mb-3">
+                  <input type="email" class="form-control" id="emailEdit" name="email" placeholder="Email" value="<%= user.email %>" required>
+                  <label for="emailEdit">Email</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">+84</span>
+                        <input id="phoneEdit" name="phone" type="tel" class="form-control" placeholder="Điện thoại" aria-label="Phone" aria-describedby="basic-addon1" value="<%= user.phone %>" required>
+                      </div>
+                </div>
+            </div>
+            <div class="row">
+              <button type="submit" class="btn btn-success col mx-2">Cập nhật</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main> 
+    <!-- Footer -->
+    <%- include("./partials/footer.ejs") %>
+    <script src="/javascript/toggleNavigation.js"></script>
+  </body>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"
+  ></script>
+</html>

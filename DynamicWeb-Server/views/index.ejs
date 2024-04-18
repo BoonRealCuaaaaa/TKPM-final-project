@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+
+    <!-- Font awesome -->
+    <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+
+    <!-- CSS -->    
+    <link rel="stylesheet" href="/css/So/style.css">
+    <link rel="stylesheet" href="/css/alert.css">
+
+
+    <style>
+      #form-container {
+        width: 360px;
+      }
+
+      #passwordInputContainer {
+        position: relative;
+      }
+
+      #forgotPasswordLink {
+        position: absolute;
+        right: 0;
+        top: 0;
+        color: #1361b5;
+        font-size: 0.8rem;
+        opacity: 0.9;
+      }
+
+      #passwordInputContainer .invalid-feedback {
+        position: relative;
+        width: 100%;
+
+      } 
+
+      @media only screen and (max-width: 380px) {
+        #form-container {
+          width: 100%;
+        }
+      }
+
+      .orLabel {
+        display: flex;
+        position: relative;
+      }
+      .orLabel span{
+        display: block;
+        width: 50%;
+        height: 1.5px;
+        background-color: rgb(53, 52, 52);
+      }
+
+      .orLabel div {
+        position: relative;
+        top: -13px;
+        font-size: 1.1rem;
+        width: max-content;
+        font-weight: 500;
+      }
+    </style>
+
+  </head>
+  <body class="bg-light-subtle">
+    <% if (resetPwMessage.length>0) {%>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <span><%=resetPwMessage[0] %></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+     <% } %>
+
+    <% if (message && message.flag === "socialLogin"){ %>
+      <div class="alert-container" id="create-alert-container">
+        <div class="alert alert-danger mb-0" role="alert" id="registerAlert">
+          <i class="fa-regular fa-circle-check fa-2xl"></i>
+          <span class="ms-3 fs-5"><%= message.content %></span>
+        </div>
+        <div class="progress progress-danger"></div>
+      </div>
+    <% } %>
+    <div class="container d-flex flex-column align-items-center mt-5">
+      <div class="row justify-content-center mb-3">
+        <img src="/images/logo.png" alt="Logo" style="width: 48px;" class="p-0" >
+      </div>
+      <div class="row justify-content-center mb-3 fw-semibold fs-3">
+        Đăng nhập vào hệ thống
+      </div>
+      <div id="form-container" class=" row rounded bg-body-secondary p-3">
+          <form action="/login" method="POST" class="px-0">
+            <fieldset>
+              <div class="mb-3 input-group has-validation">
+                <div class="is-invalid w-100">
+                  <label for="usernameOrEmail" class="form-lable mb-2">Username hoặc email</label>
+                  <input type="text" class="form-control <% if (message && message.flag === 'usernameOrEmail'){ %> is-invalid <% } %>" id="usernameOrEmail" name="usernameOrEmail" placeholder="" required autocomplete="true">  
+                </div>
+                <% if(message && message.flag === "usernameOrEmail") { %>
+                  <div class="invalid-feedback"> <%= message.content %></div>
+                <% } %>
+              </div>
+              
+              <div class="mb-3 input-group has-validation" id="passwordInputContainer">
+                <div class="is-invalid w-100">
+                  <label for="password" class="form-label mb-2">Mật khẩu</label>
+                  <input type="password" id="password" class="form-control <% if (message && message.flag === 'password'){ %> is-invalid <% } %>" name="password" placeholder="" required autocomplete="true">
+                </div>
+                <% if(message && message.flag === "password") { %>
+                  <div class="invalid-feedback"> <%= message.content %></div>
+                <% } %>
+                <a href="/forget-password" id="forgotPasswordLink">Quên mật khẩu?</a>
+              </div>
+              <input type="hidden" value="<%= nextUrl %>" name="nextUrl">
+            </fieldset>
+            <button type="submit" class="btn btn-success w-100" id="login-button">Đăng nhập</button>
+          </form>
+
+          <div class="mt-4 w-100 orLabel">
+            <span></span>
+            <div>Khác</div>
+            <span></span>
+          </div>
+
+          <% if (nextUrl === "") { %>
+          <a class="btn btn-outline-danger mt-0 px-3 py-2" href="/login/google">
+            <i class="fa-brands fa-google me-2"></i>
+            Đăng nhập với Google
+          </a>
+          <a class="btn btn-outline-primary mt-3 px-3 py-2" href="/login/facebook">
+            <i class="fa-brands fa-facebook-f me-2"></i>
+            Đăng nhập với Facebook
+          </a>
+          <% } else { %>
+            <a class="btn btn-outline-danger mt-0 px-3 py-2" href="/login/google?nextUrl=<%= nextUrl %>">
+              <i class="fa-brands fa-google me-2"></i>
+              Đăng nhập với Google
+            </a>
+            <a class="btn btn-outline-primary mt-3 px-3 py-2" href="/login/facebook?nextUrl=<%= nextUrl %>">
+              <i class="fa-brands fa-facebook-f me-2"></i>
+              Đăng nhập với Facebook
+            </a>
+          <% } %>
+      </div>
+
+      <div class="row mt-3" id="listOfAccounts">
+
+      </div>
+    </div> 
+
+    <script >
+      const users = [
+            {
+                username: "nhan",
+                email: "nhan@gmail.com",
+                password: "nhan123",
+                role: "SO"
+            },
+            {
+                username: "hoang",
+                email: "hoang@gmail.com",
+                password: "hoang123",
+                role: "QUAN"
+            },
+            {
+                username: "khiem",
+                email: "khiem@gmail.com",
+                password: "khiem123",
+                role: "PHUONG"
+            }
+        ];
+
+        users.forEach((user) => {
+          const divElement = document.createElement("div");
+          divElement.className = "card p-4 col-12 col-sm me-2";
+          divElement.innerHTML = `
+            <h4 class="card-title">Tài khoản cấp ${user.role}</h4>
+            <p><b>Username:</b> ${user.username} </p>
+            <p class="card-text"><b>Email:</b> ${user.email} </p>
+            <p class="card-text"><b>Password:</b> ${user.password} </p>
+          `;
+          document.getElementById("listOfAccounts").appendChild(divElement);
+        });
+    </script>
+    
+
+  </body>
+
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"></script>
+</html>

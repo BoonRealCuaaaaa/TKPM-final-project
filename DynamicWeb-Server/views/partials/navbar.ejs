@@ -1,0 +1,55 @@
+<% if (user.type !== 'So') { %>
+    <nav class="sidenavbar navbar-expand d-flex flex-column align-item-start" id="sidebar">
+        <ul class="navbar-nav d-flex flex-column w-100 ">
+        <li class="nav-item w-100 d-flex flex-row align-items-center active my-1 " id="homeTab">
+            <img src="/images/Folder.png" alt="" class="img-fluid mx-2 ">
+            <a href="/<%= accountType %>/home" class="nav-link sidenav-link active">Trang chủ</a>
+        </li>
+        <li class="nav-item w-100 d-flex flex-row align-items-center my-1" id="adsplacementTab">
+            <img src="/images/signboard.png" alt="" class="img-fluid mx-2">
+            <a href="/<%= accountType %>/list-adsplacements" class="nav-link sidenav-link ">Danh sách điểm đặt quảng cáo</a>
+        </li>
+        <li class="nav-item w-100 d-flex flex-row align-items-center my-1">
+            <img src="/images/acceptReports.png" alt="" class="img-fluid mx-2">
+            <a href="/<%= accountType %>/list-boards" class="nav-link sidenav-link"> Danh sách bảng quảng cáo</a>
+        </li>
+        <li class="nav-item w-100 d-flex flex-row align-items-center my-1">
+            <img src="/images/acceptReports.png" alt="" class="img-fluid mx-2">
+            <a href="/<%= accountType %>/my-requests" class="nav-link sidenav-link ">Yêu cầu của tôi</a>
+        </li>
+        <li class="nav-item w-100 d-flex flex-row align-items-center my-1">
+            <img src="/images/report.png" alt="" class="img-fluid mx-2">
+            <a href="/<%= accountType %>/list-reports" class="nav-link sidenav-link ">Xử lý báo cáo</a>
+        </li>
+        </ul>
+    </nav>
+<% } else { %>
+    <nav class="sidenavbar navbar-expand d-flex flex-column align-item-start" id="sidebar">
+        <ul class="navbar-nav d-flex flex-column w-100 ">
+          <li class="nav-item w-100 d-flex flex-row align-items-center my-1 ">
+            <img src="/images/Folder.png" alt="" class="img-fluid mx-2 ">
+            <a href="/department/accountManagement" class="nav-link sidenav-link">Quản lý tài khoản</a>
+          </li>
+          <li class="nav-item w-100 d-flex flex-row align-items-center my-1">
+            <img src="/images/signboard.png" alt="" class="img-fluid mx-2">
+            <a href="./adplaceManagement" class="nav-link sidenav-link "> Danh sách điểm đặt quảng cáo</a>
+          </li>
+          <li class="nav-item w-100 d-flex flex-row align-items-center my-1">
+            <img src="/images/acceptReports.png" alt="" class="img-fluid mx-2">
+            <a href="/department/viewAdsRequest" class="nav-link sidenav-link ">Xét duyệt yêu cầu đặt quảng cáo</a>
+          </li>
+          <li class="nav-item w-100 d-flex flex-row align-items-center my-1">
+            <img src="/images/report.png" alt="" class="img-fluid mx-2">
+            <a href="/department/viewReport" class="nav-link sidenav-link ">Thống kê báo cáo</a>
+          </li>
+          <li class="nav-item w-100 d-flex flex-row align-items-center my-1">
+            <img src="/images/edit.png" alt="" class="img-fluid mx-2">
+            <a href="./xet-duyet-yeu-cau-chinh-sua.html" class="nav-link sidenav-link "> Xét duyệt yêu cầu chỉnh sửa</a>
+          </li>
+          <li class="nav-item w-100 d-flex flex-row align-items-center my-1">
+            <img src="/images/update.png" alt="" class="img-fluid mx-2">
+            <a href="./xem-lai-yeu-cau-chinh-sua.html" class="nav-link sidenav-link ">Xem lại yêu cầu chỉnh sửa</a>
+          </li>
+        </ul>
+    </nav>      
+<% } %>

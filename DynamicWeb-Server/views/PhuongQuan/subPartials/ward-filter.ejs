@@ -1,0 +1,16 @@
+<div class="container-fluid w-30">
+    <form action=""  >
+      <div class="row align-items-center gx-1">
+        <div class="col-2">
+          <div class="input-group input-group-sm ">
+            <span class="input-group-text" id="inputGroup-sizing-sm">Phường xử lý</span>
+            <select class="selectpicker" id="selectedArea" name="selectedArea" onchange="this.form.submit()"  multiple style="z-index: 100" data-selected-text-format="count" data-count-selected-text="{0} phường được chọn" data-actions-box="true">
+                <% myArea.forEach(area => { %>
+                  <option value="<%= area.id %>"><%= area.ward %></option>
+                <% }); %>
+            </select>
+          </div>            
+        </div>
+      </div>
+    </form>
+  </div>

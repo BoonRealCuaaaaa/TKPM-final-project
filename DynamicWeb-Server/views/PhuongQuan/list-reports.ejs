@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title><%= role %> | <%= tab %></title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css"
+    integrity="sha512-mR/b5Y7FRsKqrYZou7uysnOdCIJib/7r5QeJMFvLNHNhtye3xJp1TdJVPLtetkukFn227nKpXD9OjUc09lx97Q=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+    <!-- Font awesome -->
+    <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/So/style.css">
+    <link rel="stylesheet" href="/css/So/table.css">
+    <link rel="stylesheet" href="/css/PhuongQuan/toggleNavigation.css">
+
+    <!-- DataTable -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+  </head>
+
+  <body>
+  <%- include("../partials/header.ejs") %>
+  <!-- Navbar content -->
+  <%- include("./subPartials/navbar.ejs") %>
+  <!-- Main content -->
+  <main class="dynamic-container">
+    <!--Ward sorting area  -->
+    <% if (user.type == 'Quan') { %>
+      <%- include("./subPartials/ward-filter.ejs") %> 
+    <% } %>
+    <div class="container-fluid pt-4 pe-4 text-left ">
+        <div class="row justify-content-center table-responsive">
+            <div class="container row bg-secondary text-white ">
+                <div class="col text-center">
+                    <p class="fs-2 text-center py-2 m-0">
+                        Báo cáo Điểm đặt QC / Bảng QC
+                    </p> 
+            </div>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Thời gian gửi</th>
+                    <th scope="col">Tên người gửi</th>
+                    <th scope="col">Địa điểm</th>
+                    <th scope="col">Loại hình báo cáo</th>
+                    <th scope="col">Tình trạng</th>
+                    <th scope="col">Chức năng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% reports.forEach(report => { %>
+                    <tr>
+                      <td><%= report.id %></td>
+                      <td><%= report.createdAt.toLocaleString() %></td>
+                      <td><%= report.name %></td>
+                      <td><%= report.AdsPlacement.address %></td>
+                      <td><%= report.ReportType.type %></td>
+                      <td><%= report.status %></td>
+                      <td>
+                          <a href="list-reports/<%= report.id %>">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                          </a>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+        </div>
+    </div>
+    <div class="container-fluid pt-4 pe-4 text-left ">
+      <div class="row justify-content-center table-responsive">
+          <div class="container row bg-secondary text-white ">
+              <div class="col text-center">
+                  <p class="fs-2 text-center py-2 m-0">
+                      Báo cáo Địa điểm
+                  </p> 
+          </div>
+          </div>
+          <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Thời gian gửi</th>
+                  <th scope="col">Tên người gửi</th>
+                  <th scope="col">Địa điểm</th>
+                  <th scope="col">Loại hình báo cáo</th>
+                  <th scope="col">Tình trạng</th>
+                  <th scope="col">Chức năng</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% locationReports.forEach(report => { %>
+                  <tr>
+                    <td><%= report.id %></td>
+                    <td><%= report.createdAt.toLocaleString() %></td>
+                    <td><%= report.name %></td>
+                    <td><%= report.address %></td>
+                    <td><%= report.ReportType.type %></td>
+                    <td><%= report.status %></td>
+                    <td>
+                        <a href="list-reports/location-report/<%= report.id %>">
+                          <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+      </div>
+  </div>
+  </main> 
+  <!-- Footer -->
+  <%- include("../partials/footer.ejs") %>
+
+  <!-- Modals -->
+  </body>
+
+  <!-- DataTable -->
+  <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js"
+    integrity="sha512-FHZVRMUW9FsXobt+ONiix6Z0tIkxvQfxtCSirkKc5Sb4TKHmqq1dZa8DphF0XqKb3ldLu/wgMa8mT6uXiLlRlw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+  <script src="/javascript/PhuongQuan/table.js"></script>
+  <script src="/javascript/PhuongQuan/ward-filter.js"></script>
+  <script src="/javascript/toggleNavigation.js"></script>
+
+</html>

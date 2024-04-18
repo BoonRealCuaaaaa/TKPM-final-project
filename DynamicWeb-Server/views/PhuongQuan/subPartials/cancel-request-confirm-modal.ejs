@@ -1,0 +1,21 @@
+<div class="modal" tabindex="-1" id="cancelRequestConfirmModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Xác nhận huỷ yêu cầu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Bạn có chắc muốn huỷ yêu cầu <span id="tableName"></span> có ID là <span id="requestId"></span> không?</p>
+        </div>
+        <div class="modal-footer">
+          <form action="/<%= accountType %>/my-requests/" method="POST" class="justify-content-center">
+            <input type="hidden" name="tableName" id="tableName123"/>
+            <input type="hidden" name="requestId" id="requestId123"/>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+            <button type="submit" class="btn btn-success">Có</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

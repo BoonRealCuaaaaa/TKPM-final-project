@@ -1,0 +1,13 @@
+----------------------------------------MYSQL----------------------------------------
+mysql -u username -p; : Chạy mysql trên terminal
+show databases; : Hiển thị toàn bộ database đang có
+show tables; : Hiển thị toàn bộ tables trong database;
+show fields from table; = describe table; : Hiển thị thông tin các trường trong table;
+
+----------------------------------------Sequelize-cli----------------------------------------
+npx sequelize db:drop - Xóa database 
+npx sequelize db:create - Tạo databse
+npx sequelize db:migrate - Tạo toàn bộ tables được lưu trong các file trong folder migratation
+npx sequelize db:seed:all - Tạo toàn bộ thông tin đang được lưu trong các file trong folder seeder
+sequelize db:seed --seed my_seeder_file.js: Tạo thông tin đang được lưu trong file my_seeder_file.js trong 
+folder seeder

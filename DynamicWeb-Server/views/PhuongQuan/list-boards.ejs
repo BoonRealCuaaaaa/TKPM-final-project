@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title><%= role %> | <%= tab %></title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css"
+    integrity="sha512-mR/b5Y7FRsKqrYZou7uysnOdCIJib/7r5QeJMFvLNHNhtye3xJp1TdJVPLtetkukFn227nKpXD9OjUc09lx97Q=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+    <!-- Font awesome -->
+    <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/So/style.css">
+    <link rel="stylesheet" href="/css/So/table.css">
+    <link rel="stylesheet" href="/css/PhuongQuan/toggleNavigation.css">
+
+    <!-- DataTable -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+  </head>
+
+  <body>
+  <%- include("../partials/header.ejs") %>
+  <!-- Navbar content -->
+  <%- include("./subPartials/navbar.ejs") %> 
+  <!-- Main content -->
+  <main class="dynamic-container">
+    <!--Ward sorting area  -->
+    <% if (user.type == 'Quan') { %>
+      <%- include("./subPartials/ward-filter.ejs") %> 
+    <% } %>
+    <!-- Danh sách bảng quảng cáo -->
+    <div class="container-fluid pt-4 pe-4 text-left">
+      <div class="row justify-content-center table-responsive">
+        <div class="container row bg-secondary text-white">
+          <div class="col text-center">
+            <p class="fs-2 text-center py-2 m-0">Danh sách bảng quảng cáo</p>
+          </div>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">ID Điểm đặt</th>
+              <th scope="col">ID Bảng QC</th>
+              <th scope="col">Kích thước</th>
+              <th scope="col">Số lượng</th>
+              <th scope="col">Loại bảng</th>
+              <th scope="col">Tình trạng</th>
+              <th>Chức năng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% permitedBoards.forEach(board => { %>
+              <tr>
+                <td><%= board.AdsPlacementId %></td>
+                <td><%= board.id %></td>
+                <td><%= board.size %></td>
+                <td><%= board.quantity %></td>
+                <td><%= board.BoardType.type %></td>
+                <td><%= board.PermitRequest.status %></td>
+                <td>
+                  <a href="" data-bs-toggle="modal" data-bs-target="#viewPermitRequestModal" onclick="showPermitRequestDetails(this)" data-permit-request-id="<%= board.PermitRequest.id %>" data-board-id="<%= board.id %>" data-company-name="<%= board.PermitRequest.Company.name %>" data-phone="<%= board.PermitRequest.Company.phone %>" data-address="<%= board.PermitRequest.Company.address %>" data-email="<%= board.PermitRequest.Company.email %>" data-start-date="<%= board.PermitRequest.start.toISOString().substring(0, 10) %>" data-end-date="<%= board.PermitRequest.end.toISOString().substring(0, 10) %>" data-img="/<%= board.PermitRequest.image %>" data-content="<%= board.PermitRequest.content %>">
+                    <i class="fa-solid fa-file"></i>
+                  </a>
+                  <a href="" data-bs-toggle="modal" data-bs-target="#boardChange" onclick="showEditBoardModal(this)" data-id="<%= board.id %>" data-size="<%= board.size %>" data-quantity="<%= board.quantity %>" data-type="<%= board.BoardTypeId %>">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </a>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Danh sách bảng trống -->
+    <div class="container-fluid pt-4 pe-4 text-left">
+      <div class="row justify-content-center table-responsive">
+        <div class="container row bg-secondary text-white">
+          <div class="col text-center">
+            <p class="fs-2 text-center py-2 m-0">Danh sách bảng quảng cáo trống</p>
+          </div>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">ID Điểm đặt</th>
+              <th scope="col">ID Bảng QC</th>
+              <th scope="col">Kích thước</th>
+              <th scope="col">Số lượng</th>
+              <th scope="col">Loại bảng</th>
+              <th>Chức năng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% emptyBoards.forEach(board => { %>
+              <tr>
+                <td><%= board.AdsPlacementId %></td>
+                <td><%= board.id %></td>
+                <td><%= board.size %></td>
+                <td><%= board.quantity %></td>
+                <td><%= board.BoardType.type %></td>
+                <td>
+                  <a href="" data-bs-toggle="modal" data-bs-target="#permitRequestModal" data-id="<%= board.id %>"  onclick="showAddPermitRequestModal('#permitRequestForm', this)">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                  </a>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <!-- Footer -->
+  <%- include("../partials/footer.ejs") %>
+
+  <!-- Modals -->
+  <%- include("./subPartials/form-change-board-details.ejs") %>
+  <%- include("./subPartials/form-add-permit-request.ejs") %>
+  <%- include("./subPartials/view-permit-request.ejs") %>
+  <% if (message) { %> <%- include("./subPartials/message-modal.ejs") %> <% }; %>
+  </body>
+
+  <!-- DataTable -->
+  <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"
+  ></script>
+  <script src="/javascript/PhuongQuan/table.js"></script>
+  <script src="/javascript/toggleNavigation.js"></script>
+  <script src="/javascript/PhuongQuan/list-boards.js"></script>
+  <script src="/javascript/PhuongQuan/permit-request.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js"
+    integrity="sha512-FHZVRMUW9FsXobt+ONiix6Z0tIkxvQfxtCSirkKc5Sb4TKHmqq1dZa8DphF0XqKb3ldLu/wgMa8mT6uXiLlRlw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+  <script src="/javascript/PhuongQuan/ward-filter.js"></script>
+</html>

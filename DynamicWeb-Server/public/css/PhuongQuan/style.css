@@ -1,0 +1,176 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    min-height: 100vh;
+    background-color: #fff;
+  }
+  main {
+    margin-top: 4.5rem;
+    padding-top: 1rem;
+    min-height: 80vh;
+    margin-left: 6rem;
+    margin-right: 6rem;
+  }
+  .sidenavbar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    margin-left: -300px;
+    background-color: #ffffff;
+    transition: 0.4s;
+    border-right: 2px solid black;
+  }
+  
+  .sidenav-link {
+    font-size: 1.25em;
+  }
+  
+  .sidenav-link:active,
+  .sidenav-link:focus,
+  .sidenav-link:hover {
+    background-color: #ffffff26;
+  }
+  
+  .sidedropdown-menu {
+    background-color: #ffffff;
+  }
+  
+  .sidedropdown-item:active,
+  .sidedropdown-item:focus,
+  .sidedropdown-item:hover {
+    background-color: #ffffff26;
+  }
+  
+  .dynamic-container {
+    transition: 0.4s;
+  }
+  .navbar-btn {
+    font-size: 1.25rem;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.55);
+    background-color: transparent;
+  }
+  
+  /* for sidenavbar */
+  
+  .active-sidenav {
+    margin-left: 0;
+  }
+  
+  /* for main section */
+  
+  .active-cont {
+    margin-left: 250px !important;
+  }
+  
+  @media (max-width: 768px) {
+    .brand {
+      display: none;
+    }
+  }
+  
+  #menu-btn:focus {
+    box-shadow: 0 0 0 0.25rem #7952b344;
+  }
+  
+  .nav-item.active {
+    background-color: rgb(0, 195, 255);
+  }
+  
+  .nav-item img {
+    width: 37px;
+    height: 37px;
+  }
+  
+  .map-container{
+      position:relative;
+      margin-left:0;
+      margin-right:0;
+  }
+  
+  header nav {
+    height: 4rem;
+    z-index: 10;
+  }
+  
+  main {
+    height: calc(100vh - 4rem);
+    overflow: hidden;
+  }
+  #mapbox{
+    position:absolute;
+    width:100%;
+    height:100%;
+  }
+  #map-control-buttons {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+  
+  #map-view-button {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    overflow: visible;
+  }
+
+  #map-filter-button{
+    position: absolute;
+    bottom: 16px;
+    left: 3.5rem;
+    overflow: visible;
+  }
+  
+  #map-view-button button {
+    border-radius: 8px;
+  }
+  
+  #map-details {
+    overflow-y: scroll;
+  }
+  
+  .btn-map {
+    opacity: 90%;
+  }
+  
+  .btn-black-outline {
+    border-radius: 8px;
+    border: 2px solid rgba(34, 34, 34, 0.1);
+    overflow: hidden;
+  }
+  
+  .details-info {
+    font-weight: bold;
+  }
+  
+  .btn-icon {
+    border: none;
+    width: 32px;
+    height: 32px;
+    background-color: white;
+  }
+  
+  #map-api {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+  }
+  
+  .mapboxgl-ctrl-logo {
+    display: none !important;
+  }
+  
+  div.dataTables_length {
+    display: none;
+  }
+  
+  a.nav-link.active {
+    color: #0D6EFD !important;
+    border-bottom: 3px solid #0D6EFD;
+  }

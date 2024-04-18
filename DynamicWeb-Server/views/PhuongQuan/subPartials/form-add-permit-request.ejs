@@ -1,0 +1,152 @@
+<!-- Permission form with half info -->
+<div
+class="modal fade"
+id="permitRequestModal"
+aria-hidden="true"
+aria-labelledby="permissionReport-half"
+tabindex="-1"
+>
+<div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="container d-flex flex-column align-items-center">
+        <h1 class="modal-title fs-5" id="permissionReport-half">
+          Yêu cầu cấp phép quảng cáo
+        </h1>
+        <p class="modal-title">Bước 1/1</p>
+      </div>
+      <div class="align-self-start">
+        <button
+          type="button align-self-start"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <!-- Body 1 -->
+      <form action="/<%= accountType %>/home" method="POST" id="permitRequestForm" enctype="multipart/form-data">
+        <input type="hidden" name="boardId" id="boardIdEdit"/>
+        <input type="hidden" name="companyId" id="companyIdEdit"/>
+        <!-- First row -->
+        <div class="row">
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                class="form-control"
+                id="companyNameEdit"
+                name="companyName"
+                list="datalistOptions"
+                oninput="updateCompanyInfo(event, '#permitRequestForm')"
+                required
+              />
+              <datalist id="datalistOptions">
+                <% companies.forEach(company => { %>
+                  <option value="<%= company.name %>" data-id="<%= company.id %>" data-phone="<%= company.phone %>" data-email="<%= company.email %>" data-address="<%= company.address %>"><%= company.address %></option>
+                <% }); %>
+              </datalist>
+              <label for="companyNameEdit"
+                >Tên công ty đăng ký quảng cáo</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="email"
+                class="form-control"
+                id="emailEdit"
+                name="email"
+                placeholder="name@example.com"
+                required
+              />
+              <label for="emailEdit">Email</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">+84</span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Số điện thoại"
+                id="phoneEdit"
+                name="phone"
+                required
+              />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Địa chỉ"
+                id="addressEdit"
+                name="address"
+                required
+              />
+              <label for="addressEdit">Địa chỉ</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="date"
+                class="form-control"
+                id="startDateEdit"
+                name="startDate"
+                placeholder="Từ"
+                required
+              />
+              <label for="startDateEdit">Ngày bắt đầu hợp đồng</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-floating mb-3">
+              <input
+                type="date"
+                class="form-control"
+                id="endDateEdit"
+                name="endDate"
+                placeholder="Đến"
+                required
+              />
+              <label for="endDateEdit">Ngày kết thúc hợp đồng</label>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col">
+            <div class="form-floating">
+              <textarea
+                class="form-control"
+                placeholder="Leave a comment here"
+                id="contentEdit"
+                name="content"
+                style="height: 100px" required
+              ></textarea>
+              <label for="content">Nội dung quảng cáo</label>
+            </div>
+            <div class="mb-3">
+              <label for="imageEdit" class="form-label">Hình ảnh</label>
+              <input class="form-control" type="file" id="imageEdit" name="img" accept="image/*" required/>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success container-fluid">
+          Gửi yêu cầu
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+</div>

@@ -1,0 +1,281 @@
+const boardRequests = [
+    {
+        id: 1,
+        size: "20m x 25m",
+        quantity: "1 trụ/bảng",
+        boardTypeId: 2, 
+        boardId:  3,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 2,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 08:33:51",
+        createdAt:"2024-01-06 08:33:51" 
+    }, {
+        id: 2,
+        size: "75m x 75m",
+        quantity: "7 trụ/bảng",
+        boardTypeId: 3, 
+        boardId:  4,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 2,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 08:41:13",
+        createdAt:"2024-01-06 08:41:13" 
+    }, {
+        id: 3,
+        size: "30m x 30m",
+        quantity: "5 trụ/bảng",
+        boardTypeId: 2, 
+        boardId:  5,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 2,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 08:42:42",
+        createdAt:"2024-01-06 08:42:42" 
+    }, {
+        id: 4,
+        size: "45m x 45m",
+        quantity: "9 trụ/bảng",
+        boardTypeId: 2, 
+        boardId:  6,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 2,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 08:42:42",
+        createdAt:"2024-01-06 08:42:42" 
+    }, {
+        id: 5,
+        size: "5m x 25m",
+        quantity: "20 trụ/bảng",
+        boardTypeId: 1, 
+        boardId:  7,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 2,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 08:42:42",
+        createdAt:"2024-01-06 08:42:42" 
+    }, {
+        id: 6,
+        size: "50m x 250m",
+        quantity: "20 trụ/bảng",
+        boardTypeId: 3, 
+        boardId:  7,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 2,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:08:18",
+        createdAt:"2024-01-06 09:08:18" 
+    }, {
+        id: 7,
+        size: "80m x 80m",
+        quantity: "20 trụ/bảng",
+        boardTypeId: 3, 
+        boardId:  11,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 2,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:08:18",
+        createdAt:"2024-01-06 09:08:18" 
+    }, {
+        id: 8,
+        size: "80m x 80m",
+        quantity: "20 trụ/bảng",
+        boardTypeId: 3, 
+        boardId:  11,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 2,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:08:18",
+        createdAt:"2024-01-06 09:08:18" 
+    }, {
+        id: 9,
+        size: "4m x 4m",
+        quantity: "10 trụ/bảng",
+        boardTypeId: 2, 
+        boardId:  13,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 2,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:08:18",
+        createdAt:"2024-01-06 09:08:18" 
+    }, {
+        id: 10,
+        size: "180m x 350m",
+        quantity: "20 trụ/bảng",
+        boardTypeId: 3, 
+        boardId:  44,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 11,
+        size: "310m x 200m",
+        quantity: "10 trụ/bảng",
+        boardTypeId: 1, 
+        boardId:  51,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 12,
+        size: "310m x 200m",
+        quantity: "10 trụ/bảng",
+        boardTypeId: 1, 
+        boardId:  45,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 13,
+        size: "190m x 280m",
+        quantity: "20 trụ/bảng",
+        boardTypeId: 2, 
+        boardId:  52,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 14,
+        size: "340m x 160m",
+        quantity: "30 trụ/bảng",
+        boardTypeId: 3, 
+        boardId:  53,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 15,
+        size: "260m x 320m",
+        quantity: "10 trụ/bảng",
+        boardTypeId: 1, 
+        boardId:  54,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 16,
+        size: "220m x 290m",
+        quantity: "30 trụ/bảng",
+        boardTypeId: 3, 
+        boardId:  57,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 17,
+        size: "140m x 200m",
+        quantity: "10 trụ/bảng",
+        boardTypeId: 1, 
+        boardId:  62,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 18,
+        size: "300m x 300m",
+        quantity: "30 trụ/bảng",
+        boardTypeId: 3, 
+        boardId:  60,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 19,
+        size: "200m x 450m",
+        quantity: "1 trụ/bảng",
+        boardTypeId: 1, 
+        boardId:  68,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 20,
+        size: "440m x 300m",
+        quantity: "10 trụ/bảng",
+        boardTypeId: 1, 
+        boardId:  65,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:16:03",
+        createdAt:"2024-01-06 09:16:03" 
+    }, {
+        id: 21,
+        size: "330m x 170m",
+        quantity: "10 trụ/bảng",
+        boardTypeId: 1, 
+        boardId:  45,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 3,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:26:35",
+        createdAt:"2024-01-06 09:26:35" 
+    }, {
+        id: 22,
+        size: "140m x 460m",
+        quantity: "30 trụ/bảng",
+        boardTypeId: 1, 
+        boardId:  79,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 4,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:26:35",
+        createdAt:"2024-01-06 09:26:35" 
+    }, {
+        id: 23,
+        size: "190m x 280m",
+        quantity: "20 trụ/bảng",
+        boardTypeId: 1, 
+        boardId: 52,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 3,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:26:35",
+        createdAt:"2024-01-06 09:26:35" 
+    }, {
+        id: 24,
+        size: "210m x 300m",
+        quantity: "10 trụ/bảng",
+        boardTypeId: 1, 
+        boardId: 48,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 3,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:26:35",
+        createdAt:"2024-01-06 09:26:35" 
+    }, {
+        id: 25,
+        size: "220m x 290m",
+        quantity: "30 trụ/bảng",
+        boardTypeId: 2, 
+        boardId: 57,
+        reason: "Theo yêu cầu của khách hàng đặt quảng cáo",
+        accountId: 3,
+        requestStatus: "Chờ phê duyệt",
+        updatedAt:"2024-01-06 09:26:35",
+        createdAt:"2024-01-06 09:26:35" 
+    }, 
+    
+];
+
+module.exports = {boardRequests};

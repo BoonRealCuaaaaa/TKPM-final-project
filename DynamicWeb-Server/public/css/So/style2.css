@@ -1,0 +1,452 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #fff;
+}
+main {
+  margin-top: 4.5rem;
+  /* margin-bottom: 4.5rem; */
+  min-height: 80vh;
+}
+.sidenavbar {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  margin-left: -300px;
+  background-color: #ffffff;
+  transition: 0.4s;
+  border-right: 2px solid black;
+  z-index: 100;
+}
+
+#location-details {
+  width: 300px;
+  height: 100vh;
+  background-color: #ffffff;
+  transition: 0.4s;
+  border-right: 2px solid black;
+  z-index: 0;
+}
+
+.container-fluid {
+  transition: 0.4s;
+}
+
+/* for sidenavbar */
+#menu-btn:focus {
+  box-shadow: 0 0 0 0.25rem #7952b344;
+}
+
+.col {
+  margin-top: 10px;
+}
+
+.dropdown-menu {
+  columns: 2;
+}
+
+.dropdown .btn {
+  border-radius: 30px;
+  gap: 10px;
+  background: #ededfe;
+  color: #3e4958;
+  text-align: center;
+  font-family: Roboto;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 149.8%;
+  border: none;
+}
+
+#filter {
+  font-weight: normal; /* Loại bỏ in đậm */
+}
+
+#filter .badge {
+  font-size: 1rem; /* Đặt kích thước chữ bằng 1rem */
+}
+
+.dropdown-menu,
+.badge {
+  color: #fff; /* Màu chữ trắng */
+  padding: 10px; /* Cân chỉnh khoảng cách bên trong */
+  border-radius: 5px; /* Đường viền bo tròn */
+  width: auto; /* Đặt độ rộng tự động để lấy phần text */
+  text-align: center; /* Căn giữa nội dung */
+}
+
+#filter {
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: row;
+}
+
+.dropdown {
+  margin-left: 10px;
+}
+
+.property-card {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  box-shadow: 0 0.4rem 1.5rem rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border-radius: 2rem;
+  height: fit-content;
+  width: fit-content;
+}
+
+.add-button,
+.all {
+  height: fit-content;
+}
+/* 
+.property-details {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  margin-right: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 30px;
+} */
+
+.property-address {
+  font-size: 18px;
+  color: #3e4958;
+  font-family: Roboto, "Source Sans Pro";
+  font-weight: bold;
+}
+
+.property-info-labels {
+  width: calc(100% - 1.1rem);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.property-info-item {
+  display: flex;
+  align-items: center;
+}
+
+.property-info-item .info-value {
+  margin-left: 10px;
+}
+
+.property-actions {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.edit-button {
+  order: 1; /* Đặt edit button ở bên trái */
+}
+
+.delete-button {
+  order: 2; /* Đặt delete button ở bên phải */
+  margin-right: 10px;
+}
+
+.property-actions img {
+  width: 35px; /* Adjust the width as needed */
+  height: auto; /* This maintains the aspect ratio */
+}
+
+.delete-button {
+  margin-right: 50px;
+}
+
+.edit-button {
+  margin-left: 10px;
+}
+
+#mapbox {
+  width: 100%; /* Sử dụng chiều rộng 100% của phần tử cha */
+  margin-bottom: 10px;
+  position: sticky;
+  top: 0;
+}
+
+#mapbox_modal {
+  width: 100%; /* Sử dụng chiều rộng 100% của phần tử cha */
+  height: 600px; /* Sử dụng chiều cao 100% của phần tử cha */
+  border-radius: 2rem;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.property-card.clicked {
+  background-color: #defcd7; /* Màu nền khi được click */
+}
+
+#location-details {
+  display: none;
+}
+
+#green-button {
+  position: absolute;
+  left: 10px;
+}
+
+.active-location-details #mapbox {
+  height: 100%;
+  border-radius: 2rem;
+  margin-bottom: 10px;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  margin: 100px; /* Khoảng cách đều ở cả hai bên */
+}
+
+.row {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.property-card {
+  border: none;
+}
+
+.location-actions {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  border-radius: 8px;
+  background: #ddfff2;
+}
+
+.edit-location-button {
+  order: 1; /* Đặt edit button ở bên trái */
+  height: 35px;
+  width: auto;
+  margin: 10px;
+}
+
+.delete-location-button {
+  order: 2; /* Đặt delete button ở bên phải */
+  height: 35px;
+  width: auto;
+  margin: 10px;
+}
+
+#contract-button {
+  height: 40px;
+  align-items: flex-start;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 32px;
+  border: none;
+  background: var(--Blue, #2c82ef);
+  color: var(--Absolute-white, #fff);
+  text-align: center;
+  /* Button Text */
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin-bottom: 10px;
+}
+
+#modal-header {
+  height: 100px !important;
+}
+
+#modal-header {
+  height: 60px; /* Set your desired height */
+}
+
+#modal-header h1 {
+  margin-top: 10px; /* Adjust top margin if needed */
+}
+
+#submit {
+  margin-top: 30px;
+}
+
+.btn-success {
+  border: none;
+}
+
+.div {
+  z-index: 0;
+}
+
+/* New */
+#content {
+  display: grid;
+  grid-template-columns: 1fr; /* 50%, 50% */
+  column-gap: 1rem;
+  padding: 0px 1rem;
+  transition: 0.4s;
+  position: relative;
+  margin-top: 0;
+  z-index: 0;
+  height: 92vh;
+  max-height: 1000px;
+  min-height: 700px;
+}
+
+#adplacement-container {
+  position: absolute;
+  height: 65vh;
+  width: 100%;
+  z-index: 11;
+  left: 0;
+  bottom: 0;
+  padding: 1rem 1.25rem !important;
+  background-color: #fff;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  overflow: auto;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  transition: height 500ms linear;
+  max-height: inherit;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#adplacement-container::-webkit-scrollbar {
+  display: none;
+}
+
+.card-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1.2rem;
+  height: 65%;
+  overflow: auto;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  margin-top: 1.2rem;
+  background-color: transparent;
+  border-radius: 2rem;
+  /* border: 1px solid rgb(176, 172, 172); */
+  /* scroll-snap-type: y mandatory; */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.card-container::-webkit-scrollbar {
+  display: none;
+}
+
+.property-card {
+  width: 100%;
+  padding: 0.5rem 1rem !important;
+  margin: 0;
+  border: 1px solid gainsboro;
+}
+
+#mapbox {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-height: inherit;
+}
+
+#mapbox canvas {
+  height: 100% !important;
+}
+
+#filter {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: max-content 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.add-button {
+  grid-column: 2 / -1;
+}
+
+#district-dropdown {
+  grid-column: 2 / -1;
+  grid-row-start: 2;
+}
+#ward-dropdown {
+  grid-column: 1 / -1;
+  grid-row-start: 3;
+}
+
+.mapboxgl-ctrl-top-right {
+  right: 20px !important;
+}
+
+@media only screen and (min-width: 576px) {
+  .card-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  body {
+    overflow: auto;
+  }
+
+  #content {
+    grid-template-columns: 45% 55%; /* 50%, 50% */
+    padding-left: 1rem;
+    padding-right: 1rem;
+    justify-items: center;
+    column-gap: 0px;
+    margin-bottom: 2rem;
+    height: auto;
+    /* max-height: 1600px; */
+    /* overflow: hidden; */
+  }
+
+  #mapbox,
+  #adplacement-container {
+    grid-row-start: 1;
+    height: 100%;
+  }
+  #adplacement-container {
+    position: static;
+  }
+
+  #mapbox {
+    grid-column-start: 2;
+    width: 96%;
+    border-radius: 2rem;
+  }
+
+  #adplacement-container {
+    grid-column-start: 1;
+    border-radius: 1rem;
+    width: 92%;
+  }
+
+  .card-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media only screen and (min-width: 992px) {
+  #content {
+    grid-template-columns: 40% 60%;
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  #content {
+    grid-template-columns: 30% 70%;
+  }
+}

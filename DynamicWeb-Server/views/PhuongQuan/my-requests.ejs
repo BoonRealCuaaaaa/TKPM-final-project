@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title><%= role %> | <%= tab %></title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+
+    <!-- Font awesome -->
+    <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/So/style.css">
+    <link rel="stylesheet" href="/css/So/table.css">
+    <link rel="stylesheet" href="/css/PhuongQuan/toggleNavigation.css">
+
+    <!-- DataTable -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+  </head>
+
+  <body>
+  <%- include("../partials/header.ejs") %>
+  <!-- Navbar content -->
+  <%- include("./subPartials/navbar.ejs") %> 
+  <!-- Main content -->
+  <main class="dynamic-container">
+    <!-- Danh sách thay đổi thông tin điểm đặt QC chờ duyệt -->
+    <div class="container-fluid pt-4 pe-4 text-left">
+      <div class="row justify-content-center table-responsive">
+        <div class="container row bg-secondary text-white">
+          <div class="col text-center">
+            <p class="fs-2 text-center py-2 m-0">Yêu cầu thay đổi thông tin điểm đặt</p>
+          </div>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">ID Điểm đặt</th>
+              <th scope="col">Địa chỉ mới</th>
+              <th scope="col">Hình thức quảng cáo mới</th>
+              <th scope="col">Loại vị trí mới</th>
+              <th scope="col">Thông tin quy hoạch mới</th>
+              <th scope="col">Lý do chỉnh sửa</th>
+              <th scope="col">Ngày tạo</th>
+              <th scope="col">Tình trạng</th>
+              <th>Chức năng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% adsplacementRequests.forEach(request => { %>
+              <tr>
+                <td><%= request.id %></td>
+                <td><%= request.AdsPlacementId %></td>
+                <td><%= request.address %></td>
+                <td><%= request.AdsType.type %></td>
+                <td><%= request.LocationType.locationType %></td>
+                <td><%= request.status %></td>
+                <td><%= request.reason %></td>
+                <td><%= request.createdAt.toLocaleString() %></td>
+                <td><%= request.requestStatus %></td>
+                <td>
+                  <% if (request.requestStatus == "Chờ phê duyệt") { %>
+                    <a href="" data-bs-toggle="modal" data-bs-target="#cancelRequestConfirmModal" onclick="showCancelRequestConfirmModal(this)" data-id="<%= request.id %>" data-table="AdsPlacementRequest" data-table-name="thay đổi thông tin điểm đặt">
+                      <i class="fa fa-trash-can"></i>
+                    </a>
+                  <% }; %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Danh sách thay đổi thông tin bảng QC chờ duyệt -->
+    <div class="container-fluid pt-4 pe-4 text-left">
+      <div class="row justify-content-center table-responsive">
+        <div class="container row bg-secondary text-white">
+          <div class="col text-center">
+            <p class="fs-2 text-center py-2 m-0">Yêu cầu thay đổi thông tin bảng quảng cáo</p>
+          </div>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">ID Bảng QC</th>
+              <th scope="col">Kích thước mới</th>
+              <th scope="col">Số lượng mới</th>
+              <th scope="col">Loại bảng mới</th>
+              <th scope="col">Lý do chỉnh sửa</th>
+              <th scope="col">Ngày tạo</th>
+              <th scope="col">Tình trạng</th>
+              <th>Chức năng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% boardRequests.forEach(request => { %>
+              <tr>
+                <td><%= request.id %></td>
+                <td><%= request.BoardId %></td>
+                <td><%= request.size %></td>
+                <td><%= request.quantity %></td>
+                <td><%= request.BoardType.type %></td>
+                <td><%= request.reason %></td>
+                <td><%= request.createdAt.toLocaleString() %></td>
+                <td><%= request.requestStatus %></td>
+                <td>
+                  <% if (request.requestStatus == "Chờ phê duyệt") { %>
+                    <a href="" data-bs-toggle="modal" data-bs-target="#cancelRequestConfirmModal" onclick="showCancelRequestConfirmModal(this)" data-id="<%= request.id %>" data-table="BoardRequest" data-table-name="thay đổi thông tin bảng quảng cáo">
+                      <i class="fa fa-trash-can"></i>
+                    </a>
+                  <% }; %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Danh sách cấp phép bảng QC chờ duyệt -->
+    <div class="container-fluid pt-4 pe-4 text-left">
+      <div class="row justify-content-center table-responsive">
+        <div class="container row bg-secondary text-white">
+          <div class="col text-center">
+            <p class="fs-2 text-center py-2 m-0">Yêu cầu cấp phép quảng cáo</p>
+          </div>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">ID Bảng QC</th>
+              <th scope="col">Nội dung</th>
+              <th scope="col">Công ty</th>
+              <th scope="col">Tình trạng</th>
+              <th scope="col">Ngày bắt đầu</th>
+              <th scope="col">Ngày hết hạn</th>
+              <th>Chức năng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% permitRequests.forEach(request => { %>
+              <tr>
+                <td><%= request.id %></td>
+                <td><%= request.BoardId %></td>
+                <td><%= request.content %></td>
+                <td><%= request.Company.name %></td>
+                <td><%= request.status %></td>
+                <td><%= request.start.toLocaleString() %></td>
+                <td><%= request.end.toLocaleString() %></td>
+                <td>
+                  <a href="#" data-bs-toggle="modal" data-bs-target="#view-image-modal" onclick="showImage(this)" data-img="/<%= request.image %>">
+                    <i class="fa fa-image"></i>
+                  </a>
+                  <% if (request.status == "Chưa cấp phép") { %>
+                    <a href="" data-bs-toggle="modal" data-bs-target="#cancelRequestConfirmModal" onclick="showCancelRequestConfirmModal(this)" data-id="<%= request.id %>" data-table="PermitRequest" data-table-name="cấp phép quảng cáo">
+                      <i class="fa fa-trash-can"></i>
+                    </a>
+                  <% }; %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <!-- Table pagination -->
+    </div>
+  </main>
+  <!-- Footer -->
+  <%- include("../partials/footer.ejs") %>
+
+  <!-- Modals -->
+  <%- include("./subPartials/cancel-request-confirm-modal.ejs") %>
+  <%- include("./subPartials/view-image-modal.ejs") %>
+  <% if (message) { %> <%- include("./subPartials/message-modal.ejs") %> <% }; %>
+  </body>
+
+  <!-- DataTable -->
+  <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"
+  ></script>
+  <script src="/javascript/PhuongQuan/table.js"></script>
+  <script src="/javascript/toggleNavigation.js"></script>
+  <script src="/javascript/PhuongQuan/my-requests.js"></script>
+</html>

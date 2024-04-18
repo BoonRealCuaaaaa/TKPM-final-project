@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title>Sở | Quản lý bảng quảng cáo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+
+    <!-- Font awesome -->
+    <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+
+    <!--Css link -->
+    <link rel="stylesheet" href="/css/So/style.css">
+    <link rel="stylesheet" href="/css/So/table.css">
+    <link rel="stylesheet" href="/css/toggleNavigation.css">
+    <link rel="stylesheet" href="/css/alert.css">
+    <link rel="stylesheet" href="/css/So/customDropbox.css">
+    <link rel="stylesheet" href="/css/So/passwordStrengthIndicator.css">
+</head>
+
+<body>
+    <%- include("../partials/header.ejs") %>
+        <!-- Navbar content -->
+        <%- include("./subPartials/navbar.ejs") %>
+
+            <% if (message !=null){ %>
+                <div class="alert-container" id="create-alert-container">
+                    <div class="alert alert-<%=message.status%> mb-0" role="alert" id="registerAlert">
+                        <i class="fa-regular fa-circle-check fa-2xl"></i>
+                        <span class="ms-3 fs-5">
+                            <%= message.content %>
+                        </span>
+                    </div>
+                    <div class="progress progress-<%= message.status %>"></div>
+                </div>
+                <% } %>
+                    <!-- Main content -->
+                    <main class="dynamic-container container-fluid">
+                        <div class="row w-sm-50 w-100 mt-4 justify-content-end gx-0 gx-sm-3 gy-3">
+                            <form action="boardManagement" method="GET">
+                                <div class="input-group flex-nowrap">
+                                    <span class="input-group-text" id="addon-wrapping"><i
+                                            class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" <% if (search !=='' ) { %> value="<%= search
+                                        %>" <% } %> placeholder="Tìm kiếm theo địa chỉ"
+                                            aria-label="find" aria-describedby="addon-wrapping" name="search">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="row w-sm-50 w-100 mt-4 justify-content-end gx-0 gx-sm-3 gy-3">
+                            <a class="btn btn-secondary col-lg-1 col-xl-1 col-sm-2 col-4" href="./boardManagement">
+                                All
+                            </a>
+                            <div class="col-lg-3 col-xl-2 col-sm-4 col-8">
+
+                                <div class="dropdown">
+                                    <button
+                                        class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <% if (currentDistrict !=='' ) { %>
+                                            <%= currentDistrict %>
+                                                <% } else { %>
+                                                    Quận
+                                                    <% } %>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <% for (let i=0; i < districts.length; i++){ %>
+                                            <li>
+                                                <a class="dropdown-item"
+                                                    href="<%= createWardDistrictPageQueryString(currentUrl, 'district=', districts[i].district)%>">
+                                                    <%= districts[i].district %>
+                                                </a>
+                                            </li>
+                                            <% } %>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-xl-3 col-sm-5 col-12">
+                                <div class="dropdown">
+                                    <button
+                                        class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false" <% if
+                                        (wards.length===0) { %>
+                                        disabled
+                                        <% } %>
+                                            >
+                                            <% if (currentWard !=='' ) { %>
+                                                <%= currentWard %>
+                                                    <% } else { %>
+                                                        Phường
+                                                        <% } %>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <% if (wards.length> 0) { %>
+                                            <% for (let i=0; i < wards.length; i++){ %>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="<%= createWardDistrictPageQueryString(currentUrl, 'ward=', wards[i].ward) %>">
+                                                        <%= wards[i].ward %>
+                                                    </a>
+                                                </li>
+                                                <% } %>
+                                                    <% } %>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-container border border-2 rounded-3">
+                            <div class="table-header">
+                                <h2>Quản lý bảng quảng cáo</h2>
+                                <div class="button-container">
+                                    <button class="green-button px-3 py-1 rounded" data-bs-toggle="modal"
+                                        data-bs-target="#createModal">
+                                        <i class="fas fa-plus-circle" style="color: #ffffff;"></i>
+                                        Thêm bảng quảng cáo
+                                    </button>
+                                </div>
+                            </div>
+                            <table class="table-body table table-striped table-responsive mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Kích thước</th>
+                                        <th scope="col">Số lượng trụ/bảng</th>
+                                        <th scope="col">Loại biển quảng cáo</th>
+                                        <th scope="col">Địa chỉ</th>
+                                        <th scope="col" style="text-align: center;">Chức năng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (pagination.rows && pagination.rows.length> 0) { %>
+                                        <% for (let i=0; i < pagination.rows.length; i++) { %>
+                                            <tr>
+                                                <td>
+                                                    <%= pagination.rows[i].size %>
+                                                </td>
+                                                <td>
+                                                    <%= pagination.rows[i].quantity %>
+                                                </td>
+                                                <td>
+                                                    <%= pagination.rows[i].BoardType.type %>
+                                                </td>
+                                                <td>
+                                                    <%= pagination.rows[i].AdsPlacement.address %>,
+                                                        <%= pagination.rows[i].AdsPlacement.Area.ward %>,
+                                                            <%= pagination.rows[i].AdsPlacement.Area.district %>
+
+                                                </td>
+
+                                                <td class="function-icons text-center">
+                                                    <i class="fas fa-pen" style="color: #f29d38;" data-bs-toggle="modal"
+                                                        data-bs-target="#editModal"
+                                                        data-id="<%= pagination.rows[i].id %>"
+                                                        data-size="<%= pagination.rows[i].size %>"
+                                                        data-quantity="<%= pagination.rows[i].quantity %>"
+                                                        data-address="<%= pagination.rows[i].AdsPlacement.address %>"
+                                                        data-type="<%= pagination.rows[i].BoardType.type %>"
+                                                        data-district="<%= pagination.rows[i].AdsPlacement.Area.district %>"
+                                                        data-ward="<%= pagination.rows[i].AdsPlacement.Area.ward %>"
+                                                        data-lat="<%= pagination.rows[i].AdsPlacement.lat %>"
+                                                        data-lng="<%= pagination.rows[i].AdsPlacement.long %>"
+                                                        onclick="showEditBoardModal(this)"></i>
+                                                    <i class="fas fa-trash" style="color: #EB3223;"
+                                                        data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                        data-id="<%= pagination.rows[i].id %>"
+                                                        onclick="showDeleteBoardModal(this)"></i>
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="7" class="text-center fs-5"> Không có bất kì bảng
+                                                            quảng cáo nào</td>
+                                                    </tr>
+                                                    <% } %>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div
+                            class="pagination-container d-flex flex-sm-row flex-column justify-content-between align-items-center py-2">
+                            <p class="pagination-text mb-0">Showing <b>
+                                    <%= pagination.currentPage %>
+                                </b> Out of <b>
+                                    <%= pagination.maxPage %>
+                                </b></p>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination mb-0">
+                                    <% if (pagination.currentPage===pagination.minPage) { %>
+                                        <li class="page-item"><button class="page-link text-dark fw-bold border-0"
+                                                disabled>Previous</button></li>
+                                        <% }else{%>
+                                            <li class="page-item"><a class="page-link text-dark fw-bold border-0"
+                                                    href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage - 1) %>">Previous</a>
+                                            </li>
+                                            <% } %>
+
+                                                <% for (let i=pagination.currentPage - pagination.limitPage; i <
+                                                    pagination.currentPage; i++) { %>
+                                                    <% if (i>= pagination.minPage){ %>
+                                                        <li class="page-item"><a
+                                                                class="page-link text-dark fw-bold border-0"
+                                                                href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', i) %>">
+                                                                <%=i%>
+                                                            </a></li>
+                                                        <% } %>
+                                                            <% } %>
+
+                                                                <li class="page-item" aria-current="page"><a
+                                                                        class="page-link text-dark fw-bold border-0"
+                                                                        href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage) %>"
+                                                                        style="background-color: #0FC2C0;">
+                                                                        <%= pagination.currentPage %>
+                                                                    </a></li>
+
+                                                                <% for (let i=pagination.currentPage + 1; i
+                                                                    <=pagination.currentPage + pagination.limitPage;
+                                                                    i++) { %>
+                                                                    <% if (i <=pagination.maxPage) { %>
+                                                                        <li class="page-item"><a
+                                                                                class="page-link text-dark fw-bold border-0"
+                                                                                href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', i) %>">
+                                                                                <%=i%>
+                                                                            </a></li>
+                                                                        <% } %>
+                                                                            <% } %>
+
+                                                                                <% if
+                                                                                    (pagination.currentPage===pagination.maxPage)
+                                                                                    { %>
+                                                                                    <li class="page-item"><button
+                                                                                            class="page-link text-dark fw-bold border-0"
+                                                                                            disabled>Next</a></li>
+                                                                                    <% }else{%>
+                                                                                        <li class="page-item"><a
+                                                                                                class="page-link text-dark fw-bold border-0"
+                                                                                                href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage + 1)%>">Next</a>
+                                                                                        </li>
+                                                                                        <% } %>
+
+                                </ul>
+                            </nav>
+                        </div>
+
+                        <!-- Create Modal -->
+                        <div class="modal fade" id="createModal" data-bs-backdrop="static">
+                            <div class="modal-dialog modal-dialog-centered modal-lg align-items-start"
+                                style="margin-top: 10px;">
+                                <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Thêm bảng quảng cáo</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            id="close-create-button"></button>
+                                    </div>
+                                    <!-- Modal body -->
+
+                                    <div class="modal-body">
+                                        <form action="/department/boardManagement" method="POST">
+                                            <fieldset class="container-fluid">
+                                                <div class="row fw-semibold fs-4 mb-2">Loại bảng quảng
+                                                    cáo</div>
+                                                <div class="row g-md-3 g-2 mb-3">
+                                                    <select name="boardTypeSelectCreateModal" class="form-select"
+                                                        id="boardTypeSelectCreateModal" required>
+                                                        <option value="">Loại bảng quảng cáo</option>
+                                                        <%for (let i=0; i < boardTypes.length; i++){ %>
+                                                            <option value="<%= boardTypes[i].type %>"
+                                                                class="boardTypes">
+                                                                <%= boardTypes[i].type %>
+                                                            </option>
+                                                            <% } %>
+                                                    </select>
+                                                </div>
+                                                <div class="row fw-semibold fs-4 mb-2">Kích thước bảng quảng cáo và Số
+                                                    lượng trụ
+                                                </div>
+                                                <div class="row g-md-3 g-2 mb-3">
+                                                    <!-- Right column -->
+                                                    <div class="col col-md-3 p-0 has-validation">
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="height" id="heightCreateModal" <%
+                                                                if(createErr.error.height.length>
+                                                            0){ %>
+                                                            class="form-control is-invalid"
+                                                            <% } else {%>
+                                                                class="form-control"
+                                                                <% } %>
+                                                                    value="<%= createErr.value.height %>"
+                                                                        name="heightCreateModal"
+                                                                        autocomplete="true"
+                                                                        placeholder="">
+                                                                        <label for="heightCreateModal"
+                                                                            class="mb-2">Chiều dài biển (m)</label>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="col-md-1"></div><!-- Empty column for spacing -->
+
+                                                    <div class="col col-md-3 p-0 has-validation">
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="weight" id="weightCreateModal" <%
+                                                                if(createErr.error.height.length>
+                                                            0){ %>
+                                                            class="form-control is-invalid"
+                                                            <% } else {%>
+                                                                class="form-control"
+                                                                <% } %>
+                                                                    value="<%= createErr.value.weight %>"
+                                                                        name="weightCreateModal"
+                                                                        autocomplete="true"
+                                                                        placeholder="">
+                                                                        <label for="weightCreateModal"
+                                                                            class="mb-2">Chiều rộng biển (m)</label>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-md-1"></div><!-- Empty column for spacing -->
+
+                                                    <div class="col col-md-3 p-0 has-validation">
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="quantity" id="quantityCreateModal" <%
+                                                                if(createErr.error.height.length>
+                                                            0){ %>
+                                                            class="form-control is-invalid"
+                                                            <% } else {%>
+                                                                class="form-control"
+                                                                <% } %>
+                                                                    value="<%= createErr.value.quantity %>"
+                                                                        name="quantityCreateModal"
+                                                                        autocomplete="true"
+                                                                        placeholder="">
+                                                                        <label for="quantityCreateModal" class="mb-2">Số
+                                                                            lượng trụ</label>
+                                                        </div>
+
+                                                    </div>
+
+
+
+                                                    <div class="row fw-semibold fs-4 mb-2">Lọc khu vực muốn đặt bảng
+                                                        quảng
+                                                        cáo
+                                                    </div>
+                                                    <div class="row g-md-1 g-2 mb-3">
+                                                        <div class="col-6 col-md-6">
+                                                            <select name="districtSelectCreateModal" class="form-select"
+                                                                id="districtSelectCreateModal" onchange="districtSelectChangeAndFlyTo(document.getElementById('districtSelectCreateModal'), document.getElementById('wardSelectCreateModal'))
+                                                                ">
+                                                                <option value="">Quận/Huyện</option>
+                                                                <% for (let i=0; i < districts.length; i++){ %>
+                                                                    <option value="<%= districts[i].district %>"
+                                                                        class="districts">
+                                                                        <%= districts[i].district %>
+                                                                    </option>
+                                                                    <% } %>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-6 col-md-6">
+                                                            <select name="wardSelectCreateModal" class="form-select"
+                                                                id="wardSelectCreateModal"
+                                                                onchange="wardSelectChangeAndFlyTo(document.getElementById('districtSelectCreateModal'), document.getElementById('wardSelectCreateModal'))"
+                                                                disabled>
+                                                                <option value="">Phường</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row fw-semibold fs-4 mb-2">Địa chỉ điểm quảng cáo muốn
+                                                        đặt
+                                                    </div>
+                                                    <div class="row g-md-1 g-2 mb-3">
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="address" id="addressCreateSend"
+                                                                class="form-control" name="addressCreateSend"
+                                                                autocomplete="true" placeholder="" hidden>
+                                                        </div>
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="address" id="addressCreateModal" required <%
+                                                                if(createErr.error.address.length>
+                                                            0){
+                                                            %>
+                                                            class="form-control is-invalid"
+                                                            <% } else {%>
+                                                                class="form-control"
+                                                                <% } %>
+                                                                    value="<%= createErr.value.address %>"
+                                                                        name="addressCreateModal"
+                                                                        autocomplete="true"
+                                                                        placeholder="" disabled>
+                                                                        <label for="addressCreateModal" class="mb-2">Địa
+                                                                            chỉ</label>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="row">
+                                                    <div id="mapbox"
+                                                        style="width:100%;height:45rem; border-radius: 20px"></div>
+                                                </div>
+
+
+
+                                                <button type="submit" class="mt-4 btn btn-success w-100"
+                                                    id="registerButton">Tạo bảng
+                                                    quảng cáo</button>
+
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal" data-bs-backdrop="static">
+                            <div class="modal-dialog modal-dialog-centered modal-lg align-items-start"
+                                style="margin-top: 10px;">
+                                <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Chỉnh sửa bảng quảng cáo</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            id="close-edit-button"></button>
+                                    </div>
+                                    <!-- Modal body -->
+
+                                    <div class="modal-body">
+                                        <form action="/department/boardManagement" id="editForm">
+                                            <fieldset class="container-fluid">
+                                                <input type="hidden" id="idEditModal" name="idEditModal">
+
+                                                <div class="row fw-semibold fs-4 mb-2">Loại bảng quảng cáo</div>
+                                                <div class="row g-md-3 g-2 mb-3">
+                                                    <select name="boardTypeSelectEditModal" class="form-select"
+                                                        id="boardTypeSelectEditModal" required>
+                                                        <%for (let i=0; i < boardTypes.length; i++){ %>
+                                                            <option value="<%= boardTypes[i].type %>"
+                                                                class="boardTypes">
+                                                                <%= boardTypes[i].type %>
+                                                            </option>
+                                                            <% } %>
+                                                    </select>
+                                                </div>
+                                                <div class="row fw-semibold fs-4 mb-2">Kích thước bảng quảng cáo và Số
+                                                    lượng trụ
+                                                </div>
+                                                <div class="row g-md-3 g-2 mb-3">
+                                                    <!-- Right column -->
+                                                    <div class="col col-md-3 p-0 has-validation">
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="height" id="heightEditModal"
+                                                                class="form-control" name="heightEditModal"
+                                                                autocomplete="true" placeholder="" required>
+                                                            <label for="heightEditModal" class="mb-2">Chiều
+                                                                dài biển (m)</label>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="col-md-1"></div><!-- Empty column for spacing -->
+
+                                                    <div class="col col-md-3 p-0 has-validation">
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="weight" id="weightEditModal"
+                                                                class="form-control" name="weightEditModal"
+                                                                autocomplete="true" placeholder="">
+                                                            <label for="weightEditModal" class="mb-2">Chiều
+                                                                rộng biển (m)</label>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-md-1"></div><!-- Empty column for spacing -->
+
+                                                    <div class="col col-md-3 p-0 has-validation">
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="quantity" id="quantityEditModal"
+                                                                class="form-control" name="quantityEditModal"
+                                                                autocomplete="true" placeholder="" required>
+                                                            <label for="quantityEditModal" class="mb-2">Số
+                                                                lượng trụ</label>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="row fw-semibold fs-4 mb-2">Lọc khu vực đặt
+                                                    </div>
+                                                    <div class="row g-md-1 g-2 mb-3">
+                                                        <div class="col-6 col-md-6">
+                                                            <select name="districtSelectEditModal" class="form-select"
+                                                                id="districtSelectEditModal"
+                                                                onchange="districtSelectChangeAndFlyTo_edit(document.getElementById('districtSelectEditModal'), document.getElementById('wardSelectEditModal'))">
+                                                                <% for (let i=0; i < districts.length; i++){ %>
+                                                                    <option value="<%= districts[i].district %>"
+                                                                        class="districts">
+                                                                        <%= districts[i].district %>
+                                                                    </option>
+                                                                    <% } %>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-6 col-md-6">
+                                                            <select name="wardSelectEditModal" class="form-select"
+                                                                id="wardSelectEditModal"
+                                                                onchange="wardSelectChangeAndFlyTo(document.getElementById('districtSelectEditModal'), document.getElementById('wardSelectEditModal'))">
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row fw-semibold fs-4 mb-2">Thay đổi điểm quảng cáo muốn
+                                                        đặt
+                                                    </div>
+
+                                                    <div class="row g-md-1 g-2 mb-3">
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="address" id="addressEditSend"
+                                                                class="form-control" name="addressEditSend"
+                                                                autocomplete="true" placeholder="" hidden>
+                                                        </div>
+                                                        <div class="form-floating is-invalid">
+                                                            <input type="address" id="addressEditModal"
+                                                                class="form-control" name="addressEditModal"
+                                                                autocomplete="true" placeholder="" disabled>
+                                                            <label for="addressEditModal" class="mb-2">Địa
+                                                                chỉ</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div id="mapbox_edit"
+                                                            style="width:100%;height:45rem; border-radius: 20px"></div>
+                                                    </div>
+
+                                                </div>
+
+
+
+                                                <button type="submit" class="mt-4 btn btn-success w-100"
+                                                    id="confirm-edit-button">Chỉnh sửa bảng
+                                                    quảng cáo</button>
+
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal" data-bs-backdrop="static">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Xóa bảng quảng cáo</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <!-- Modal body -->
+                                    <div class="modal-body" style="white-space: nowrap;">
+                                        Bạn có chắc chắn rằng bạn muốn xóa bảng quảng cáo này không ?
+                                        <input type="hidden" value="" name="boardId" id="idDeleteModal">
+                                    </div>
+
+
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn gray-button" data-bs-dismiss="modal">Hủy
+                                            bỏ</button>
+                                        <button class="btn red-button" id="confirm-delete-button"
+                                            data-bs-dismiss="modal">Xóa</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </main>
+                    <!-- Footer -->
+                    <%- include("../partials/footer.ejs") %>
+
+                        <!-- Javascript -->
+                        <script src="/javascript/So/boardManagement.js"></script>
+                        <script src="/javascript/toggleNavigation.js"></script>
+                        <script src="/javascript/So/mapForBoardManagement.js"></script>
+
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"></script>
+
+
+</html>

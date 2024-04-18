@@ -1,0 +1,11 @@
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 100">
+    <div id="message" class="toast show text-white <% if (message.status == 'succeed') { %> <%= 'bg-success' %> <% }; %> <% if (message.status == 'fail') { %> <%= 'bg-danger' %> <% }; %>" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto"><%= message.title %></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        <%= message.message %>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,102 @@
+/*
+    <div class="alert-container" id="create-alert-container">
+        <div class="alert alert-success> mb-0" role="alert" id="registerAlert">
+          <i class="fa-regular fa-circle-check fa-2xl"></i>
+          <span class="ms-3 fs-5">Thanh cong</span>
+        </div>
+        <div class="progress progress-success"></div>
+    </div>
+
+    <div class="alert-container" id="create-alert-container">
+        <div class="alert alert-danger> mb-0" role="alert" id="registerAlert">
+          <i class="fa-regular fa-circle-check fa-2xl"></i>
+          <span class="ms-3 fs-5">That bai</span>
+        </div>
+        <div class="progress progress-danger"></div>
+    </div>
+*/
+
+.alert-container {
+    /* margin: 1rem auto 0px; */
+    width: 90%;
+    animation-name: fade;
+    animation-duration: 4s;
+    animation-fill-mode: forwards;
+    position: fixed;
+    z-index: 9999;
+    top: 1.8rem;
+    right: 20px;
+}
+
+.alert {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    border-radius: 8px;
+    box-shadow: -2px 0px 38px -12px rgba(0,0,0,0.75);
+}
+
+.alert-container .progress, .alert {
+    width: 100%;
+}
+
+.alert-container .progress {
+    height: 8px;
+    position: relative;
+    top: -8px;
+    border-radius: 0px 0px 8px 8px;
+}
+
+.progress::before {
+    content: "";
+    height: 100%;
+    animation-name: progressHorizontailAnimation;
+    animation-duration: 3s;
+    animation-fill-mode: forwards;
+}
+
+.progress-success {
+    background-color: #D1E7DD;
+}
+
+.progress-success::before {
+    background-color: #7FB59D;
+}
+
+.progress-danger {
+    background-color: #F8D7DA;
+}
+
+.progress-danger::before {
+    background-color: #C48F94;
+}
+
+
+@keyframes progressHorizontailAnimation {
+    0% { width: 100%;}
+    100% { width: 0%;}
+}
+
+
+@keyframes fade {
+    50% { opacity: 1; }
+    100% { opacity: 0; display: none; }
+}
+
+@media only screen and (min-width:576px) {
+    .alert-container {
+        width: 40%;
+    }
+}
+
+@media only screen and (min-width:768px) {
+    .alert-container {
+        width: 32%;
+    }
+}
+
+@media only screen and (min-width:992px) {
+    .alert-container {
+        width: 25%;
+    }
+}

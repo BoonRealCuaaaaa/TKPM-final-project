@@ -1,0 +1,78 @@
+<!-- Change location form -->
+<div class="modal fade" id="locationChange" tabindex="-1" aria-labelledby="locationChange" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="container d-flex flex-column align-items-center">
+            <h1 class="modal-title fs-5" id="permissionReport-sub">Yêu cầu thay đổi địa điểm quảng cáo</h1>
+          </div>
+          <div class="align-self-start">
+            <button type="button align-self-start" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="modal-body justify-content-center">
+          <form action="/<%= accountType %>/list-adsplacements" id="editAdsplacementForm" method="POST">
+            <input type="hidden" name="adsplacementId" id="adsplacementIdEdit"/>
+            <div class="row">
+              <div class="col">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="addressEdit" name="address" required>
+                  <label for="addressEdit">Địa chỉ</label>
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-floating">
+                  <select class="form-select" id="areaEdit" name="areaId" disabled>
+                    <% areas.forEach(area => { %>
+                      <option value="<%= area.id %>"><%= area.ward %> <%= area.district %></option>
+                    <% }); %>
+                  </select>
+                  <label for="areaEdit">Khu vực</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-floating">
+                  <select class="form-select" id="adsTypeEdit" name="adsTypeId" required>
+                    <% adsTypes.forEach(type => { %>
+                      <option value="<%= type.id %>"><%= type.type %></option>
+                    <% }); %>
+                  </select>
+                  <label for="adsTypeEdit">Hình thức quảng cáo</label>
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-floating">
+                  <select class="form-select" id="locationTypeEdit" name="locationTypeId" required>
+                    <% locationTypes.forEach(type => { %>
+                      <option value="<%= type.id %>"><%= type.locationType %></option>
+                    <% }); %>
+                  </select>
+                  <label for="locationTypeId">Loại vị trí</label>
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-floating">
+                  <select class="form-select" id="statusEdit" name="status" required>
+                    <option value="Đã quy hoạch">Đã quy hoạch</option>
+                    <option value="Chưa quy hoạch">Chưa quy hoạch</option>
+                  </select>
+                  <label for="statusEdit">Thông tin quy hoạch</label>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="form-floating">
+                <textarea class="form-control" placeholder="Lý do thay đổi" id="reasonEdit" name="reason" required></textarea>
+                <label for="floatingTextarea2">Lý do chỉnh sửa</label>
+              </div>
+            </div>
+            <div class="container my-3">
+              <button type="submit " class="btn btn-success container-fluid">Gửi yêu cầu</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

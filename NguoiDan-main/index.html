@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Title</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS v5.2.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Mapbox -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+
+  <!-- DataTable -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.13.7/features/pageResize/dataTables.pageResize.min.js">
+
+  <!-- Recaptcha -->
+  <script async src="https://www.google.com/recaptcha/api.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+
+  <!-- WYSIWYG CKEditor-->
+  <script src="node_modules/@ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
+
+</head>
+
+<body class="bg-light text-dark">
+  <header class="">
+    <!-- place navbar here -->
+    <nav class="navbar navbar-expand-md navbar-light fw-semibold bg-light">
+      <div class="container">
+      <a class="navbar-brand" href="#">Bản đồ bảng quảng cáo TP.HCM
+        <span class="ms-2 badge bg-primary">Nhóm 14</span></a>
+      <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavId" aria-controls="collapsibleNavId"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse bg-light" id="collapsibleNavId">
+        <ul class="navbar-nav nav mx-auto mt-2 mt-lg-0 me-0" id="myTab">
+          <li class="nav-item px-2" role="presentation">
+            <a class="nav-link active" href="#" id="map-tab" data-bs-toggle="tab" data-bs-target="#map" type="button" role="tab" aria-controls="map-tab" aria-selected="true">Bản đồ</a>
+          </li>
+          <li class="nav-item px-2" role="presentation">
+            <a class="nav-link" href="#report" id="report-tab" data-bs-toggle="tab" data-bs-target="#report" type="button" role="tab" aria-controls="report-tab" aria-selected="true">Báo cáo VP</a>
+          </li>
+          <li class="nav-item px-2" role="presentation">
+            <a class="nav-link" href="#" id="about-us-tab" data-bs-toggle="tab" data-bs-target="#about-us" type="button" role="tab" aria-controls="about-us-tab" aria-selected="true">Về chúng tôi</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  </header>
+  <main class="bg-light py-3 px-lg-4 px-sm-1">
+    <!-- Tab panes -->
+    <div class="tab-content h-100 pb-3">
+      <div class="tab-pane mx-auto active border-2 p-0 h-100" id="map" role="tabpanel" aria-labelledby="map-tab">
+        <div class="container-fluid h-100">
+            <div class="row h-100">
+                <div class="col h-100 position-relative shadow px-0" id="map-view">
+
+                  <!-- Map -->
+                  <div id="mapbox"></div>
+
+                      <div class="dropup btn-black-outline" id="map-view-button">
+                        <button class="btn-map btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                          <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <ul class="dropdown-menu mb-1">
+                            <li class="dropdown-item list-group-item px-3">
+                                <input class="form-check-input me-2" type="checkbox" value="" id="firstCheckboxStretched" checked>
+                                <label class="form-check-label stretched-link" for="firstCheckboxStretched">Các điểm QC đã quy hoạch</label>
+                              </li>
+                              <li class="dropdown-item list-group-item px-3">
+                                <input class="form-check-input me-2" type="checkbox" value="" id="secondCheckboxStretched" checked>
+                                <label class="form-check-label stretched-link" for="secondCheckboxStretched">Các điểm QC chưa quy hoạch</label>
+                              </li>
+                              <li class="dropdown-item list-group-item px-3">
+                                <input class="form-check-input me-2" type="checkbox" value="" id="forthCheckboxStretched" >
+                                <label class="form-check-label stretched-link" for="forthCheckboxStretched">Báo cáo vi phạm</label>
+                              </li>
+                        </ul>
+                      </div>
+                </div>
+                <div class="col-4 h-100 px-4" id="map-details">
+                    <h6>Tìm địa điểm</h6>
+                    <form class="form-inline">
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">
+                                <button style="border:0" id="search-button">
+                                  <i class="fa-solid fa-magnifying-glass-location"></i>
+                                </button>
+                            </span>
+                          <input type="text" class="form-control" placeholder="Nhập địa điểm" aria-label="Username" aria-describedby="basic-addon1" id="location-input">
+                        </div>
+                      </form>
+                    <h6 class="mt-2" id="location-name">Chưa có dữ liệu</h6>
+                    <p id="location-address">Vui lòng chọn điểm trên bảng đồ để xem!</p>
+                    <div class="d-flex justify-content-end">
+                      <button type="button" class="btn btn-outline-danger fw-semibold my-2" id="location-random-report" style="display: none;" data-bs-toggle="modal" data-bs-target="#reportModal-reporterInfo-random-location">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        BÁO CÁO VI PHẠM TRÊN ĐỊA CHỈ NÀY
+                      </button>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                      <button type="button" class="btn btn-outline-danger fw-semibold toBCVP" id="location-report" style="display: none;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        BÁO CÁO VI PHẠM TRÊN ĐIỂM ĐẶT NÀY
+                      </button>
+                    </div>
+                    <div class="mt-3 border-bottom"></div>
+                    <h4 class="mt-3">Thông tin bảng QC</h4>
+                    <p id="num-ads"></p>
+                    <div class="card">
+                        <div class="card-body" id="side-section">
+
+                          <span class="text-muted">#ID: <span class="fw-semibold" id="board-id">Chưa có thông tin</span></span>
+                            <h4 class="card-title" id="board-title">
+                              Trụ, cụm pano
+                              <span class="ms-2 badge bg-success" id="board-status"></span>
+                            </h4>
+                            <p class="card-text" id="board-address">Chưa có thông tin để hiển thị</p>
+
+                            <p>
+                                Kích thước: <span class="details-info" id="board-size">Chưa có thông tin</span> <br>
+                                Số lượng: <span class="details-info" id="board-quantity">Chưa có thông tin</span> <br>
+                                Hình thức: <span class="details-info" id="board-form">Chưa có thông tin</span> <br>
+                                Phân loại: <span class="details-info" id="board-classification">Chưa có thông tin</span> <br>
+                            </p>
+                            <img class="img-thumbnail mb-3" src="" id="board-thumbnail" alt="" style="width: 100%;">
+                            <div class="d-flex justify-content-between">
+                                <span id="board-contract" class="btn-icon fs-3" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-title="Hợp đồng quảng cáo" data-bs-container="body" data-bs-placement="left" data-bs-content="Ngày hết hạn: 01-01-2003">
+                                    <i class="fa-solid fa-circle-exclamation text-primary"></i>
+                                </span>
+                                <button type="button" class="btn btn-outline-danger fw-semibold toBCVP" id="board-report" style="display: none;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    BÁO CÁO VI PHẠM
+                                  </button>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="mt-3" aria-label="Page navigation">
+                      <ul class="pagination" id="board-pagination">
+                        <li class="page-item disabled">
+                        </li>
+                      </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="tab-pane h-100 pb-3" id="report" role="tabpanel" aria-labelledby="report-tab">
+        <div class="row h-100">
+          <div class="col-8 px-4 h-100">
+            <div class="d-flex flex-column h-100">
+              <h5>Lịch sử báo cáo vi phạm</h5>
+              <div class="row mb-3">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="row mb-2">
+                        <div class="col">
+                          ID: <span class="fw-semibold" id="target-id">Chưa chọn điểm</span>
+                        </div>
+                        <div class="col">
+                          Loại đối tượng: <span class="fw-semibold" id="target-type">Chưa chọn điểm</span>
+                        </div>
+                        <div class="col-auto">
+                          Số báo cáo đã duyệt: <span class="fw-semibold" id="target-no-reports">Chưa chọn điểm</span>
+                        </div>
+                      </div>
+                      <div>
+                        Địa chỉ: <span class="fw-semibold" id="target-address">Chưa chọn điểm</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-auto d-flex flex-column justify-content-between">
+                  <button type="button" class="btn btn-outline-danger"  data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal" id="create-report">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                    Tạo báo cáo mới</button>
+                  <button type="button" class="btn btn-outline-secondary"  id="view-self-report">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                    Báo cáo của bạn</button>
+                  <button type="button" class="btn btn-outline-secondary"  id="exit-self-report" style="display:none">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                    Thoát xem báo cáo của bạn</button>
+                </div>
+              </div>
+              <div class="border-bottom mb-3"></div>
+              <div id="table-container" class="flex-fill">
+                <table class="table" id="myTable" class="table table-striped h-100">
+                  <thead class="table-dark">
+                      <tr>
+                          <th>ID</th>
+                          <th>Tên người báo cáo</th>
+                          <th>Hình thức</th>
+                          <th>Ngày tạo</th>
+                          <th>Tình trạng</th>
+                          <th>Xem chi tiết</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td>Chưa có thông tin</td>
+                          <td>Chưa có thông tin</td>
+                          <td>Chưa có thông tin</td>
+                          <td>Chưa có thông tin</td>
+                          <td class="text-secondary fw-semibold">Chưa có thông tin</td>
+                          <td>
+                            Chưa có thông tin
+                          </td>
+                      </tr>
+                  </tbody>
+              </table>
+              </div>
+            </div>
+          </div>
+          <div class="col px-4 h-100">
+            <h5>Chi tiết</h5>
+            <div class="overflow-y-scroll h-100">
+              <div class="card">
+                <div class="card-body">
+                  <span class="text-muted">#ID: <span class="fw-semibold" id="report-id">Chưa có thông tin</span></span>
+                    <h4 class="card-title" id="report-type">
+                      Chưa có thông tin
+                      <span class="ms-2 badge bg-secondary" id="report-status">Chưa có thông tin</span>
+                    </h4>
+                    <p class="card-text">
+                      Ngày báo cáo: <span class="fw-semibold" id="report-datetime">Chưa có thông tin</span>
+                </div>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">
+                    <h6>Nội dung báo cáo</h6>
+                    <p id="report-content">
+                      Chưa có thông tin
+                    </p>
+                    <h6>Hình ảnh minh hoạ</h6>
+                    <img class="img-thumbnail mb-3" src="" id="report-img-1">
+                    <img class="img-thumbnail mb-3" src="" id="report-img-2">
+                  </li>
+                  <li class="list-group-item">
+                    <h6>Thông tin người báo cáo</h6>
+                    <p>
+                      Họ tên: <span class="fw-semibold" id="reporter-name">Chưa có thông tin</span> <br>
+                      Địa chỉ Email: <span class="fw-semibold" id="reporter-email">Chưa có thông tin</span>
+                  </p>
+                  </li>
+                </ul>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane h-100" id="about-us" role="tabpanel" aria-labelledby="about-us-tab">
+        <div class="d-flex h-100 justify-content-center align-items-center">
+            <div class="card mb-3" style="max-width: 640px;">
+                <div class="row g-0">
+                  <div class="col-md-4 d-flex align-items-center p-4">
+                    <img src="img/logo.png" class="img-fluid rounded-start" alt="Card title">
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body">
+                      <h4 class="card-title">Nhóm 14</h4>
+                      <h6>Phát triển ứng dụng Web - CSC13008_21KTPM4</h6>
+                      <p class="card-text">
+                        <h6>Thành viên nhóm:</h6>
+                        Nguyễn Thiện Nhân - 21127380 <br>
+                        Nguyễn Trọng Đại - 21127587 <br>
+                        Nguyễn Khánh Hoàng - 21127612 <br>
+                        Nguyễn Tấn Khiêm - 21127726 <br>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <!-- Modals -->
+    <div class="modal" id="reportModal-reporterInfo"  data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 1/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" id="first-form">
+            <h6 class="mb-3">Vui lòng nhập thông tin chi tiết của bạn!</h6>
+              <div class="mb-3">
+                <label for="form-reporter-name" class="form-label">Họ và tên</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                  <input type="text" class="form-control " id="form-reporter-name" placeholder="Họ và tên" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="form-reporter-phone" class="form-label">Số điện thoại</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                  <input type="text" class="form-control " id="form-reporter-phone" placeholder="SĐT" pattern="^((\+84|84|0)\d{9})$" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="form-reporter-email" class="form-label">Địa chỉ Email</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                  <input type="text" class="form-control " id="form-reporter-email" placeholder="Email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" required >
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+            type="submit"
+            class="btn btn-primary"
+            form="first-form"
+          >Bước tiếp theo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-details" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" id="second-form">
+            <h6 class="mb-3">Vui lòng điền nội dung báo cáo!</h6>
+            <div class="mb-3">
+              <label for="form-report-type" class="form-label">Hình thức báo cáo</label>
+              <select class="form-select " id="form-report-type" required>
+                <option selected disabled value="">Vui lòng chọn hình thức báo cáo!</option>
+                <option value="TGSP">Tố giác sai phạm</option>
+                <option value="DKND">Đăng ký nội dung</option>
+                <option value="DGYK">Đóng góp ý kiến</option>
+                <option value="GDTM">Giải đáp thắc mắc</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <div class="form-label">Nội dung báo cáo</div>
+              <div id="editor" >
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="form-report-images" class="form-label">Hình ảnh minh hoạ</label>
+              <input class="form-control" type="file" id="form-report-images" multiple name="img" accept="image/*">
+            </div>
+          </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">Quay trở lại</button>
+            <button
+            type="submit"
+            class="btn btn-primary"
+            form="second-form"
+          >Bước tiếp theo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-captcha" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+            <div class="g-recaptcha" id="recaptcha" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm" data-callback="verifyCaptcha"></div>
+            <div id="captchaError"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#reportModal-details" data-bs-toggle="modal">Quay trở lại</button>
+            <button class="btn btn-primary" id="report-submit">Hoàn tất</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-finish" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Hoàn tất</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="form-submit-result">
+            <h6 class="mb-3 text-success"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn đã được gửi và đang chờ xét duyệt!</h6>
+            Vui lòng kiểm tra hòm thư Email thường xuyên để nhận được kết quả.
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng cửa sổ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal for report random location -->
+    <div class="modal" id="reportModal-reporterInfo-random-location"  data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 1/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" id="first-form-random-location">
+            <h6 class="mb-3">Vui lòng nhập thông tin chi tiết của bạn!</h6>
+              <div class="mb-3">
+                <label for="form-reporter-name-random-location" class="form-label">Họ và tên</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                  <input type="text" class="form-control " id="form-reporter-name-random-location" placeholder="Họ và tên" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="form-reporter-phone-random-location" class="form-label">Số điện thoại</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                  <input type="text" class="form-control " id="form-reporter-phone-random-location" placeholder="SĐT" pattern="^((\+84|84|0)\d{9})$" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="form-reporter-email-random-location" class="form-label">Địa chỉ Email</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                  <input type="text" class="form-control " id="form-reporter-email-random-location" placeholder="Email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" required >
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+            type="submit"
+            class="btn btn-primary"
+            form="first-form-random-location"
+          >Bước tiếp theo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-details-random-location" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" id="second-form-random-location">
+            <h6 class="mb-3">Vui lòng điền nội dung báo cáo!</h6>
+            <div class="mb-3">
+              <label for="form-report-type" class="form-label" >Địa chỉ báo cáo</label>
+              <input class="form-control" type="text" disabled id="form-address-random-location">
+            </div>
+            <input type="hidden" name="random-location-lng" id="form-lng-random-location">
+            <input type="hidden" name="random-location-lat" id="form-lat-random-location">
+            <div class="mb-3">
+              <label for="form-report-type-random-location" class="form-label">Hình thức báo cáo</label>
+              <select class="form-select " id="form-report-type-random-location" required>
+                <option selected disabled value="">Vui lòng chọn hình thức báo cáo!</option>
+                <option value="TGSP">Tố giác sai phạm</option>
+                <option value="DKND">Đăng ký nội dung</option>
+                <option value="DGYK">Đóng góp ý kiến</option>
+                <option value="GDTM">Giải đáp thắc mắc</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <div class="form-label">Nội dung báo cáo</div>
+              <div id="editor-random-location" >
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="form-report-images-random-location" class="form-label">Hình ảnh minh hoạ</label>
+              <input class="form-control" type="file" id="form-report-images-random-location" multiple name="img" accept="image/*">
+            </div>
+          </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#reportModal-reporterInfo-random-location" data-bs-toggle="modal">Quay trở lại</button>
+            <button
+            type="submit"
+            class="btn btn-primary"
+            form="second-form-random-location"
+          >Bước tiếp theo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-captcha-random-location" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+            <div class="g-recaptcha" id="recaptcha-random-location" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm" data-callback="verifyCaptchaRandomLocation"></div>
+            <div id="captchaError-random-location"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#reportModal-details-random-location" data-bs-toggle="modal">Quay trở lại</button>
+            <button class="btn btn-primary" id="report-submit-random-location">Hoàn tất</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-finish-random-location" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Hoàn tất</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="form-submit-result-random-location">
+            <h6 class="mb-3 text-success"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn đã được gửi và đang chờ xét duyệt!</h6>
+            Vui lòng kiểm tra hòm thư Email thường xuyên để nhận được kết quả.
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng cửa sổ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Report detail modal -->
+  <div class="modal fade" id="report-detail-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Chi tiết báo cáo</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row gy-4 gx-5 overflow-y-hidden" >
+            <div class="col-md-6 h-100 ">
+                <div class="card ">
+                    <div class="card-header">
+                      Báo cáo của người dân
+                    </div>
+                    <div class="card-body overflow-y-scroll h-100" style="max-height: 45vh;" >
+                      <h5 class="card-title">Tiêu đề</h5>
+                      <p class="card-text " id="report-detail-content">
+                        Nội dung
+                      </p>
+                    </div>
+                  </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+                  <img src="" alt="" id="report-detail-first-img">
+                  <img src="" alt="" id="report-detail-second-img">
+                  <div class="card-body">
+                    <h5 class="card-title">Hình ảnh</h5>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="row my-4">
+            <div class="col">
+              <div class="form-floating">
+                  <textarea class="form-control" placeholder="Nhập nội dung phản hồi" id="report-detail-method" name="method" style="height: 100px" required></textarea>
+                  <label for="methodEdit">Phản hồi của cán bộ</label>
+              </div>
+            </div>
+      </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <!-- place footer here -->
+  </footer>
+  <!-- Bootstrap JavaScript Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+    integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
+  </script>
+  <script src="https://kit.fontawesome.com/7e3479b07e.js" crossorigin="anonymous"></script>
+
+  <!-- DataTable -->
+  <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+
+  <script src="app.js"></script>
+  <script src="./map.js"></script>
+
+</body>
+
+</html>

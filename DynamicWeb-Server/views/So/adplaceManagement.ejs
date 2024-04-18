@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <title>Sở | Quản lý điểm quảng cáo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+  <!-- Font awesome -->
+  <link rel="stylesheet" href="/css/So/style2.css">
+  <link rel="stylesheet" href="/css/So/style.css">
+  <link rel="stylesheet" href="/css/So/table.css">
+  <link rel="stylesheet" href="/css/toggleNavigation.css">
+  <link rel="stylesheet" href="/css/alert.css">
+  <link rel="stylesheet" href="/css/So/customDropbox.css">
+  <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+</head>
+
+
+<body>
+  <!-- Header -->
+  <%- include("../partials/header.ejs") %>
+    <!-- Navbar content -->
+    <%- include("./subPartials/navbar.ejs") %>
+      <% if (message !=null){ %>
+        <div class="alert-container " id="create-alert-container">
+          <div class="alert alert-<%=message.status%> mb-0" role="alert" id="registerAlert">
+            <i class="fa-regular fa-circle-check fa-2xl"></i>
+            <span class="ms-3 fs-5">
+              <%= message.content %>
+            </span>
+          </div>
+          <div class="progress progress-<%= message.status %>"></div>
+        </div>
+        <% } %>
+
+          <!-- Main content -->
+          <main class=" dynamic-container">
+            <div class="w-sm-50 p-0 w-100" id="content">
+              <div id="adplacement-container">
+                <h2>Điểm quảng cáo</h2>
+                <form action="adplaceManagement" method="GET" id="search-bar">
+                  <div class="input-group  w-100 mt-4 justify-content-end gx-0 gx-sm-3 gy-3">
+                    <span class="input-group-text" id="addon-wrapping"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" <% if (search !=='' ) { %> value="<%= search %>" <% } %>
+                        placeholder="Tìm kiếm theo địa chỉ" aria-label="find"
+                        aria-describedby="addon-wrapping" name="search">
+
+                  </div>
+                </form>
+
+                <div id="filter">
+                  <div class="badge bg-primary text-nowrap">
+                    Số lượng: <%= adsPlacements.length %>
+                  </div>
+                  <button class="green-button add-button px-3 py-1 rounded" data-bs-toggle="modal"
+                      data-bs-target="#createModal">
+                      <i class="fas fa-plus-circle" style="color: #ffffff;"></i>
+                      Thêm điểm đặt quảng cáo
+                  </button>
+                  <a class="btn all btn-secondary text-center custom-button" href="adplaceManagement">
+                    All
+                  </a>
+                  <div class="dropdown" id="district-dropdown">
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown"
+                      aria-expanded="false" id="district-filter">
+                      <% if (currentDistrict !=='' ) { %>
+                        <%= currentDistrict %>
+                          <% } else { %>
+                            Quận
+                            <% } %>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <% for (let i=0; i < districts.length; i++){ %>
+                        <li>
+                          <a class="dropdown-item"
+                            href="<%= createWardDistrictPageQueryString(currentUrl, 'district=', districts[i].district)%>">
+                            <%= districts[i].district %>
+                          </a>
+                        </li>
+                        <% } %>
+                    </ul>
+                  </div>
+
+                  <div class="dropdown" id="ward-dropdown">
+                    <button
+                      id="ward-filter"
+                      class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                      type="button" data-bs-toggle="dropdown" aria-expanded="false" <% if (wards.length===0) { %>
+                      disabled
+                      <% } %>
+                        >
+                        <% if (currentWard !=='' ) { %>
+                          <%= currentWard %>
+                            <% } else { %>
+                              Phường
+                              <% } %>
+                    </button>
+
+                    <ul class="dropdown-menu">
+                      <% if (wards.length> 0) { %>
+                        <% for (let i=0; i < wards.length; i++){ %>
+                          <li>
+                            <a class="dropdown-item"
+                              href="<%= createWardDistrictPageQueryString(currentUrl, 'ward=', wards[i].ward) %>">
+                              <%= wards[i].ward %>
+                            </a>
+                          </li>
+                          <% } %>
+                            <% } %>
+                    </ul>
+                  </div>  
+
+                   
+                </div>
+
+                <div class="card-container">
+                  <% if (pagination.rows.length> 0) { %>
+                    <% for (let i=0;i<pagination.rows.length;i++) { %>
+                      <div class="property-card" id="property_<%= pagination.rows[i].id %>"
+                        onclick="navigateToLocation('<%= pagination.rows[i].long %>', '<%= pagination.rows[i].lat %>')">
+                        <div class="address">
+                          <p class="property-address">
+                            <%= pagination.rows[i].address %><br>
+                              <%= pagination.rows[i].Area.ward %>,
+                                <%= pagination.rows[i].Area.district %>
+                          </p>
+                        </div>
+                        <div class="property-info">
+                          <div class="property-info-item">
+                            <p class="info-label">Hình thức:</p>
+                            <p class="info-value">
+                              <%= pagination.rows[i].AdsType.type %>
+                            </p>
+                          </div>
+                          <div class="property-info-item">
+                            <p class="info-label">Phân loại:</p>
+                            <p class="info-value">
+                              <%= pagination.rows[i].LocationType.locationType %>
+                            </p>
+                          </div>
+
+                          <div class="property-info-item">
+                            <p class="info-label">Trạng thái:</p>
+                            <p class="info-value">
+                              <%= pagination.rows[i].status %>
+                            </p>
+                          </div>
+
+                          <div class="property-info-item">
+                            <p class="info-label">Số lượng bảng:</p>
+                            <p class="info-value">
+                              <%= pagination.rows[i].Boards.length %> bảng
+                            </p>
+                          </div>
+                        </div>
+                        <div class="property-actions">
+                          <i class="fas fa-pen edit-button" style="color: #f29d38;" data-bs-toggle="modal"
+                            data-bs-target="#editModal" data-id="<%= pagination.rows[i].id %>"
+                            data-adstype="<%= pagination.rows[i].AdsType.type %>"
+                            data-district="<%= pagination.rows[i].Area.district %>"
+                            data-ward="<%= pagination.rows[i].Area.ward %>"
+                            data-location="<%= pagination.rows[i].LocationType.locationType %>"
+                            data-address="<%= pagination.rows[i].address %>"
+                            data-long="<%= pagination.rows[i].long %>" data-lat="<%= pagination.rows[i].lat %>"
+                            data-status="<%= pagination.rows[i].status %>" onclick="showEditAdplaceModal(this)"></i>
+
+                          <i class="fas fa-trash delete-button" style="color: #EB3223;" data-bs-toggle="modal"
+                            data-bs-target="#deleteModal" data-id="<%= pagination.rows[i].id %>"
+                            onclick="showDeleteAdplaceModal(this)"></i>
+                        </div>
+                      </div>
+                    <% } %>
+                  <% } else { %>
+                    <p style="width:100%; height: 100%; font-weight: 500; font-size:1.2rem; display: flex; justify-content: center; align-items: center;">
+                      Không có bất kì điểm quảng cáo nào
+                    </p>
+                  <% } %>      
+                </div>
+                <div class="pagination-container w-100 d-flex flex-sm-row flex-column justify-content-between align-items-center py-2 mt-2">
+                  <p class="pagination-text mb-0">Showing <b>
+                      <%= pagination.currentPage %>
+                    </b> Out of <b>
+                      <%= pagination.maxPage %>
+                    </b></p>
+                  <nav aria-label="Page navigation example">
+                    <ul class="pagination mb-0">
+                      <% if (pagination.currentPage===pagination.minPage) { %>
+                        <li class="page-item"><button class="page-link text-dark fw-bold border-0"disabled>Previous</button></li>
+                      <% }else{%>
+                        <li class="page-item"><a class="page-link text-dark fw-bold border-0" href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage - 1) %>">Previous</a></li>
+                      <% } %>
+        
+                      <% for (let i=pagination.currentPage - pagination.limitPage; i < pagination.currentPage; i++) { %>
+                        <% if (i>= pagination.minPage){ %>
+                          <li class="page-item"><a class="page-link text-dark fw-bold border-0" href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', i) %>"><%=i%></a></li>
+                        <% } %>
+                      <% } %>
+
+                    <li class="page-item" aria-current="page"><a
+                        class="page-link text-dark fw-bold border-0"
+                        href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage) %>"
+                        style="background-color: #0FC2C0;">
+                        <%= pagination.currentPage %>
+                      </a></li>
+
+                    <% for (let i=pagination.currentPage + 1; i <=pagination.currentPage +
+                      pagination.limitPage; i++) { %>
+                      <% if (i <=pagination.maxPage) { %>
+                        <li class="page-item"><a class="page-link text-dark fw-bold border-0" href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', i) %>"><%=i%></a></li>
+                      <% } %>
+                    <% } %>
+
+                      <% if (pagination.currentPage===pagination.maxPage) { %>
+                      <li class="page-item"><button
+                          class="page-link text-dark fw-bold border-0"
+                          disabled>Next</a></li>
+                      <% }else{%>
+                      <li class="page-item"><a
+                          class="page-link text-dark fw-bold border-0"
+                          href="<%= createWardDistrictPageQueryString(currentUrl, 'page=', pagination.currentPage + 1)%>">Next</a>
+                      </li>
+                      <% } %>
+
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+
+              <div id="mapbox"></div>
+
+            </div>
+          </main>
+
+          <!-- Modal create adplacement -->
+          <div class="modal fade" id="createModal" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered modal-lg align-items-start" style="margin-top: 10px;">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title">Thêm điểm quảng cáo</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" id="close-create-button"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                  <form action="/department/adplaceManagement" method="POST">
+                    <fieldset class="container-fluid">
+                      <div class="row fw-semibold fs-4 mb-2">Khu vực đặt điểm quảng cáo</div>
+
+                      <div class="row g-md-3 g-2 mb-3">
+                        <div class="col-6 col-md-6">
+                          <select name="districtSelectCreateModal" class="form-select" required
+                            id="districtSelectCreateModal"
+                            onchange="districtSelectChange(document.getElementById('districtSelectCreateModal'), document.getElementById('wardSelectCreateModal'))">
+                            <option value="">Quận/Huyện</option>
+                            <% for (let i=0; i < districts.length; i++){ %>
+                              <option value="<%= districts[i].district %>" class="districts">
+                                <%= districts[i].district %>
+                              </option>
+                              <% } %>
+                          </select>
+                        </div>
+                        <div class="col-6 col-md-6">
+                          <select name="wardSelectCreateModal" class="form-select" id="wardSelectCreateModal" required
+                            onchange="findLocation()" disabled>
+                            <option value="">Phường</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="row fw-semibold fs-4 mb-2">Địa chỉ điểm quảng cáo</div>
+                      <div class="col col-md-5.5 p-0 has-validation mb-3">
+                        <input type="hidden" id="lngCreateModal" name="lngCreateModal">
+                        <input type="hidden" id="latCreateModal" name="latCreateModal">
+
+                        <div class="form-floating is-invalid">
+                          <input type="address" id="addressCreateModal" <% if(createErr.error.address.length>
+                          0){
+                          %>
+                          class="form-control is-invalid"
+                          <% } else {%>
+                            class="form-control"
+                            <% } %>
+                              value="<%= createErr.value.address %>"
+                                name="addressCreateModal" onchange="findLocation()"
+                                autocomplete="true"
+                                placeholder="">
+                                <label for="addressCreateModal" class="mb-2">Địa chỉ</label>
+                        </div>
+                      </div>
+
+                      <div class="row fw-semibold fs-4 mb-2">Phân loại đất và Hình thức của điểm quảng cáo</div>
+                      <div class="row g-md-3 g-2">
+                        <div class="col-6 col-md-6">
+                          <select name="locationTypeSelectCreateModal" class="form-select"
+                            id="locationTypeSelectCreateModal" required>
+                            <option value="">Phân loại đất</option>
+                            <%for (let i=0; i < locationsType.length; i++){ %>
+                              <option value="<%= locationsType[i].locationType %>" class="locationType">
+                                <%= locationsType[i].locationType %>
+                              </option>
+                              <% } %>
+
+                          </select>
+                        </div>
+
+                        <div class="col-6 col-md-6">
+                          <select name="adTypeSelectCreateModal" class="form-select" id="adTypeSelectCreateModal"
+                            required>
+                            <option value="">Hình thức</option>
+                            <%for (let i=0; i < adsTypes.length; i++){ %>
+                              <option value="<%= adsTypes[i].type %>" class="adTypes">
+                                <%= adsTypes[i].type %>
+                              </option>
+                              <% } %>
+
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <button type="button" class="mt-4 btn btn-primary w-100" id="find-location">
+                          Tìm trên bảng đồ
+                        </button>
+                      </div>
+
+                      <div class="row g-md-3 g-2">
+                        <div class="col" id="mapboxModal" style="width:100%;height:45rem; border-radius: 20px"></div>
+                      </div>
+
+                      <button type="submit" class="mt-4 btn btn-success w-100" id="registerButton">Tạo điểm
+                        quảng
+                        cáo</button>
+
+                    </fieldset>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal edit adplacement -->
+          <div class="modal fade" id="editModal" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered modal-lg align-items-start" style="margin-top: 10px;">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title">Chỉnh sửa điểm quảng cáo</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" id="close-edit-button"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                  <form action="#" id="editForm">
+                    <fieldset class="container-fluid">
+                      <input type="hidden" id="idEditModal" name="idEditModal">
+                      <div class="row fw-semibold fs-4 mb-2">Khu vực đặt điểm quảng cáo</div>
+
+                      <div class="row g-md-3 g-2 mb-3">
+                        <div class="col-6 col-md-6">
+                          <select name="districtSelectEditModal" class="form-select" required
+                            id="districtSelectEditModal"
+                            onchange="districtSelectChange(document.getElementById('districtSelectEditModal'), document.getElementById('wardSelectEditModal'))">
+                            <% for (let i=0; i < districts.length; i++){ %>
+                              <option value="<%= districts[i].district %>" class="districts">
+                                <%= districts[i].district %>
+                              </option>
+                              <% } %>
+                          </select>
+                        </div>
+                        <div class="col-6 col-md-6">
+                          <select name="wardSelectEditModal" class="form-select" required id="wardSelectEditModal">
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="row fw-semibold fs-4 mb-2">Địa chỉ điểm quảng cáo</div>
+                      <div class="row g-md-3 g-2 mb-3">
+                        <!-- Left column -->
+
+                        <input type="hidden" id="lngEditModal" name="lngEditModal">
+                        <input type="hidden" id="latEditModal" name="latEditModal">
+
+                        <div class="col col-md-5.5 p-0 mb-3">
+                          <div class="form-floating">
+                            <input type="address" id="addressEditModal" class="form-control" name="addressEditModal"
+                              autocomplete="true" placeholder="">
+                            <label for="addressEditModal" class="mb-2">Địa chỉ</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="row mb-3">
+                        <button type="button" class="mt-4 btn btn-primary w-100" id="find-location-edit">
+                          Tìm trên bảng đồ
+                        </button>
+                      </div>
+                      <div class="row fw-semibold fs-4 mb-2">Phân loại đất và Hình thức của điểm quảng cáo</div>
+                      <div class="row g-md-3 g-2">
+                        <div class="col-6 col-md-6">
+                          <select name="locationTypeSelectEditModal" class="form-select"
+                            id="locationTypeSelectEditModal" required>
+                            <%for (let i=0; i < locationsType.length; i++){ %>
+                              <option value="<%= locationsType[i].locationType %>" class="locationType">
+                                <%= locationsType[i].locationType %>
+                              </option>
+                              <% } %>
+                          </select>
+                        </div>
+
+                        <div class="col-6 col-md-6">
+                          <select name="adTypeSelectEditModal" class="form-select" id="adTypeSelectEditModal" required>
+                            <%for (let i=0; i < adsTypes.length; i++){ %>
+                              <option value="<%= adsTypes[i].type %>" class="adTypes">
+                                <%= adsTypes[i].type %>
+                              </option>
+                              <% } %>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="row fw-semibold fs-4 mb-2">Trạng thái điểm quảng cáo</div>
+                      <div class="row g-md-3 g-2 mb-3">
+                        <!-- Left column -->
+                        <select name="statusEditModal" class="form-select" id="statusEditModal" required>
+                          <%for (let i=0; i < status.length; i++){ %>
+                            <option value="<%= status[i] %>" class="status">
+                              <%= status[i] %>
+                            </option>
+                            <% } %>
+
+                        </select>
+                      </div>
+
+                      <div class="row g-md-3 g-2">
+                        <div class="col" id="mapboxEditModal" style="width:100%;height:45rem; border-radius: 20px">
+                        </div>
+                      </div>
+
+                      <!-- Modal footer -->
+                      <div class="modal-footer" style="background-color: #C4D4D6;">
+                        <button type="button" class="btn gray-button" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal"
+                          id="confirm-edit-button">Cập nhật</button>
+                      </div>
+
+                    </fieldset>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Delete Modal -->
+          <div class="modal fade" id="deleteModal" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title">Xóa điểm quảng cáo</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body" style="white-space: nowrap;">
+                  Bạn có chắc chắn rằng bạn muốn xóa điểm quảng cáo này không ?
+                  <input type="hidden" value="" name="adplaceId" id="idDeleteModal">
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn gray-button" data-bs-dismiss="modal">Hủy bỏ</button>
+                  <button class="btn red-button" id="confirm-delete-button" data-bs-dismiss="modal">Xóa</button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <%- include("../partials/footer.ejs") %>
+            <!-- Javascript -->
+            <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.min.js"
+              crossorigin="anonymous"></script>
+            <script type="importmap">
+  {
+    "imports": {
+      "@popperjs/core": "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js",
+      "bootstrap": "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.esm.min.js"
+    }
+  }
+</script>
+
+</body>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+  integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+  integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+<script src="/javascript/So/mapForAdPlacement.js"></script>
+<script src="/javascript/So/mapForAdsPlacementModal.js"></script>
+<script src="/javascript/toggleNavigation.js"></script>
+<script src="/javascript/So/adplaceManagement.js"></script>
+
+
+
+<script>
+  // Lấy tất cả các phần tử có class "property-card"
+  const propertyCards = document.querySelectorAll(".property-card");
+
+  // Duyệt qua từng phần tử và thêm sự kiện click
+  propertyCards.forEach(card => {
+    card.addEventListener('click', () => {
+      event.stopPropagation();
+      card.classList.add('clicked');
+    });
+  });
+
+
+
+  document.body.addEventListener('click', (event) => {
+    if (!event.target.closest('.property-card') && !event.target.closest('#location-details') && !event.target.closest('#mapbox') && !event.target.closest('.dropdown') && !event.target.closest('#permissionReport-sub') && !event.target.closest('#deleteLocation')) {
+      propertyCards.forEach(c => c.classList.remove('clicked'));
+     
+    }
+  });
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const propertyCards = document.querySelectorAll('.property-card');
+
+    propertyCards.forEach(card => {
+      card.addEventListener('click', (event) => {
+        event.stopPropagation(); // Stop the click event from propagating to the body
+
+        // Remove 'clicked' class from all property-cards
+        propertyCards.forEach(c => c.classList.remove('clicked'));
+
+        // Add class "clicked" to the clicked property-card
+        card.classList.add('clicked');
+      });
+    });
+  });
+
+
+</script>
+
+
+<style>
+  .custom-button {
+    border: none;
+    font-weight: bold;
+    padding: 10px 20px;
+    text-align: left;
+  }
+</style>
+
+</html>

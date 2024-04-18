@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <title><%= role %> | <%= tab %></title>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Select -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css"
+      integrity="sha512-mR/b5Y7FRsKqrYZou7uysnOdCIJib/7r5QeJMFvLNHNhtye3xJp1TdJVPLtetkukFn227nKpXD9OjUc09lx97Q=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <!-- Font awesome -->
+    <script
+      src="https://kit.fontawesome.com/5990078b0a.js"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="/css/PhuongQuan/style.css" />
+    <link rel="stylesheet" href="/css/PhuongQuan/toggleNavigation.css" />
+    <link rel="stylesheet" href="/css/So/style.css" />
+  </head>
+
+  <body>
+    <!-- Header -->
+    <%- include("../partials/header.ejs") %>
+    <!-- Navbar content -->
+    <%- include("./subPartials/navbar.ejs") %>
+    <!-- Data -->
+    <div id="account-ward" style="display: none"><%= area.ward %></div>
+    <div id="account-district" style="display: none"><%= area.district %></div>
+    <div id="account-type" style="display: none"><%= type %></div>
+    <!-- Main content -->
+
+    <main class="dynamic-container map-container">
+      <div class="tab-content h-100 pb-3">
+        <div
+          class="tab-pane mx-auto active border-2 p-0 h-100"
+          id="map"
+          role="tabpanel"
+          aria-labelledby="map-tab"
+        >
+          <div class="container-fluid h-100">
+            <div class="row h-100">
+              <div
+                class="col h-100 position-relative shadow px-0"
+                id="map-view"
+              >
+                <!-- Map -->
+                <div id="mapbox"></div>
+
+                <div class="dropup btn-black-outline" id="map-view-button">
+                  <button
+                    class="btn-map btn-icon"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-bs-auto-close="outside"
+                  >
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                  <ul class="dropdown-menu mb-1">
+                    <li class="dropdown-item list-group-item px-3">
+                      <input
+                        class="form-check-input me-2"
+                        type="checkbox"
+                        value=""
+                        id="firstCheckboxStretched"
+                        checked
+                      />
+                      <label
+                        class="form-check-label stretched-link"
+                        for="firstCheckboxStretched"
+                        >Các điểm QC đã quy hoạch</label
+                      >
+                    </li>
+                    <li class="dropdown-item list-group-item px-3">
+                      <input
+                        class="form-check-input me-2"
+                        type="checkbox"
+                        value=""
+                        id="secondCheckboxStretched"
+                        checked
+                      />
+                      <label
+                        class="form-check-label stretched-link"
+                        for="secondCheckboxStretched"
+                        >Các điểm QC chưa quy hoạch</label
+                      >
+                    </li>
+                    <li class="dropdown-item list-group-item px-3">
+                      <input
+                        class="form-check-input me-2"
+                        type="checkbox"
+                        value=""
+                        id="forthCheckboxStretched"
+                      />
+                      <label
+                        class="form-check-label stretched-link"
+                        for="forthCheckboxStretched"
+                        >Các điểm QC bị vi phạm</label
+                      >
+                    </li>
+                  </ul>
+                </div>
+                <% if (type=="Quan") { %>
+                <div id="map-filter-button">
+                  <select
+                    class="selectpicker dropup"
+                    multiple
+                    aria-label="size 3 select example"
+                    name="selectedOptions"
+                    id="filterSelect"
+                    style="z-index: 100"
+                    data-selected-text-format="count"
+                    data-count-selected-text="{0} phường được chọn"
+                    data-dropup-auto="false"
+                    data-actions-box="true"
+                  >
+                    <% wards.forEach((ward)=>{ %>
+                    <option selected value="<%=ward%>"><%= ward%></option>
+                    <%})%>
+                  </select>
+                </div>
+                <% } %>
+              </div>
+              <div class="col-4 h-100 px-4" id="map-details">
+                <h6>Tìm địa điểm</h6>
+                <form class="form-inline">
+                  <div class="input-group">
+                    <span class="input-group-text" id="basic-addon1">
+                      <button style="border: 0" id="search-button">
+                        <i class="fa-solid fa-magnifying-glass-location"></i>
+                      </button>
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Nhập địa điểm"
+                      aria-label="Username"
+                      aria-describedby="basic-addon1"
+                      id="location-input"
+                    />
+                  </div>
+                </form>
+                <h6 class="mt-2" id="location-name">Chưa có dữ liệu</h6>
+                <p id="location-address">
+                  Vui lòng chọn điểm trên bảng đồ để xem!
+                </p>
+                <div class="d-flex justify-content-end"></div>
+                <div class="mt-3 border-bottom"></div>
+                <h4 class="mt-3">Thông tin bảng QC</h4>
+                <p id="num-ads">Vui lòng chọn điểm trên bảng đồ để xem!</p>
+                <button
+                  type="button"
+                  class="btn btn-outline-success fw-semibold toBCVP mb-2"
+                  data-bs-toggle="modal"
+                  data-bs-target="#permitRequestAndCreateBoardModal"
+                  data-id="-1"
+                  id="add-board-permit-btn"
+                  onclick="showAddBoardModal(this)"
+                  style="display: none"
+                >
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  Tạo yêu cầu cấp phép trên bảng quảng cáo mới
+                </button>
+                <!-- <a href="">
+                  <button
+                    type="button"
+                    class="btn btn-outline-success fw-semibold toBCVP"
+                    id="view-report-location"
+                    style="display: none"
+                  >
+
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    Xem báo cáo vi phạm tại địa điểm này
+                  </button>
+              </a> -->
+                <div id="board-details-toggle" style="display: none">
+                  <p id="num-ads"></p>
+                  <div class="card">
+                    <div class="card-body" id="side-section">
+                      <span class="text-muted"
+                        >#ID:
+                        <span class="fw-semibold" id="board-id">???</span></span
+                      >
+                      <h4 class="card-title" id="board-title">
+                        Trụ, cụm pano
+                        <span class="ms-2 badge bg-success" id="board-status"
+                          >Đã quy hoạch</span
+                        >
+                      </h4>
+                      <p class="card-text" id="board-address">
+                        Chưa có thông tin để hiển thị
+                      </p>
+
+                      <p>
+                        Kích thước:
+                        <span class="details-info" id="board-size"
+                          >Chưa có thông tin</span
+                        >
+                        <br />
+                        Số lượng:
+                        <span class="details-info" id="board-quantity"
+                          >Chưa có thông tin</span
+                        >
+                        <br />
+                        Hình thức:
+                        <span class="details-info" id="board-form"
+                          >Chưa có thông tin</span
+                        >
+                        <br />
+                        Phân loại:
+                        <span class="details-info" id="board-classification"
+                          >Chưa có thông tin</span
+                        >
+                        <br />
+                      </p>
+                      <img
+                        class="img-thumbnail mb-3"
+                        src="img/BangQC1.jpg"
+                        id="board-thumbnail"
+                        alt=""
+                        style="width: 100%"
+                      />
+
+                      <div class="d-flex justify-content-between">
+                        <span
+                          id="board-contract"
+                          class="btn-icon fs-3"
+                          data-bs-toggle="popover"
+                          data-bs-trigger="hover focus"
+                          data-bs-title="Hợp đồng quảng cáo"
+                          data-bs-container="body"
+                          data-bs-placement="left"
+                          data-bs-content="Ngày hết hạn: 01-01-2003"
+                        >
+                          <i
+                            class="fa-solid fa-circle-exclamation text-primary"
+                          ></i>
+                        </span>
+                        <!-- <a href="">
+                          <button
+                          type="button"
+                          class="btn btn-outline-success fw-semibold toBCVP"
+                          id="view-report-board"
+                          >
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            Xem báo cáo vi phạm tại bảng này
+                          </button>
+                        </a> -->
+                        <button
+                          type="button"
+                          class="btn btn-outline-success fw-semibold toBCVP"
+                          data-bs-toggle="modal"
+                          data-bs-target="#permitRequestModal"
+                          id="createPermissionButton-half"
+                          data-id="-1"
+                          onclick="showAddPermitRequestModal('#permitRequestForm', this)"
+                        >
+                          <i class="fa-solid fa-triangle-exclamation"></i>
+                          Tạo yêu cầu cấp phép
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <nav class="mt-3" aria-label="Page navigation">
+                    <ul class="pagination" id="board-pagination">
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                          <span aria-hidden="true">&laquo;</span>
+                        </a>
+                      </li>
+                      <li class="page-item active" aria-current="page">
+                        <a class="page-link" href="#">1</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                          <span aria-hidden="true">&raquo;</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Footer -->
+    <%- include("../partials/footer.ejs") %>
+
+    <!-- Modals -->
+    <% if (message) { %> <%- include("./subPartials/message-modal.ejs") %> <% };
+    %> <%- include("./subPartials/form-add-permit-request.ejs") %> <%-
+    include("./subPartials/form-add-permit-request-new-board.ejs") %>
+  </body>
+
+  <script
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"
+  ></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"
+  ></script>
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js"
+    integrity="sha512-FHZVRMUW9FsXobt+ONiix6Z0tIkxvQfxtCSirkKc5Sb4TKHmqq1dZa8DphF0XqKb3ldLu/wgMa8mT6uXiLlRlw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+  <script src="/javascript/toggleNavigation.js"></script>
+  <script src="/javascript/PhuongQuan/map.js"></script>
+  <script src="/javascript/PhuongQuan/permit-request.js"></script>
+  <% if (type=="Quan") { %>
+    <script src="/javascript/PhuongQuan/mapQuan.js"></script>
+    <% } %>
+</html>
