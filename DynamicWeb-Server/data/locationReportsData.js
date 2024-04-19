@@ -34,7 +34,6 @@ const locationReports = [
     address: "122 Cống Quỳnh",
     lat: 10.765131994836972,
     long: 106.69015334138535,
-    ReportTypeId: 2,
     AreaId: 9,
     ReportId: 19,
     updatedAt: "2024-01-09 02:33:58",

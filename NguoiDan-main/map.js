@@ -169,7 +169,7 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLid.innerHTML = adsData[0].id;
     HTMLnumber.innerHTML = `<p>Địa điểm này có ${adsData.length} quảng cáo`;
     HTMLtitle.innerHTML = `${
-      adsData[0].BoardType.type
+      adsData[0].boardType.type
     }<span class="ms-2 badge ${
       adsData[0].status == "Đã cấp phép"
         ? "bg-success"
@@ -181,12 +181,12 @@ const getInfoOnclickUnclustered = async (e) => {
     }" id="board-status">${
       adsData[0].status != "" ? adsData[0].status : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = `${adsData[0].AdsPlacement.address}, ${adsData[0].AdsPlacement.Area.ward}, ${adsData[0].AdsPlacement.Area.district}`;
+    HTMLaddr.innerHTML = `${adsData[0].adsPlacement.address}, ${adsData[0].adsPlacement.area.ward}, ${adsData[0].adsPlacement.area.district}`;
     HTMLsize.innerHTML = adsData[0].size;
     HTMLqty.innerHTML = adsData[0].quantity;
-    HTMLform.innerHTML = adsData[0].AdsPlacement.AdsType.type;
+    HTMLform.innerHTML = adsData[0].adsPlacement.adsType.type;
     HTMLclassification.innerHTML =
-      adsData[0].AdsPlacement.LocationType.locationType;
+      adsData[0].adsPlacement.locationType.locationType;
     HTMLthumbnail.src = `${serverPath}/${adsData[0].image}`;
     // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${adsData[0].image}`;
     HTMLboardContract.setAttribute(
@@ -246,7 +246,7 @@ const getInfoOnclickUnclustered = async (e) => {
       HTMLid.innerHTML = adsData[page - 1].id;
 
       HTMLtitle.innerHTML = `${
-        adsData[page - 1].BoardType.type
+        adsData[page - 1].boardType.type
       }<span class="ms-2 badge ${
         adsData[page - 1].status == "Đã cấp phép"
           ? "bg-success"
@@ -260,14 +260,14 @@ const getInfoOnclickUnclustered = async (e) => {
           ? adsData[page - 1].status
           : "Chưa có quảng cáo"
       }</span></a>`;
-      HTMLaddr.innerHTML = `${adsData[page - 1].AdsPlacement.address}, ${
-        adsData[page - 1].AdsPlacement.Area.ward
-      }, ${adsData[page - 1].AdsPlacement.Area.district}`;
+      HTMLaddr.innerHTML = `${adsData[page - 1].adsPlacement.address}, ${
+        adsData[page - 1].adsPlacement.area.ward
+      }, ${adsData[page - 1].adsPlacement.area.district}`;
       HTMLsize.innerHTML = adsData[page - 1].size;
       HTMLqty.innerHTML = adsData[page - 1].quantity;
-      HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
+      HTMLform.innerHTML = adsData[page - 1].adsPlacement.adsType.type;
       HTMLclassification.innerHTML =
-        adsData[page - 1].AdsPlacement.LocationType.locationType;
+        adsData[page - 1].adsPlacement.locationType.locationType;
       HTMLthumbnail.src = `${serverPath}/${adsData[page - 1].image}`;
       // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
       //   adsData[page - 1].image
@@ -306,7 +306,7 @@ const getInfoOnclickUnclustered = async (e) => {
 
     HTMLid.innerHTML = adsData[page - 1].id;
     HTMLtitle.innerHTML = `${
-      adsData[page - 1].BoardType.type
+      adsData[page - 1].boardType.type
     }<span class="ms-2 badge ${
       adsData[page - 1].status == "Đã cấp phép"
         ? "bg-success"
@@ -320,14 +320,14 @@ const getInfoOnclickUnclustered = async (e) => {
         ? adsData[page - 1].status
         : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = `${adsData[page - 1].AdsPlacement.address}, ${
-      adsData[page - 1].AdsPlacement.Area.ward
-    }, ${adsData[page - 1].AdsPlacement.Area.district}`;
+    HTMLaddr.innerHTML = `${adsData[page - 1].adsPlacement.address}, ${
+      adsData[page - 1].adsPlacement.area.ward
+    }, ${adsData[page - 1].adsPlacement.area.district}`;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
-    HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
+    HTMLform.innerHTML = adsData[page - 1].adsPlacement.adsType.type;
     HTMLclassification.innerHTML =
-      adsData[page - 1].AdsPlacement.LocationType.locationType;
+      adsData[page - 1].adsPlacement.locationType.locationType;
     HTMLthumbnail.src = `${serverPath}/${adsData[page - 1].image}`;
     // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
     //   adsData[page - 1].image
@@ -363,7 +363,7 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLid.innerHTML = adsData[page - 1].id;
 
     HTMLtitle.innerHTML = `${
-      adsData[page - 1].BoardType.type
+      adsData[page - 1].boardType.type
     }<span class="ms-2 badge ${
       adsData[page - 1].status == "Đã cấp phép"
         ? "bg-success"
@@ -377,14 +377,14 @@ const getInfoOnclickUnclustered = async (e) => {
         ? adsData[page - 1].status
         : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = `${adsData[page - 1].AdsPlacement.address}, ${
-      adsData[page - 1].AdsPlacement.Area.ward
-    }, ${adsData[page - 1].AdsPlacement.Area.district}`;
+    HTMLaddr.innerHTML = `${adsData[page - 1].adsPlacement.address}, ${
+      adsData[page - 1].adsPlacement.area.ward
+    }, ${adsData[page - 1].adsPlacement.area.district}`;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
-    HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
+    HTMLform.innerHTML = adsData[page - 1].adsPlacement.adsType.type;
     HTMLclassification.innerHTML =
-      adsData[page - 1].AdsPlacement.LocationType.locationType;
+      adsData[page - 1].adsPlacement.locationType.locationType;
     HTMLthumbnail.src = `${serverPath}/${adsData[page - 1].image}`;
     // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
     //   adsData[page - 1].image

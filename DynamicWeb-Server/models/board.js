@@ -13,7 +13,6 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsTo(BoardType);
       this.belongsTo(AdsPlacement);
-      this.hasMany(Report);
       this.hasOne(PermitRequest);
       this.hasMany(BoardRequest);
     }

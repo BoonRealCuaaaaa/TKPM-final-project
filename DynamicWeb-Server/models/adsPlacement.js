@@ -20,7 +20,6 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(LocationType);
       this.belongsTo(AdsType);
       this.hasMany(Board);
-      this.hasMany(Report);
       this.hasMany(AdsPlacementRequest);
     }
   }

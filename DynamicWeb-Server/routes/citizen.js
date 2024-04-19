@@ -35,6 +35,7 @@ const upload = multer({ storage: fileStorage, fileFilter: fileFilter });
 
 const citizenController=new CitizenController()
 
+
 router.get("/get-sipulated", citizenController.getSipulated);
 router.get("/get-nonsipulated", citizenController.getNonSipulated);
 router.get("/get-report", citizenController.getReport);

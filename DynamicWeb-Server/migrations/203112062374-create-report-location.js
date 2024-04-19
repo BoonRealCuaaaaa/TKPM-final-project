@@ -21,10 +21,6 @@ module.exports = {
         type: DataTypes.DOUBLE,
         allowNull: false,
       },
-      reportTypeId: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
       areaId: {
         type: DataTypes.INTEGER,
         allowNull: false,

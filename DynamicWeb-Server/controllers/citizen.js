@@ -1,253 +1,78 @@
 const {
-    sequelize,
-    AdsPlacement,
-    Area,
-    LocationType,
-    AdsType,
-    Report,
-    ReportType,
-    PermitRequest,
-    BoardType,
-    Board,
-    LocationReport,
-  } = require("../models");
-  const Sequelize = require("sequelize");
+  sequelize,
+  AdsPlacement,
+  Area,
+  LocationType,
+  AdsType,
+  Report,
+  ReportType,
+  PermitRequest,
+  BoardType,
+  Board,
+  LocationReport,
+} = require("../models");
+const Sequelize = require("sequelize");
+
+const { AdsPlacementDAO } = require("../DAO/AdsPlacementDAO");
+const { BoardDAO } = require("../DAO/BoardDAO");
+const { PermitRequestDAO } = require("../DAO/PermitRequestDAO");
+const modelDC = require("../DC/importLibrary");
+const { json } = require("body-parser");
+const board = require("../models/board");
 
 class CitizenController {
-  constructor(data) {
+  constructor() {
     if (CitizenController.instance) {
       return CitizenController.instance;
     }
 
     CitizenController.instance = this;
-    this.data = data;
   }
 
   async getSipulated(req, res, next) {
-    const sipulated = await AdsPlacement.findAll({
-      where: {
-        status: "Đã quy hoạch",
-      },
-      include: [
-        {
-          model: Area,
-          required: true,
-        },
-        {
-          model: LocationType,
-          required: true,
-        },
-        {
-          model: AdsType,
-          required: true,
-        },
-      ],
-    });
-
-    const sipulatedGeoJSON = {
-      type: "FeatureCollection",
-      features: [],
-    };
+    const sipulated =
+      await AdsPlacementDAO.getInstance().getAdsPlacementByStatus(
+        "Đã quy hoạch"
+      );
+    const sipulatedGeoJSON = new modelDC.MapFeatureCollectionDC();
 
     for (let i = 0; i < sipulated.length; i++) {
-      const boards = await Board.findAll({
-        where: {
-          adsPlacementId: sipulated[i].id,
-        },
-      });
-
-      const feature = {
-        type: "Feature",
-        properties: {
-          id: sipulated[i].id,
-          area: {
-            ward: sipulated[i].Area.ward,
-            district: sipulated[i].Area.district,
-          },
-          locationType: sipulated[i].LocationType.locationType,
-          adsType: sipulated[i].AdsType.type,
-          address: sipulated[i].address,
-          status: "Đã quy hoạch",
-          numBoard: boards.length,
-        },
-        geometry: {
-          coordinates: [sipulated[i].long, sipulated[i].lat],
-          type: "Point",
-        },
-      };
-
-      sipulatedGeoJSON.features.push(feature);
+      const adapter = new modelDC.AdsPlacementAdapterDC(sipulated[i]);
+      sipulatedGeoJSON.appendToList(await adapter.getFeature());
     }
 
     res.json(JSON.stringify(sipulatedGeoJSON));
   }
 
   async getNonSipulated(req, res, next) {
-    const nonSipulated = await AdsPlacement.findAll({
-      where: {
-        status: "Chưa quy hoạch",
-      },
-      include: [
-        {
-          model: Area,
-          required: true,
-        },
-        {
-          model: LocationType,
-          required: true,
-        },
-        {
-          model: AdsType,
-          required: true,
-        },
-      ],
-    });
+    const nonSipulated =
+      await AdsPlacementDAO.getInstance().getAdsPlacementByStatus(
+        "Chưa quy hoạch"
+      );
 
-    const nonSipulatedGeoJSON = {
-      type: "FeatureCollection",
-      features: [],
-    };
+    const nonSipulatedGeoJSON = new modelDC.MapFeatureCollectionDC();
 
     for (let i = 0; i < nonSipulated.length; i++) {
-      const boards = await Board.findAll({
-        where: {
-          adsPlacementId: nonSipulated[i].id,
-        },
-      });
-
-      const feature = {
-        type: "Feature",
-        properties: {
-          id: nonSipulated[i].id,
-          area: {
-            ward: nonSipulated[i].Area.ward,
-            district: nonSipulated[i].Area.district,
-          },
-          locationType: nonSipulated[i].LocationType.locationType,
-          adsType: nonSipulated[i].AdsType.type,
-          address: nonSipulated[i].address,
-          status: "Chưa quy hoạch",
-          numBoard: boards.length,
-        },
-        geometry: {
-          coordinates: [nonSipulated[i].long, nonSipulated[i].lat],
-          type: "Point",
-        },
-      };
-
-      nonSipulatedGeoJSON.features.push(feature);
+      const adapter = new modelDC.AdsPlacementAdapterDC(nonSipulated[i]);
+      nonSipulatedGeoJSON.appendToList(await adapter.getFeature());
     }
 
     res.json(JSON.stringify(nonSipulatedGeoJSON));
   }
 
   async getReport(req, res, next) {
-    const reported = await Report.findAll({
-      where: {
-        AdsPlacementId: {
-          [Sequelize.Op.not]: null,
-        },
-        status: {
-          [Sequelize.Op.not]: "Đã xử lý",
-        },
-      },
-      include: [
-        {
-          model: AdsPlacement,
-          required: true,
-          include: [
-            {
-              model: Area,
-              required: true,
-            },
-            {
-              model: LocationType,
-              required: true,
-            },
-            {
-              model: AdsType,
-              required: true,
-            },
-          ],
-        },
-        {
-          model: ReportType,
-          required: true,
-        },
-      ],
-    });
+    const reports =
+      await AdsPlacementDAO.getInstance().getReportedAdsPlacement();
 
-    const reportedTable2 = await LocationReport.findAll({
-      where: {
-        status: {
-          [Sequelize.Op.not]: "Đã xử lý",
-        },
-      },
-      include: [
-        { model: Area, required: true },
-        {
-          model: ReportType,
-          required: true,
-        },
-      ],
-    });
+    const reportedGeoJSON = new modelDC.MapFeatureCollectionDC();
 
-    const reportedGeoJSON = {
-      type: "FeatureCollection",
-      features: [],
-    };
-
-    const placement = [];
-
-    reported.forEach((data) => {
-      if (placement.indexOf(data.AdsPlacement.id) == -1) {
-        placement.push(data.AdsPlacement.id);
-        const feature = {
-          type: "Feature",
-          properties: {
-            area: {
-              ward: data.AdsPlacement.Area.ward,
-              district: data.AdsPlacement.Area.district,
-            },
-            reportType: data.ReportType.type,
-            address: data.AdsPlacement.address,
-            lng: data.AdsPlacement.long,
-            lat: data.AdsPlacement.lat,
-          },
-          geometry: {
-            coordinates: [data.AdsPlacement.long, data.AdsPlacement.lat],
-            type: "Point",
-          },
-        };
-        reportedGeoJSON.features.push(feature);
-      }
-    });
-
-    const placement2 = [];
-
-    reportedTable2.forEach((data) => {
-      if (placement2.indexOf([data.long, data.lat]) == -1) {
-        placement2.push([data.long, data.lat]);
-        const feature = {
-          type: "Feature",
-          properties: {
-            area: {
-              ward: data.Area.ward,
-              district: data.Area.district,
-            },
-            reportType: data.ReportType.type,
-            address: data.address,
-            lng: data.long,
-            lat: data.lat,
-          },
-          geometry: {
-            coordinates: [data.long, data.lat],
-            type: "Point",
-          },
-        };
-        reportedGeoJSON.features.push(feature);
-      }
-    });
+    for (let i = 0; i < reports.length; i++) {
+      const adapter = new modelDC.AdsPlacementAdapterForReportPlaceDC(
+        reports[i].adsPlacementDC,
+        reports[i].report
+      );
+      reportedGeoJSON.appendToList(await adapter.getFeature());
+    }
 
     res.json(JSON.stringify(reportedGeoJSON));
   }
@@ -256,71 +81,48 @@ class CitizenController {
     const placementId = req.params.placementId;
     const placement = await AdsPlacement.findByPk(placementId);
     const respondData = [];
+    const responseData = [];
 
     if (!placement) {
       return res
         .status(403)
         .send({ message: "Không tìm thấy vị trí quảng cáo" });
     }
+    const boards = await BoardDAO.getInstance().getBoardByAdsPlacementId(
+      placementId
+    );
 
-    const boards = await placement.getBoards({
-      include: [
-        {
-          model: BoardType,
-          required: true,
-        },
-        {
-          model: AdsPlacement,
-          required: true,
-          include: [
-            {
-              model: LocationType,
-              required: true,
-            },
-            {
-              model: AdsType,
-              required: true,
-            },
-            {
-              model: Area,
-              required: true,
-            },
-          ],
-        },
-      ],
-    });
+    for (let i=0;i<boards.length;i++) {
+      const permitRequest = await
+        PermitRequestDAO.getInstance().findPermitRequestByBoardId(board2[i].id);
 
-    for (const board of boards) {
-      try {
-        const permitRequest = await board.getPermitRequest();
 
-        if (permitRequest) {
-          const data = {
-            ...board.dataValues,
-            image: permitRequest.image,
-            start: permitRequest.start,
-            end: permitRequest.end,
-            content: permitRequest.content,
-            status: permitRequest.status,
-          };
-          respondData.push(data);
-        } else {
-          const data = {
-            ...board.dataValues,
-            image: "",
-            start: "",
-            end: "",
-            content: "",
-            status: "",
-          };
-          respondData.push(data);
-        }
-      } catch (err) {
-        console.log(err);
+      if (permitRequest != null) {
+        const wrapper = {
+          ...boards[i],
+          image: permitRequest.image,
+          start: permitRequest.start,
+          end: permitRequest.end,
+          content: permitRequest.content,
+          status: permitRequest.status,
+        };
+
+        responseData.push(wrapper);
+      } else {
+        const wrapper = {
+          ...boards[i],
+          image: "",
+          start: "",
+          end: "",
+          content: "",
+          status: "",
+        };
+
+        responseData.push(wrapper);
       }
     }
-
-    res.json(JSON.stringify(respondData));
+    
+    res.json(JSON.stringify(responseData));
   }
 
   async postReport(req, res, next) {
