@@ -13,6 +13,9 @@ const {
 } = require("../models");
 
 class AreaDC {
+  id;
+  ward;
+  district;
   constructor(id, ward, district) {
     Object.assign(this, {
       id,
@@ -22,4 +25,4 @@ class AreaDC {
   }
 }
 
-exports.AreaDC=AreaDC
+exports.AreaDC = AreaDC;

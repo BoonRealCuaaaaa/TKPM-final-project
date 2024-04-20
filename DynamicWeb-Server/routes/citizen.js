@@ -43,7 +43,7 @@ router.get("/get-ads/:placementId", citizenController.getAds);
 router.post(
   "/post-report",
   upload.array("files", 2),
-  citizenController.postReport
+  citizenController.postReportV2
 );
 router.post(
   "/post-report-random-location",

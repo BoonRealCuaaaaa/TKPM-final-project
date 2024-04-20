@@ -554,7 +554,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
     createReport.style.display = "none";
     exitSelfReport.style.display = "inline-block";
     let selfReportedData = localStorage.getItem("reportedData");
-    let selfReportedRandomData = localStorage.getItem("reportedRandomData");
+    // let selfReportedRandomData = localStorage.getItem("reportedRandomData");
 
     if (selfReportedData != null || selfReportedRandomData != null) {
       if (selfReportedData == null) {
@@ -563,19 +563,18 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
         selfReportedData = JSON.parse(selfReportedData);
       }
 
-      if (selfReportedRandomData == null) {
-        selfReportedRandomData = [];
-      } else {
-        selfReportedRandomData = JSON.parse(selfReportedRandomData);
-      }
+      // if (selfReportedRandomData == null) {
+      //   selfReportedRandomData = [];
+      // } else {
+      //   selfReportedRandomData = JSON.parse(selfReportedRandomData);
+      // }
       respond = await fetch(`${serverPath}/citizen/post-self-report`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          reportIdsType1: selfReportedData,
-          reportIdsType2: selfReportedRandomData,
+          reportIds: selfReportedData,
         }),
       });
     } else {
@@ -667,7 +666,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
       const rowDataArr = [
         increaseId,
         item.name,
-        item.ReportType.type,
+        item.reportType.type,
         item.createdAt.split("T")[0],
         item.status,
         '<a href="#" class="view-detail" rel="noopener noreferrer" onclick="viewDetailButtonEvent(event)"><img src="./img/file.png" alt="" style="height:30px"></a>',
@@ -998,15 +997,16 @@ map.on("load", async () => {
       isClickPoint = 1;
     }
     const tempData = e.features[0];
-    const { type, lng, lat } = e.features[0].properties;
+    console.log(e.features[0].properties);
+    const { lng, lat } = e.features[0].properties;
     let reportIdArr;
-    if (type == 1) {
-      reportIdArr = JSON.parse(localStorage.getItem("reportedData"));
-    } else if (type == 2) {
-      reportIdArr = JSON.parse(localStorage.getItem("reportedRandomData"));
-    }
+    reportIdArr = JSON.parse(localStorage.getItem("reportedData"));
+    // if (type == 1) {
+    // } else if (type == 2) {
+
+    // }
     const fetchData = await fetch(
-      `${serverPath}/citizen/get-report-by-lnglat?type=${type}&lng=${lng}&lat=${lat}`,
+      `${serverPath}/citizen/get-report-by-lnglat?lng=${lng}&lat=${lat}`,
       {
         method: "POST",
         headers: {
@@ -1039,7 +1039,7 @@ map.on("load", async () => {
       HTMLReportStatus.innerHTML = "Chưa có thông tin";
       HTMLReportLocation.innerHTML = "Chưa có thông tin";
     } else {
-      HTMLReportType.innerHTML = rpData[0].ReportType.type;
+      HTMLReportType.innerHTML = rpData[0].reportType.type;
       HTMLReportName.innerHTML = rpData[0].name;
       HTMLReportDate.innerHTML = rpData[0].createdAt.split("T")[0];
       HTMLReportStatus.innerHTML = rpData[0].status;
@@ -1047,7 +1047,7 @@ map.on("load", async () => {
 
       const images =
         rpData[0].image != null ? rpData[0].image.split(", ") : undefined;
-      HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${rpData[0].phone}</p><p>Email: ${rpData[0].email}</p><b>Loại: ${rpData[0].ReportType.type}</b><p>${rpData[0].reportContent}</p> <p>`;
+      HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${rpData[0].phone}</p><p>Email: ${rpData[0].email}</p><b>Loại: ${rpData[0].reportType.type}</b><p>${rpData[0].reportContent}</p> <p>`;
       if (images == undefined) {
         HTMLModalImg1.src = "";
         HTMLModalImg2.src = "";
@@ -1104,7 +1104,7 @@ map.on("load", async () => {
         activeItem.classList.remove("active");
 
         const page = e.target.innerText;
-        HTMLReportType.innerHTML = rpData[page - 1].ReportType.type;
+        HTMLReportType.innerHTML = rpData[page - 1].reportType.type;
         HTMLReportName.innerHTML = rpData[page - 1].name;
         HTMLReportDate.innerHTML =
           rpData[page - 1].createdAt.split("T")[page - 1];
@@ -1115,7 +1115,11 @@ map.on("load", async () => {
           rpData[page - 1].image != null
             ? rpData[page - 1].image.split(", ")
             : undefined;
-        HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${rpData[page-1].phone}</p><p>Email: ${rpData[page-1].email}</p><b>Loại: ${rpData[page-1].ReportType.type}</b><p>${rpData[page-1].reportContent}</p> <p>`;
+        HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${
+          rpData[page - 1].phone
+        }</p><p>Email: ${rpData[page - 1].email}</p><b>Loại: ${
+          rpData[page - 1].reportType.type
+        }</b><p>${rpData[page - 1].reportContent}</p> <p>`;
         if (images == undefined) {
           HTMLModalImg1.src = "";
           HTMLModalImg2.src = "";
@@ -1152,7 +1156,7 @@ map.on("load", async () => {
 
       const page = parseInt(activeItem.firstChild.innerText) - 1;
 
-      HTMLReportType.innerHTML = rpData[page - 1].ReportType.type;
+      HTMLReportType.innerHTML = rpData[page - 1].reportType.type;
       HTMLReportName.innerHTML = rpData[page - 1].name;
       HTMLReportDate.innerHTML =
         rpData[page - 1].createdAt.split("T")[page - 1];
@@ -1163,7 +1167,11 @@ map.on("load", async () => {
         rpData[page - 1].image != null
           ? rpData[page - 1].image.split(", ")
           : undefined;
-          HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${rpData[page-1].phone}</p><p>Email: ${rpData[page-1].email}</p><b>Loại: ${rpData[page-1].ReportType.type}</b><p>${rpData[page-1].reportContent}</p> <p>`;
+      HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${
+        rpData[page - 1].phone
+      }</p><p>Email: ${rpData[page - 1].email}</p><b>Loại: ${
+        rpData[page - 1].reportType.type
+      }</b><p>${rpData[page - 1].reportContent}</p> <p>`;
       if (images == undefined) {
         HTMLModalImg1.src = "";
         HTMLModalImg2.src = "";
@@ -1195,7 +1203,7 @@ map.on("load", async () => {
       activeItem.classList.remove("active");
 
       const page = parseInt(activeItem.firstChild.innerText) + 1;
-      HTMLReportType.innerHTML = rpData[page - 1].ReportType.type;
+      HTMLReportType.innerHTML = rpData[page - 1].reportType.type;
       HTMLReportName.innerHTML = rpData[page - 1].name;
       HTMLReportDate.innerHTML =
         rpData[page - 1].createdAt.split("T")[page - 1];
@@ -1206,7 +1214,11 @@ map.on("load", async () => {
         rpData[page - 1].image != null
           ? rpData[page - 1].image.split(", ")
           : undefined;
-          HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${rpData[page-1].phone}</p><p>Email: ${rpData[page-1].email}</p><b>Loại: ${rpData[page-1].ReportType.type}</b><p>${rpData[page-1].reportContent}</p> <p>`;
+      HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${
+        rpData[page - 1].phone
+      }</p><p>Email: ${rpData[page - 1].email}</p><b>Loại: ${
+        rpData[page - 1].reportType.type
+      }</b><p>${rpData[page - 1].reportContent}</p> <p>`;
       if (images == undefined) {
         HTMLModalImg1.src = "";
         HTMLModalImg2.src = "";
@@ -1437,7 +1449,7 @@ const viewDetailButtonEvent = (event) => {
     const HTMLreporterEmail = document.querySelector("#reporter-email");
 
     HTMLreportId.innerHTML = reportData.id;
-    HTMLreportType.innerHTML = `${reportData.ReportType.type}<span class="ms-2 badge bg-secondary" id="report-status"></span>`;
+    HTMLreportType.innerHTML = `${reportData.reportType.type}<span class="ms-2 badge bg-secondary" id="report-status"></span>`;
     document.querySelector("#report-status").innerText = reportData.status;
     HTMLreportDatetime.innerHTML = reportData.createdAt.split("T")[0];
     HTMLreportContent.innerHTML = reportData.reportContent;
@@ -1549,7 +1561,6 @@ formSubmit.addEventListener("click", async (e) => {
     body: formData,
   });
   const respondJSON = await respond.json();
-  console.log(respondJSON);
 
   const selectedArea = JSON.parse(selectedLocation.properties.area);
   const selectedAddr = `${selectedLocation.properties.address}, ${selectedArea.ward}, ${selectedArea.district}`;
@@ -1559,13 +1570,15 @@ formSubmit.addEventListener("click", async (e) => {
   if (!isExist) {
     const area = JSON.parse(selectedLocation.properties.area);
     const fullAddr = `${selectedLocation.properties.address}, ${area.ward}, ${area.district}`;
+    const returnData = JSON.parse(respondJSON);
+    console.log(returnData);
+
     selfReportedLocation.features.push({
       type: "Feature",
       properties: {
-        type: 1,
         address: fullAddr,
-        lng: respondJSON.lng,
-        lat: respondJSON.lat,
+        lng: returnData.long || returnData.lng,
+        lat: returnData.lat,
       },
       geometry: {
         coordinates: [selectedLocation.lngLat.lng, selectedLocation.lngLat.lat],
@@ -1579,7 +1592,8 @@ formSubmit.addEventListener("click", async (e) => {
     "reportedLocation",
     JSON.stringify(selfReportedLocation)
   );
-  const newReport = respondJSON.newReport;
+
+  const newReport = JSON.parse(respondJSON);
   const id = newReport.id;
 
   // Save to local storage
@@ -1596,7 +1610,7 @@ formSubmit.addEventListener("click", async (e) => {
   } else if (type == "GDTM") {
     formattedType = "Giải đáp thắc mắc";
   }
-  newReport.ReportType = { type: formattedType };
+  newReport.reportType = { type: formattedType };
 
   $(document).ready(function () {
     let dataTable = $("#myTable").DataTable();
@@ -1620,10 +1634,6 @@ formSubmit.addEventListener("click", async (e) => {
       item.addEventListener("click", viewDetailButtonEvent);
     });
   });
-  // //Re fetch data
-  // const { sipulated, nonSipulated} = await fetchDataFromServer();
-  // map.getSource("sipulated").setData(JSON.parse(sipulated));
-  // map.getSource("nonSipulated").setData(JSON.parse(nonSipulated));
 
   if (selectedBoard) {
     const boardStatusHTML = document.querySelector("#board-status");
@@ -1717,7 +1727,6 @@ formRandomBtn.addEventListener("click", async (e) => {
   const respondJSON = await respond.json();
   console.log(respondJSON);
   const returnData = respondJSON.newReport;
-  console.log(returnData);
 
   let selfReportedLocation = localStorage.getItem("reportedLocation");
   if (selfReportedLocation == undefined) {
@@ -1729,7 +1738,7 @@ formRandomBtn.addEventListener("click", async (e) => {
     selfReportedLocation = JSON.parse(selfReportedLocation);
   }
 
-  let selfReportRandomData = localStorage.getItem("reportedRandomData");
+  let selfReportRandomData = localStorage.getItem("reportedData");
   if (selfReportRandomData == undefined || selfReportRandomData == null) {
     selfReportRandomData = [];
   } else {
@@ -1741,11 +1750,11 @@ formRandomBtn.addEventListener("click", async (e) => {
       location.geometry.coordinates[1] == returnData.lat
     );
   });
+  console.log(returnData);
   if (!isExists) {
     selfReportedLocation.features.push({
       type: "Feature",
       properties: {
-        type: 2,
         address: returnData.address,
         lng: returnData.long,
         lat: returnData.lat,
@@ -1763,10 +1772,7 @@ formRandomBtn.addEventListener("click", async (e) => {
   );
 
   selfReportRandomData.push(returnData.id);
-  localStorage.setItem(
-    "reportedRandomData",
-    JSON.stringify(selfReportRandomData)
-  );
+  localStorage.setItem("reportedData", JSON.stringify(selfReportRandomData));
 });
 
 //Get table when click placement report

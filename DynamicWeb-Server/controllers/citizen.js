@@ -15,10 +15,17 @@ const Sequelize = require("sequelize");
 
 const { AdsPlacementDAO } = require("../DAO/AdsPlacementDAO");
 const { BoardDAO } = require("../DAO/BoardDAO");
+const { AreaDAO } = require("../DAO/AreaDAO");
 const { PermitRequestDAO } = require("../DAO/PermitRequestDAO");
 const modelDC = require("../DC/importLibrary");
 const { json } = require("body-parser");
 const board = require("../models/board");
+const {
+  ReportDAO,
+  SaveAdsReportStrategy,
+  SaveBoardReportStrategy,
+  SaveLocationReportStrategy,
+} = require("../DAO/ReportDAO");
 
 class CitizenController {
   constructor() {
@@ -34,6 +41,7 @@ class CitizenController {
       await AdsPlacementDAO.getInstance().getAdsPlacementByStatus(
         "Đã quy hoạch"
       );
+      
     const sipulatedGeoJSON = new modelDC.MapFeatureCollectionDC();
 
     for (let i = 0; i < sipulated.length; i++) {
@@ -69,7 +77,7 @@ class CitizenController {
     for (let i = 0; i < reports.length; i++) {
       const adapter = new modelDC.AdsPlacementAdapterForReportPlaceDC(
         reports[i].adsPlacementDC,
-        reports[i].report
+        reports[i].reportDC
       );
       reportedGeoJSON.appendToList(await adapter.getFeature());
     }
@@ -92,10 +100,11 @@ class CitizenController {
       placementId
     );
 
-    for (let i=0;i<boards.length;i++) {
-      const permitRequest = await
-        PermitRequestDAO.getInstance().findPermitRequestByBoardId(board2[i].id);
-
+    for (let i = 0; i < boards.length; i++) {
+      const permitRequest =
+        await PermitRequestDAO.getInstance().findPermitRequestByBoardId(
+          boards[i].id
+        );
 
       if (permitRequest != null) {
         const wrapper = {
@@ -121,15 +130,17 @@ class CitizenController {
         responseData.push(wrapper);
       }
     }
-    
+
     res.json(JSON.stringify(responseData));
   }
 
-  async postReport(req, res, next) {
+  async postReportV2(req, res, next) {
     let { name, email, phone, type, content, board, location } = req.body;
 
     if (board == "undefined") {
-      board = undefined;
+      ReportDAO.getInstance().setSaveStrategy(new SaveAdsReportStrategy());
+    } else {
+      ReportDAO.getInstance().setSaveStrategy(new SaveBoardReportStrategy());
     }
 
     const files = req.files;
@@ -154,42 +165,27 @@ class CitizenController {
       type = "Giải đáp thắc mắc";
     }
 
-    const dbquery = await ReportType.findOne({ where: { type: type } });
+    const reportType = await ReportDAO.getInstance().findReportTypeByType(type);
 
-    if (dbquery == null) {
+    if (reportType == null) {
       return;
     }
 
-    const typeId = dbquery.id;
-    const placement = await AdsPlacement.findOne({ where: { id: location } });
+    const typeId = reportType.id;
 
-    const newReport = await Report.create({
-      submission_time: new Date(),
-      name: name,
-      email: email,
-      phone: phone,
-      reportContent: content,
-      image: imageUrl,
-      ReportTypeId: typeId,
-      BoardId: board,
-      AdsPlacementId: location,
-      status: "Chưa xử lý",
+    const result = await ReportDAO.getInstance().saveReport({
+      name,
+      email,
+      phone,
+      type,
+      content,
+      board,
+      location,
+      typeId,
+      imageUrl,
     });
 
-    newReport.save();
-
-    if (board != undefined) {
-      let permitRequest = await PermitRequest.findOne({
-        where: { BoardId: board },
-      });
-
-      permitRequest.status = "Bị báo cáo";
-      permitRequest.save();
-    }
-
-    res
-      .status(200)
-      .json({ newReport, lng: placement.long, lat: placement.lat });
+    res.status(200).json(JSON.stringify(result));
   }
 
   async getReportData(req, res, next) {
@@ -201,41 +197,23 @@ class CitizenController {
     if (boardId != "undefined") {
       boardId = parseInt(boardId);
 
-      reports = await Report.findAll({
-        where: { BoardId: boardId },
-        include: [{ model: ReportType, required: true }],
-      });
+      reports = await ReportDAO.getInstance().findReportByBoardId(boardId);
     } else {
-      reports = await Report.findAll({
-        where: { AdsPlacementId: adsPlacementId },
-        include: [{ model: ReportType, required: true }],
-      });
+      reports = await ReportDAO.getInstance().findReportByAdsPlacementId(
+        adsPlacementId
+      );
     }
 
     res.json(JSON.stringify(reports));
   }
 
   async postSelfReport(req, res) {
-    const reportIdsType1 = req.body.reportIdsType1;
-    const reportIdsType2 = req.body.reportIdsType2;
+    const reportIds = req.body.reportIds;
 
-    const reports = await Report.findAll({
-      where: { id: { [Sequelize.Op.in]: reportIdsType1 } },
-      include: [{ model: ReportType, required: true }],
-    });
-
-    const reports2 = await LocationReport.findAll({
-      where: { id: { [Sequelize.Op.in]: reportIdsType2 } },
-      include: [
-        {
-          model: ReportType,
-          required: true,
-        },
-      ],
-    });
-
-    const combined = reports.concat(reports2);
-    res.json(JSON.stringify(combined));
+    const reports = await ReportDAO.getInstance().findReportsByListId(
+      reportIds
+    );
+    res.json(JSON.stringify(reports));
   }
 
   async postReportRandomLocation(req, res) {
@@ -262,13 +240,13 @@ class CitizenController {
       type = "Giải đáp thắc mắc";
     }
 
-    const dbquery = await ReportType.findOne({ where: { type: type } });
+    const reportType = await ReportDAO.getInstance().findReportTypeByType(type);
 
-    if (dbquery == null) {
+    if (reportType == null) {
       return;
     }
 
-    const typeId = dbquery.id;
+    const typeId = reportType.id;
 
     const area = await fetch(
       `https://rsapi.goong.io/Geocode?latlng=${lat},%20${lng}&api_key=7iVK3dd86pgsEJggbfiky0xOrcRa9xJMNTtX22nS`
@@ -291,12 +269,10 @@ class CitizenController {
       ward = "Phường " + ward;
     }
 
-    const selectedArea = await Area.findOne({
-      where: {
-        ward: ward.trim(),
-        district: district.trim(),
-      },
-    });
+    const selectedArea = await AreaDAO.getInstance().findAreaByWardAndDistrict(
+      ward,
+      district
+    );
 
     if (!selectedArea) {
       console.log(ward);
@@ -305,86 +281,47 @@ class CitizenController {
     }
 
     const areaId = selectedArea.id;
+    ReportDAO.getInstance().setSaveStrategy(new SaveLocationReportStrategy());
 
-    const newReport = await LocationReport.create({
+    const newReport = await ReportDAO.getInstance().saveReport({
       name: name,
       email: email,
       phone: phone,
-      reportContent: content,
-      image: imageUrl,
+      content: content,
+      imageUrl: imageUrl,
       status: "Chờ xử lý",
       address: address,
       long: parseFloat(lng).toFixed(6),
       lat: parseFloat(lat).toFixed(6),
-      AreaId: areaId,
-      ReportTypeId: typeId,
+      areaId: areaId,
+      typeId: typeId,
     });
 
-    await newReport.save();
+    console.log(newReport);
+
     return res.status(200).json({ newReport });
   }
 
   async getSelfReportByLngLat(req, res) {
     const lng = parseFloat(req.query.lng);
     const lat = parseFloat(req.query.lat);
-    const type = req.query.type;
     const reportIds = req.body.reportIds;
 
-    if (type == 1) {
-      const reports = await Report.findAll({
-        where: { id: { [Sequelize.Op.in]: reportIds } },
-        include: [
-          { model: ReportType, required: true },
-          {
-            model: AdsPlacement,
-            where: {
-              long: lng,
-              lat: lat,
-            },
-          },
-        ],
-      });
+    const reports = await ReportDAO.getInstance().findSelfReportByLngLat(
+      lng,
+      lat,
+      reportIds
+    );
+    return res.json(JSON.stringify(reports));
 
-      return res.json(JSON.stringify(reports));
-    } else if (type == 2) {
-      const reports = await LocationReport.findAll({
-        where: { id: { [Sequelize.Op.in]: reportIds }, long: lng, lat: lat },
-        include: [{ model: ReportType, required: true }],
-      });
-
-      return res.json(JSON.stringify(reports));
-    }
   }
 
   async getReportByLngLat(req, res) {
     const lng = parseFloat(req.query.lng);
     const lat = parseFloat(req.query.lat);
 
-    const report1 = await Report.findAll({
-      include: [
-        { model: AdsPlacement, where: { long: lng, lat: lat } },
-        { model: ReportType, required: true },
-      ],
-    });
-
-    report1.forEach((report) => {
-      report.dataValues.type = 1;
-    });
-
-    const report2 = await LocationReport.findAll({
-      where: {
-        long: lng,
-        lat: lat,
-      },
-      include: [{ model: ReportType, required: true }],
-    });
-
-    report2.forEach((report) => {
-      report.dataValues.type = 2;
-    });
-
-    const combined = report1.concat(report2);
-    return res.status(200).json(JSON.stringify(combined));
+    const results=await ReportDAO.getInstance().findReportByLngLat(lng,lat)
+    return res.status(200).json(JSON.stringify(results));
   }
 }
 

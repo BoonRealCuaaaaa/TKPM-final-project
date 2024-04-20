@@ -3,22 +3,22 @@ const { AdsPlacementDAO } = require("../DAO/AdsPlacementDAO");
 
 class AdsPlacementAdapterForReportPlaceDC {
   constructor(adsPlacement, report) {
-    this.adsPlacement = adsPlacement;
-    this.report=report
+    this.adsPlacementDC = adsPlacement;
+    this.reportDC=report
   }
 
   async getFeature() {
     const properties = {
-      id: this.adsPlacement.id,
-      area: this.adsPlacement.area,
-      reportType: this.report.ReportType.type,
-      address: this.adsPlacement.address,
-      lng: this.adsPlacement.long,
-      lat: this.adsPlacement.lat,
+      id: this.adsPlacementDC.id,
+      area: this.adsPlacementDC.area,
+      reportType: this.reportDC.reportType.type,
+      address: this.adsPlacementDC.address,
+      lng: this.adsPlacementDC.long,
+      lat: this.adsPlacementDC.lat,
     };
 
     const geometry = {
-      coordinates: [this.adsPlacement.long, this.adsPlacement.lat],
+      coordinates: [this.adsPlacementDC.long, this.adsPlacementDC.lat],
       type: "Point",
     };
 

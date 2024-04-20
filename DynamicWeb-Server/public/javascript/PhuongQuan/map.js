@@ -294,7 +294,7 @@ const getInfoOnclickUnclustered = async (e) => {
 
     HTMLnumber.innerHTML = `<p>Địa điểm này có ${adsData.length} quảng cáo`;
     HTMLtitle.innerHTML = `${
-      adsData[0].BoardType.type
+      adsData[0].boardType.type
     }<span class="ms-2 badge ${
       adsData[0].status == "Đã cấp phép"
         ? "bg-success"
@@ -306,12 +306,12 @@ const getInfoOnclickUnclustered = async (e) => {
     }" id="board-status">${
       adsData[0].status != "" ? adsData[0].status : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = `${adsData[0].AdsPlacement.address}, ${adsData[0].AdsPlacement.Area.ward}, ${adsData[0].AdsPlacement.Area.district}`;
+    HTMLaddr.innerHTML = `${adsData[0].adsPlacement.address}, ${adsData[0].adsPlacement.area.ward}, ${adsData[0].adsPlacement.area.district}`;
     HTMLsize.innerHTML = adsData[0].size;
     HTMLqty.innerHTML = adsData[0].quantity;
-    HTMLform.innerHTML = adsData[0].AdsPlacement.AdsType.type;
+    HTMLform.innerHTML = adsData[0].adsPlacement.adsType.type;
     HTMLclassification.innerHTML =
-      adsData[0].AdsPlacement.LocationType.locationType;
+      adsData[0].adsPlacement.locationType.locationType;
     HTMLthumbnail.src = "/" + adsData[0].image;
     // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${adsData[0].image}`;
     HTMLboardContract.setAttribute(
@@ -371,7 +371,7 @@ const getInfoOnclickUnclustered = async (e) => {
         adsData[page - 1].status != "" ? "none" : "block";
 
       HTMLtitle.innerHTML = `${
-        adsData[page - 1].BoardType.type
+        adsData[page - 1].boardType.type
       }<span class="ms-2 badge ${
         adsData[page - 1].status == "Đã cấp phép"
           ? "bg-success"
@@ -385,14 +385,14 @@ const getInfoOnclickUnclustered = async (e) => {
           ? adsData[page - 1].status
           : "Chưa có quảng cáo"
       }</span></a>`;
-      HTMLaddr.innerHTML = `${adsData[page - 1].AdsPlacement.address}, ${
-        adsData[page - 1].AdsPlacement.Area.ward
-      }, ${adsData[page - 1].AdsPlacement.Area.district}`;
+      HTMLaddr.innerHTML = `${adsData[page - 1].adsPlacement.address}, ${
+        adsData[page - 1].adsPlacement.area.ward
+      }, ${adsData[page - 1].adsPlacement.area.district}`;
       HTMLsize.innerHTML = adsData[page - 1].size;
       HTMLqty.innerHTML = adsData[page - 1].quantity;
-      HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
+      HTMLform.innerHTML = adsData[page - 1].adsPlacement.adsType.type;
       HTMLclassification.innerHTML =
-        adsData[page - 1].AdsPlacement.LocationType.locationType;
+        adsData[page - 1].adsPlacement.locationType.locationType;
       HTMLthumbnail.src = "/" + adsData[page - 1].image;
       // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
       //   adsData[page - 1].image
@@ -436,7 +436,7 @@ const getInfoOnclickUnclustered = async (e) => {
 
     HTMLid.innerHTML = adsData[page - 1].id;
     HTMLtitle.innerHTML = `${
-      adsData[page - 1].BoardType.type
+      adsData[page - 1].boardType.type
     }<span class="ms-2 badge ${
       adsData[page - 1].status == "Đã cấp phép"
         ? "bg-success"
@@ -450,23 +450,16 @@ const getInfoOnclickUnclustered = async (e) => {
         ? adsData[page - 1].status
         : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = `${adsData[page - 1].AdsPlacement.address}, ${
-      adsData[page - 1].AdsPlacement.Area.ward
-    }, ${adsData[page - 1].AdsPlacement.Area.district}`;
+    HTMLaddr.innerHTML = `${adsData[page - 1].adsPlacement.address}, ${
+      adsData[page - 1].adsPlacement.area.ward
+    }, ${adsData[page - 1].adsPlacement.area.district}`;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
-    HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
+    HTMLform.innerHTML = adsData[page - 1].adsPlacement.adsType.type;
     HTMLclassification.innerHTML =
-      adsData[page - 1].AdsPlacement.LocationType.locationType;
+      adsData[page - 1].adsPlacement.locationType.locationType;
     HTMLthumbnail.src = "/" + adsData[page - 1].image;
-    // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
-    //   adsData[page - 1].image
-    // }`;
-    // document.querySelector(
-    //   "#view-report-board"
-    // ).parentElement.href = `${serverPath}/district/list-report-board/${
-    //   adsData[page - 1].id
-    // }`;
+
     HTMLboardContract.setAttribute(
       "data-bs-content",
       `Ngày hết hạn: ${
@@ -497,7 +490,7 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLid.innerHTML = adsData[page - 1].id;
 
     HTMLtitle.innerHTML = `${
-      adsData[page - 1].BoardType.type
+      adsData[page - 1].boardType.type
     }<span class="ms-2 badge ${
       adsData[page - 1].status == "Đã cấp phép"
         ? "bg-success"
@@ -511,14 +504,14 @@ const getInfoOnclickUnclustered = async (e) => {
         ? adsData[page - 1].status
         : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = `${adsData[page - 1].AdsPlacement.address}, ${
-      adsData[page - 1].AdsPlacement.Area.ward
-    }, ${adsData[page - 1].AdsPlacement.Area.district}`;
+    HTMLaddr.innerHTML = `${adsData[page - 1].adsPlacement.address}, ${
+      adsData[page - 1].adsPlacement.area.ward
+    }, ${adsData[page - 1].adsPlacement.area.district}`;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
-    HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
+    HTMLform.innerHTML = adsData[page - 1].adsPlacement.adsType.type;
     HTMLclassification.innerHTML =
-      adsData[page - 1].AdsPlacement.LocationType.locationType;
+      adsData[page - 1].adsPlacement.locationType.locationType;
     HTMLthumbnail.src = "/" + adsData[page - 1].image;
     // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
     //   adsData[page - 1].image
@@ -935,6 +928,8 @@ map.on("load", async () => {
     );
     const returnData = await fetchData.json();
     rpData = JSON.parse(returnData);
+    console.log(returnData)
+    console.log(rpData)
 
     const HTMLReportType = document.querySelector("#report-type");
     const HTMLReportName = document.querySelector("#reporter-name");
@@ -949,7 +944,8 @@ map.on("load", async () => {
       HTMLReportStatus.innerHTML = "Chưa có thông tin";
       HTMLReportLocation.innerHTML = "Chưa có thông tin";
     } else {
-      HTMLReportType.innerHTML = rpData[0].ReportType.type;
+      console.log(rpData[0])
+      HTMLReportType.innerHTML = rpData[0].reportType.type;
       HTMLReportName.innerHTML = rpData[0].name;
       HTMLReportDate.innerHTML = rpData[0].createdAt.split("T")[0];
       HTMLReportStatus.innerHTML = rpData[0].status;
@@ -998,7 +994,7 @@ map.on("load", async () => {
         activeItem.classList.remove("active");
 
         const page = e.target.innerText;
-        HTMLReportType.innerHTML = rpData[page - 1].ReportType.type;
+        HTMLReportType.innerHTML = rpData[page - 1].reportType.type;
         HTMLReportName.innerHTML = rpData[page - 1].name;
         HTMLReportDate.innerHTML =
           rpData[page - 1].createdAt.split("T")[page - 1];
@@ -1025,7 +1021,7 @@ map.on("load", async () => {
 
       const page = parseInt(activeItem.firstChild.innerText) - 1;
 
-      HTMLReportType.innerHTML = rpData[page - 1].ReportType.type;
+      HTMLReportType.innerHTML = rpData[page - 1].reportType.type;
       HTMLReportName.innerHTML = rpData[page - 1].name;
       HTMLReportDate.innerHTML =
         rpData[page - 1].createdAt.split("T")[page - 1];
@@ -1049,7 +1045,7 @@ map.on("load", async () => {
       activeItem.classList.remove("active");
 
       const page = parseInt(activeItem.firstChild.innerText) + 1;
-      HTMLReportType.innerHTML = rpData[page - 1].ReportType.type;
+      HTMLReportType.innerHTML = rpData[page - 1].reportType.type;
       HTMLReportName.innerHTML = rpData[page - 1].name;
       HTMLReportDate.innerHTML =
         rpData[page - 1].createdAt.split("T")[page - 1];
@@ -1198,16 +1194,20 @@ createPermissionButtonHalf.addEventListener("click", (e) => {
 
 // view report detail button
 const handleViewReportButton = async (e) => {
+  console.log("HEHE")
   const selectedPage = parseInt(
     document.querySelector(".page-item.active .page-link").innerText
   );
   const selectedReport = rpData[selectedPage - 1];
+  console.log(selectedReport)
   let path
   if(accountType=="Quan") {
     path="district"
   } else {
     path="ward"
   }
+
+  //Fix
   if (selectedReport.type == 1) {
     window.location.href = `${serverPath}/${path}/list-reports/${selectedReport.id}`;
   } else if (selectedReport.type == 2) {

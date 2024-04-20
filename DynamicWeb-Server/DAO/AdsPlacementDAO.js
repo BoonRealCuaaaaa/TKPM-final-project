@@ -20,6 +20,8 @@ const { AreaDC } = require("../DC/AreaDC");
 const { LocationTypeDC } = require("../DC/LocationTypeDC");
 const { AdsPlacementDC } = require("../DC/AdsPlacementDC");
 const { AdsTypeDC } = require("../DC/AdsTypeDC");
+const { ReportDC } = require("../DC/ReportDC");
+const { ReportTypeDC } = require("../DC/ReportTypeDC");
 
 class AdsPlacementDAO {
   static instance = null;
@@ -103,7 +105,7 @@ class AdsPlacementDAO {
         {
           model: Report,
           required: true,
-          include: [{ model: ReportType, require: true }],
+          include: [{ model: ReportType, required: true }],
           where: {
             status: {
               [Sequelize.Op.not]: "Đã xử lý",
@@ -116,6 +118,20 @@ class AdsPlacementDAO {
     for (let i = 0; i < reportInAdsReportTable.length; i++) {
       const adsPlacement = reportInAdsReportTable[i].AdsPlacement;
       const report = reportInAdsReportTable[i].Report;
+      const reportDC = new ReportDC(
+        report.id,
+        report.submission_time,
+        report.name,
+        report.email,
+        report.phone,
+        report.reportContent,
+        report.image,
+        report.status,
+        report.method,
+        new ReportTypeDC(report.ReportType.id, report.ReportType.type),
+        null,
+        report.createdAt
+      );
       const adsPlacementDC = new AdsPlacementDC(
         adsPlacement.id,
         adsPlacement.address,
@@ -127,7 +143,7 @@ class AdsPlacementDAO {
         adsPlacement.AdsType
       );
 
-      results.push({ adsPlacementDC, report });
+      results.push({ adsPlacementDC, reportDC });
     }
 
     const reportInBoardReportTable = await BoardReport.findAll({
@@ -159,7 +175,7 @@ class AdsPlacementDAO {
         {
           model: Report,
           required: true,
-          include: [{ model: ReportType, require: true }],
+          include: [{ model: ReportType, required: true }],
           where: {
             status: {
               [Sequelize.Op.not]: "Đã xử lý",
@@ -172,6 +188,20 @@ class AdsPlacementDAO {
     for (let i = 0; i < reportInBoardReportTable.length; i++) {
       const adsPlacement = reportInBoardReportTable[i].Board.AdsPlacement;
       const report = reportInBoardReportTable[i].Report;
+      const reportDC = new ReportDC(
+        report.id,
+        report.submission_time,
+        report.name,
+        report.email,
+        report.phone,
+        report.reportContent,
+        report.image,
+        report.status,
+        report.method,
+        new ReportTypeDC(report.ReportType.id, report.ReportType.type),
+        null,
+        report.createdAt
+      );
       const adsPlacementDC = new AdsPlacementDC(
         adsPlacement.id,
         adsPlacement.address,
@@ -183,7 +213,7 @@ class AdsPlacementDAO {
         adsPlacement.AdsType
       );
 
-      results.push({ adsPlacementDC, report });
+      results.push({ adsPlacementDC, reportDC });
     }
 
     const reportInLocationReportTable = LocationReport.findAll({
@@ -191,7 +221,7 @@ class AdsPlacementDAO {
         {
           model: Report,
           required: true,
-          include: [{ model: ReportType, require: true }],
+          include: [{ model: ReportType, required: true }],
           where: {
             status: {
               [Sequelize.Op.not]: "Đã xử lý",
@@ -202,6 +232,21 @@ class AdsPlacementDAO {
     });
 
     for (let i = 0; i < reportInLocationReportTable.length; i++) {
+      const report = reportInBoardReportTable[i].Report;
+      const reportDC = new ReportDC(
+        report.id,
+        report.submission_time,
+        report.name,
+        report.email,
+        report.phone,
+        report.reportContent,
+        report.image,
+        report.status,
+        report.method,
+        new ReportTypeDC(report.ReportType.id, report.ReportType.type),
+        null,
+        report.createdAt
+      );
       const adsPlacementDC = new AdsPlacementDC(
         null,
         reportInLocationReportTable[i].address,
@@ -213,8 +258,7 @@ class AdsPlacementDAO {
         null
       );
 
-      const report=reportInLocationReportTable[i].Report
-      results.push({ adsPlacementDC, report });
+      results.push({ adsPlacementDC, reportDC });
     }
 
     return results;
