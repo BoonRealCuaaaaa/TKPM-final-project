@@ -1,8 +1,8 @@
 const express = require('express');
-const controller = require('../controllers/ward_district.js');
 const title = require('../middlewares/title.js');
 const router = express.Router();
 const multer = require("multer");
+const WardDistrictController = require('../controllers/ward_district.js');
 
 //Multer config
 const fileStorage = multer.diskStorage({
@@ -33,19 +33,21 @@ const fileFilter = (req, file, cb) => {
   
 const upload = multer({ storage: fileStorage, fileFilter: fileFilter });
 
-router.get("/home", title.role, controller.home);
-router.post("/home", title.role, upload.single("img"), controller.addPermitRequest);
-router.get("/list-adsplacements", title.role, controller.showListAdsplacements);
-router.post("/list-adsplacements", title.role, controller.editAdsplacement);
-router.get("/list-boards/:id", title.role, controller.showListBoards);
-router.get("/list-boards", title.role, controller.showListBoards);
-router.post("/list-boards", title.role, controller.editBoard);
-router.get("/my-requests", title.role, controller.showMyRequests);
-router.post("/my-requests", controller.deleteRequest);
-router.get("/list-reports", title.role, controller.showListReports);
-router.get("/list-reports/:id", title.role, controller.showReportDetails);
-router.get("/list-reports/location-report/:id", title.role, controller.showLocationReportDetails);
-router.post("/list-reports/", title.role, controller.updateReportDetails);
-router.post("/list-reports/location-report", title.role, controller.updateLocationReportDetails);
+const wardDistrictController = new WardDistrictController();
+
+router.get("/home", title.role, wardDistrictController.home);
+router.post("/home", title.role, upload.single("img"), wardDistrictController.addPermitRequest);
+router.get("/list-adsplacements", title.role, wardDistrictController.showListAdsplacements);
+router.post("/list-adsplacements", title.role, wardDistrictController.editAdsplacement);
+router.get("/list-boards/:id", title.role, wardDistrictController.showListBoards);
+router.get("/list-boards", title.role, wardDistrictController.showListBoards);
+router.post("/list-boards", title.role, wardDistrictController.editBoard);
+router.get("/my-requests", title.role, wardDistrictController.showMyRequests);
+router.post("/my-requests", wardDistrictController.deleteRequest);
+router.get("/list-reports", title.role, wardDistrictController.showListReports);
+router.get("/list-reports/:id", title.role, wardDistrictController.showReportDetails);
+router.get("/list-reports/location-report/:id", title.role, wardDistrictController.showLocationReportDetails);
+router.post("/list-reports/", title.role, wardDistrictController.updateReportDetails);
+router.post("/list-reports/location-report", title.role, wardDistrictController.updateLocationReportDetails);
 
 module.exports = router;
