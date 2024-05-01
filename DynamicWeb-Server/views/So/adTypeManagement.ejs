@@ -66,21 +66,21 @@
                                         <% for (let i=0; i < pagination.rows.length; i++) { %>
                                             <tr>
                                                 <td>
-                                                    <%= pagination.rows[i].type %> %>
+                                                    <%= pagination.rows[i].adType.type %> %>
                                                 </td>
                                                 <td>
-                                                    <%= pagination.rows[i].AdsPlacements.length %> điểm quảng cáo
+                                                    <%= pagination.rows[i].adPlacementCount %> điểm quảng cáo
                                                 </td>
 
                                                 <td class="function-icons text-center">
                                                     <i class="fas fa-pen" style="color: #f29d38;" data-bs-toggle="modal"
                                                         data-bs-target="#editModal"
-                                                        data-id="<%= pagination.rows[i].id %>"
-                                                        data-name="<%= pagination.rows[i].type %>"
+                                                        data-id="<%= pagination.rows[i].adType.id %>"
+                                                        data-name="<%= pagination.rows[i].adType.type %>"
                                                         onclick="showEditAdTypeModal(this)"></i>
                                                     <i class="fas fa-trash" style="color: #EB3223;"
                                                         data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                        data-id="<%= pagination.rows[i].id %>"
+                                                        data-id="<%= pagination.rows[i].adType.id %>"
                                                         onclick="showDeleteAdTypeModal(this)"></i>
                                                 </td>
                                             </tr>

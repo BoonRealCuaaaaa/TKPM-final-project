@@ -4,7 +4,7 @@ const { AreaDC } = require("../DC/AreaDC");
 const { BoardDC } = require("../DC/BoardDC");
 const { BoardTypeDC } = require("../DC/BoardTypeDC");
 const { LocationTypeDC } = require("../DC/LocationTypeDC");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 
 const {
   sequelize,
@@ -99,6 +99,65 @@ class BoardDAO {
     return results;
   }
 
+  async getBoardById(id) {
+    const board = await Board.findByPk(id, {
+      include: [
+        {
+          model: BoardType,
+          where: { BoardTypeId: sequelize.col("Board.id") },
+          required: true,
+        },
+        {
+          model: AdsPlacement,
+          required: true,
+          include: [
+            {
+              model: LocationType,
+              required: true,
+            },
+            {
+              model: AdsType,
+              required: true,
+            },
+            {
+              model: Area,
+              required: true,
+            },
+          ],
+        },
+      ],
+    });
+
+    const adsPlacement = board.AdsPlacement;
+    const adsPlacementDC = new AdsPlacementDC(
+      adsPlacement.id,
+      adsPlacement.address,
+      adsPlacement.status,
+      adsPlacement.long,
+      adsPlacement.lat,
+      new AreaDC(
+        adsPlacement.Area.id,
+        adsPlacement.Area.ward,
+        adsPlacement.Area.district
+      ),
+      new LocationTypeDC(
+        adsPlacement.LocationType.id,
+        adsPlacement.LocationType.locationType
+      ),
+      new AdsTypeDC(adsPlacement.AdsType.id, adsPlacement.AdsType.type)
+    );
+
+    const boardDC = new BoardDC(
+      board.id,
+      board.size,
+      board.quantity,
+      new BoardTypeDC(board.BoardType.id, board.BoardType.type),
+      adsPlacementDC
+    );
+
+    return boardDC;
+  }
+
   async getBoardByOption(district, ward, search) {
     const optionsBoardManagement = {
       attributes: ["id", "size", "quantity", "boardTypeId", "adsPlacementId"],
@@ -106,6 +165,7 @@ class BoardDAO {
         {
           model: BoardType,
           attributes: ["id", "type"],
+          where: { BoardTypeId: sequelize.col("Board.id") },
         },
         {
           model: AdsPlacement,
@@ -204,6 +264,30 @@ class BoardDAO {
       AdsPlacementId: data.adsPlacement,
     });
     newBoard.save();
+  }
+
+  async updateBoard(data) {
+    const board = await Board.update(
+      {
+        size: data.size,
+        quantity: data.quantity,
+        BoardTypeId: parseInt(data.boardType),
+        AdsPlacementId: data.adsPlacement,
+      },
+      {
+        where: {
+          id: data.id,
+        },
+      }
+    );
+  }
+
+  async deleteBoard(data) {
+    const board = await Board.destroy({
+      where: {
+        id: data.id,
+      },
+    });
   }
 }
 

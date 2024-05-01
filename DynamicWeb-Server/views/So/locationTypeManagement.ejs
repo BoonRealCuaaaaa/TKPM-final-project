@@ -66,21 +66,21 @@
                                         <% for (let i=0; i < pagination.rows.length; i++) { %>
                                             <tr>
                                                 <td>
-                                                    <%= pagination.rows[i].locationType %> %>
+                                                    <%= pagination.rows[i].locationType.locationType %> %>
                                                 </td>
                                                 <td>
-                                                    <%= pagination.rows[i].AdsPlacements.length %> điểm quảng cáo
+                                                    <%= pagination.rows[i].adsPlacementCount %> điểm quảng cáo
                                                 </td>
 
                                                 <td class="function-icons text-center">
                                                     <i class="fas fa-pen" style="color: #f29d38;" data-bs-toggle="modal"
                                                         data-bs-target="#editModal"
-                                                        data-id="<%= pagination.rows[i].id %>"
-                                                        data-name="<%= pagination.rows[i].locationType %>"
+                                                        data-id="<%= pagination.rows[i].locationType.id %>"
+                                                        data-name="<%= pagination.rows[i].locationType.locationType %>"
                                                         onclick="showEditLocationTypeModal(this)"></i>
                                                     <i class="fas fa-trash" style="color: #EB3223;"
                                                         data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                        data-id="<%= pagination.rows[i].id %>"
+                                                        data-id="<%= pagination.rows[i].locationType.id %>"
                                                         onclick="showDeleteLocationTypeModal(this)"></i>
                                                 </td>
                                             </tr>

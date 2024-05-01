@@ -66,21 +66,21 @@
                                         <% for (let i=0; i < pagination.rows.length; i++) { %>
                                             <tr>
                                                 <td>
-                                                    <%= pagination.rows[i].type %> %>
+                                                    <%= pagination.rows[i].boardType.type %> %>
                                                 </td>
                                                 <td>
-                                                    <%= pagination.rows[i].Boards.length %> bảng quảng cáo
+                                                    <%= pagination.rows[i].boardCount %> bảng quảng cáo
                                                 </td>
 
                                                 <td class="function-icons text-center">
                                                     <i class="fas fa-pen" style="color: #f29d38;" data-bs-toggle="modal"
                                                         data-bs-target="#editModal"
-                                                        data-id="<%= pagination.rows[i].id %>"
-                                                        data-name="<%= pagination.rows[i].type %>"
+                                                        data-id="<%= pagination.rows[i].boardType.id %>"
+                                                        data-name="<%= pagination.rows[i].boardType.type %>"
                                                         onclick="showEditBoardTypeModal(this)"></i>
                                                     <i class="fas fa-trash" style="color: #EB3223;"
                                                         data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                        data-id="<%= pagination.rows[i].id %>"
+                                                        data-id="<%= pagination.rows[i].boardType.id %>"
                                                         onclick="showDeleteBoardTypeModal(this)"></i>
                                                 </td>
                                             </tr>

@@ -19,9 +19,15 @@ const {
 const { AdsPlacementDAO } = require("../DAO/AdsPlacementDAO");
 const { AreaDAO } = require("../DAO/AreaDAO");
 const { BoardDAO } = require("../DAO/BoardDAO");
+const { AdsTypeDAO } = require("../DAO/AdsTypeDAO");
+const { LocationTypeDAO } = require("../DAO/LocationTypeDAO");
+const { BoardTypeDAO } = require("../DAO/BoardTypeDAO");
 const { AdsPlacementDC } = require("../DC/AdsPlacementDC");
 const { AreaDC } = require("../DC/AreaDC");
 const { BoardDC } = require("../DC/BoardDC");
+const { AdsTypeDC } = require("../DC/AdsTypeDC");
+const { LocationTypeDC } = require("../DC/LocationTypeDC");
+const { BoardTypeDC } = require("../DC/BoardTypeDC");
 const severPath = "http://localhost:5000/";
 const checkInput = require("../util/checkInput");
 const { createWardDistrictPageQueryString } = require("../util/queryString");
@@ -1202,7 +1208,6 @@ class DepartmentController {
         fullAddress,
         apiKey
       );
-      console.log(address);
       lngCreateModal = address.lon;
       latCreateModal = address.lat;
     }
@@ -1244,7 +1249,6 @@ class DepartmentController {
         adTypeId,
         undefined
       );
-      console.log(adPlacementDC);
       await AdsPlacementDAO.getInstance().createAdPlacement(adPlacementDC);
       console.log("Kết thúc khởi tạo AdsPlacement");
       req.flash(
@@ -1622,9 +1626,8 @@ class DepartmentController {
     }
     return res.redirect("/department/boardManagement");
   }
-
+  // Khiêm hoàn thành
   async editBoard(req, res) {
-    console.log(req.body);
     const {
       districtSelectEditModal,
       boardTypeSelectEditModal,
@@ -1635,7 +1638,6 @@ class DepartmentController {
       addressEditSend,
       idEditModal,
     } = req.body;
-    console.log(req.body);
     let updateFailed = false;
     if (
       !checkInput.isNumber(heightEditModal) ||
@@ -1697,19 +1699,14 @@ class DepartmentController {
       return res.send("Update Fail");
     }
     try {
-      await Board.update(
-        {
-          size: heightEditModal + "m x " + weightEditModal + "m",
-          quantity: quantityEditModal + " trụ/bảng",
-          BoardTypeId: parseInt(boardTypeId),
-          AdsPlacementId: adPlacementId,
-        },
-        {
-          where: {
-            id: idEditModal,
-          },
-        }
+      let boardDC = new BoardDC(
+        idEditModal,
+        heightEditModal + "m x " + weightEditModal + "m",
+        quantityEditModal + " trụ/bảng",
+        parseInt(boardTypeId),
+        adPlacementId
       );
+      await BoardDAO.getInstance().updateBoard(boardDC);
       req.flash(
         "message",
         JSON.stringify({
@@ -1732,16 +1729,13 @@ class DepartmentController {
       return res.send("Can not update board");
     }
   }
-
+  // Khiêm hoàn thành
   async deleteBoard(req, res) {
     const { boardId } = req.body;
 
     try {
-      await Board.destroy({
-        where: {
-          id: boardId,
-        },
-      });
+      let boardDC = await BoardDAO.getInstance().getBoardById(boardId);
+      await BoardDAO.getInstance().deleteBoard(boardDC);
       req.flash(
         "message",
         JSON.stringify({
@@ -1764,7 +1758,7 @@ class DepartmentController {
       return res.send("Can not delete board!");
     }
   }
-
+  // Khiêm hoàn thành
   async adTypeManagement(req, res) {
     let message = req.flash("message")[0];
     message = message == null ? null : JSON.parse(message);
@@ -1785,7 +1779,6 @@ class DepartmentController {
         },
       ],
     };
-    let search = req.query.search || "";
 
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
     let flag = false;
@@ -1793,27 +1786,9 @@ class DepartmentController {
     if (message !== null && message.type === "delete") {
       flag = true;
     }
-    const AdTypes = await AdsType.findAll(optionAdTypes);
-    // Khởi tạo mảng để lưu trữ adPlacementsCount
-    const adPlacementsCounts = [];
-
-    for (const adType of AdTypes) {
-      const adPlacementsCount = await AdsPlacement.count({
-        where: {
-          AdsTypeId: adType.id,
-        },
-      });
-
-      adType.setDataValue("adPlacementsCount", adPlacementsCount);
-
-      // Lưu giá trị adPlacementsCount vào mảng
-      adPlacementsCounts.push(adPlacementsCount);
-    }
-
-    // Gán mảng adPlacementsCounts vào mỗi phần tử của AdTypes
-    AdTypes.forEach((adType, index) => {
-      adType.setDataValue("adPlacementsCounts", adPlacementsCounts[index]);
-    });
+    const AdTypes = await AdsTypeDAO.getInstance().getAdTypeByOptions(
+      optionAdTypes
+    );
 
     const currentUrl = req.url.slice(1);
     const pagination = await getPagination(req, res, AdTypes, 5, page, 2, flag);
@@ -1825,7 +1800,7 @@ class DepartmentController {
       message,
     });
   }
-
+  // Khiêm hoàn thành
   async createAdType(req, res) {
     const { nameCreateModal } = req.body;
 
@@ -1843,9 +1818,8 @@ class DepartmentController {
       return res.redirect("/department/adTypeManagement");
     }
     try {
-      await AdsType.create({
-        type: nameCreateModal,
-      });
+      let adTypeDC = new AdsTypeDC(undefined, nameCreateModal);
+      await AdsTypeDAO.getInstance().createAdType(adTypeDC);
       req.flash(
         "message",
         JSON.stringify({
@@ -1867,11 +1841,11 @@ class DepartmentController {
     }
     return res.redirect("/department/adTypeManagement");
   }
-
+  // Khiêm hoàn thành
   async editAdType(req, res) {
     const { idEditModal, nameEditModal } = req.body;
 
-    if (await checkInput.isDuplicateAdType(idEditModal)) {
+    if (await checkInput.isDuplicateAdType(nameEditModal)) {
       req.flash(
         "message",
         JSON.stringify({
@@ -1883,16 +1857,8 @@ class DepartmentController {
       return res.send("Update Fail");
     }
     try {
-      await AdsType.update(
-        {
-          type: nameEditModal,
-        },
-        {
-          where: {
-            id: idEditModal,
-          },
-        }
-      );
+      let adTypeDC = new AdsTypeDC(idEditModal, nameEditModal);
+      await AdsTypeDAO.getInstance().updateAdType(adTypeDC);
       req.flash(
         "message",
         JSON.stringify({
@@ -1915,38 +1881,12 @@ class DepartmentController {
       return res.send("Can not update AdsType");
     }
   }
-
+  // Khiêm hoàn thành
   async deleteAdType(req, res) {
     const { adTypeId } = req.body;
     try {
-      // Find AdsPlacements associated with the AdType
-      const adPlacements = await AdsPlacement.findAll({
-        where: {
-          AdsTypeId: adTypeId,
-        },
-      });
-
-      // Delete Boards associated with each AdsPlacement
-      for (const adPlacement of adPlacements) {
-        await Board.destroy({
-          where: {
-            AdsPlacementId: adPlacement.id,
-          },
-        });
-      }
-
-      // Delete AdsPlacements associated with the AdType
-      await AdsPlacement.destroy({
-        where: {
-          AdsTypeId: adTypeId,
-        },
-      });
-
-      await AdsType.destroy({
-        where: {
-          id: adTypeId,
-        },
-      });
+      let adTypeDC = await AdsTypeDAO.getInstance().getAdTypeById(adTypeId);
+      await AdsTypeDAO.getInstance().deleteAdType(adTypeDC);
 
       req.flash(
         "message",
@@ -1973,7 +1913,7 @@ class DepartmentController {
       return res.send("Can not delete AdType");
     }
   }
-
+  // Khiêm hoàn thành
   async locationTypeManagement(req, res) {
     let message = req.flash("message")[0];
     message = message == null ? null : JSON.parse(message);
@@ -1994,7 +1934,6 @@ class DepartmentController {
         },
       ],
     };
-    let search = req.query.search || "";
 
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
     let flag = false;
@@ -2002,30 +1941,10 @@ class DepartmentController {
     if (message !== null && message.type === "delete") {
       flag = true;
     }
-    const LocationTypes = await LocationType.findAll(optionLocationTypes);
-    // Khởi tạo mảng để lưu trữ adPlacementsCount
-    const adPlacementsCounts = [];
-
-    for (const locationType of LocationTypes) {
-      const adPlacementsCount = await AdsPlacement.count({
-        where: {
-          LocationTypeId: locationType.id,
-        },
-      });
-
-      locationType.setDataValue("adPlacementsCount", adPlacementsCount);
-
-      // Lưu giá trị adPlacementsCount vào mảng
-      adPlacementsCounts.push(adPlacementsCount);
-    }
-
-    // Gán mảng adPlacementsCounts vào mỗi phần tử của LocationTypes
-    LocationTypes.forEach((locationType, index) => {
-      locationType.setDataValue(
-        "adPlacementsCounts",
-        adPlacementsCounts[index]
+    const LocationTypes =
+      await LocationTypeDAO.getInstance().getLocationTypeByOptions(
+        optionLocationTypes
       );
-    });
 
     const currentUrl = req.url.slice(1);
     const pagination = await getPagination(
@@ -2045,10 +1964,9 @@ class DepartmentController {
       message,
     });
   }
-
+  // Khiêm hoàn thành
   async createLocationType(req, res) {
     const { nameCreateModal } = req.body;
-
     let createFailed = false;
     if (checkInput.isEmpty(nameCreateModal)) {
       createFailed = true;
@@ -2063,9 +1981,8 @@ class DepartmentController {
       return res.redirect("/department/locationTypeManagement");
     }
     try {
-      await LocationType.create({
-        locationType: nameCreateModal,
-      });
+      let locationTypeDC = new LocationTypeDC(undefined, nameCreateModal);
+      await LocationTypeDAO.getInstance().createLocationType(locationTypeDC);
       req.flash(
         "message",
         JSON.stringify({
@@ -2087,7 +2004,7 @@ class DepartmentController {
     }
     return res.redirect("/department/locationTypeManagement");
   }
-
+  // Khiêm hoàn thành
   async editLocationType(req, res) {
     const { idEditModal, nameEditModal } = req.body;
 
@@ -2104,17 +2021,8 @@ class DepartmentController {
     }
 
     try {
-      await LocationType.update(
-        {
-          locationType: nameEditModal,
-        },
-        {
-          where: {
-            id: idEditModal,
-          },
-        }
-      );
-
+      let locationTypeDC = new LocationTypeDC(idEditModal, nameEditModal);
+      await LocationTypeDAO.getInstance().updateLocationType(locationTypeDC);
       req.flash(
         "message",
         JSON.stringify({
@@ -2139,40 +2047,19 @@ class DepartmentController {
       return res.send("Can not update LocationType");
     }
   }
-
+  // Khiêm hoàn thành
   async deleteLocationType(req, res) {
     const { locationTypeId } = req.body;
 
     try {
-      // Find AdsPlacements associated with the LocationType
+      let locationTypeDC =
+        await LocationTypeDAO.getInstance().getLocationTypeById(locationTypeId);
       const adPlacements = await AdsPlacement.findAll({
         where: {
           LocationTypeId: locationTypeId,
         },
       });
-
-      // Delete Boards associated with each AdsPlacement
-      for (const adPlacement of adPlacements) {
-        await Board.destroy({
-          where: {
-            AdsPlacementId: adPlacement.id,
-          },
-        });
-      }
-
-      // Delete AdsPlacements associated with the LocationType
-      await AdsPlacement.destroy({
-        where: {
-          LocationTypeId: locationTypeId,
-        },
-      });
-
-      // Finally, delete the LocationType itself
-      await LocationType.destroy({
-        where: {
-          id: locationTypeId,
-        },
-      });
+      await LocationTypeDAO.getInstance().deleteLocationType(locationTypeDC);
 
       req.flash(
         "message",
@@ -2199,7 +2086,7 @@ class DepartmentController {
       return res.send("Can not delete LocationType");
     }
   }
-
+  // Khiêm hoàn thành
   async boardTypeManagement(req, res) {
     let message = req.flash("message")[0];
     message = message == null ? null : JSON.parse(message);
@@ -2220,7 +2107,6 @@ class DepartmentController {
         },
       ],
     };
-    let search = req.query.search || "";
 
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
     let flag = false;
@@ -2228,27 +2114,9 @@ class DepartmentController {
     if (message !== null && message.type === "delete") {
       flag = true;
     }
-    const BoardTypes = await BoardType.findAll(optionBoardTypes);
-    // Khởi tạo mảng để lưu trữ boardsCount
-    const boardsCounts = [];
-
-    for (const boardType of BoardTypes) {
-      const boardsCount = await Board.count({
-        where: {
-          BoardTypeId: boardType.id,
-        },
-      });
-
-      boardType.setDataValue("boardsCount", boardsCount);
-
-      // Lưu giá trị boardsCount vào mảng
-      boardsCounts.push(boardsCount);
-    }
-
-    // Gán mảng boardsCounts vào mỗi phần tử của BoardTypes
-    BoardTypes.forEach((boardType, index) => {
-      boardType.setDataValue("boardsCounts", boardsCounts[index]);
-    });
+    const BoardTypes = await BoardTypeDAO.getInstance().getBoardTypeByOptions(
+      optionBoardTypes
+    );
 
     const currentUrl = req.url.slice(1);
     const pagination = await getPagination(
@@ -2268,7 +2136,7 @@ class DepartmentController {
       message,
     });
   }
-
+  // Khiêm hoàn thành
   async createBoardType(req, res) {
     const { nameCreateModal } = req.body;
 
@@ -2286,9 +2154,8 @@ class DepartmentController {
       return res.redirect("/department/boardTypeManagement");
     }
     try {
-      await BoardType.create({
-        type: nameCreateModal,
-      });
+      let boardTypeDC = new BoardTypeDC(undefined, nameCreateModal);
+      await BoardTypeDAO.getInstance().createBoardType(boardTypeDC);
       req.flash(
         "message",
         JSON.stringify({
@@ -2310,7 +2177,7 @@ class DepartmentController {
     }
     return res.redirect("/department/boardTypeManagement");
   }
-
+  // Khiêm hoàn thành
   async editBoardType(req, res) {
     const { idEditModal, nameEditModal } = req.body;
 
@@ -2327,17 +2194,8 @@ class DepartmentController {
     }
 
     try {
-      await BoardType.update(
-        {
-          type: nameEditModal,
-        },
-        {
-          where: {
-            id: idEditModal,
-          },
-        }
-      );
-
+      let boardTypeDC = new BoardTypeDC(idEditModal, nameEditModal);
+      await BoardTypeDAO.getInstance().updateBoardType(boardTypeDC);
       req.flash(
         "message",
         JSON.stringify({
@@ -2362,25 +2220,15 @@ class DepartmentController {
       return res.send("Can not update BoardType");
     }
   }
-
+  // Khiêm hoàn thành
   async deleteBoardType(req, res) {
     const { boardTypeId } = req.body;
 
     try {
-      // Delete Boards associated with the BoardType
-      await Board.destroy({
-        where: {
-          BoardTypeId: boardTypeId,
-        },
-      });
-
-      // Finally, delete the BoardType itself
-      await BoardType.destroy({
-        where: {
-          id: boardTypeId,
-        },
-      });
-
+      let boardTypeDC = await BoardTypeDAO.getInstance().getBoardTypeById(
+        boardTypeId
+      );
+      await BoardTypeDAO.getInstance().deleteBoardType(boardTypeDC);
       req.flash(
         "message",
         JSON.stringify({
