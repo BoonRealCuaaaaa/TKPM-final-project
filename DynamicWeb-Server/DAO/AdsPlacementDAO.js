@@ -15,8 +15,10 @@ const {
 } = require("../models");
 
 const Sequelize = require("sequelize");
-
+const { Op } = require("sequelize");
+const checkInput = require("../util/checkInput");
 const { AreaDC } = require("../DC/AreaDC");
+const { BoardDC } = require("../DC/BoardDC");
 const { LocationTypeDC } = require("../DC/LocationTypeDC");
 const { AdsPlacementDC } = require("../DC/AdsPlacementDC");
 const { AdsTypeDC } = require("../DC/AdsTypeDC");
@@ -77,6 +79,22 @@ class AdsPlacementDAO {
     });
 
     return results;
+  }
+
+  async getAdsPlacementById(id) {
+    const resultFromDb = await AdsPlacement.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    return new AdsPlacementDC(
+      resultFromDb.id,
+      resultFromDb.address,
+      resultFromDb.status,
+      resultFromDb.long,
+      resultFromDb.lat,
+    );
   }
 
   async getReportedAdsPlacement() {
@@ -272,6 +290,152 @@ class AdsPlacementDAO {
     });
 
     return boards.length;
+  }
+
+  async getAdsPlacementByOptions(district, ward, search) {
+    const results = [];
+    const optionsAdsPlacement = {
+      attributes: [
+        "id",
+        "address",
+        "status",
+        "long",
+        "lat",
+        "createdAt",
+        "updatedAt",
+        "AreaId",
+        "LocationTypeId",
+        "AdsTypeId",
+      ],
+      include: [
+        {
+          model: Area,
+          attributes: ["id", "district", "ward"],
+          where: {},
+        },
+        {
+          model: LocationType,
+          attributes: ["id", "locationType"],
+        },
+        {
+          model: AdsType,
+          attributes: ["id", "type"],
+        },
+        {
+          model: Board,
+          attributes: ["id", "size", "quantity"],
+        },
+        // ... other associations ...
+      ],
+    };
+
+    if (search.trim !== "") {
+      optionsAdsPlacement.where = {
+        [Op.or]: [
+          {
+            address: {
+              [Op.like]: `%${search}%`,
+            },
+          },
+          {
+            [Op.and]: [
+              {
+                [Op.or]: [
+                  {
+                    "$Area.district$": {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                  {
+                    "$Area.ward$": {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                ],
+              },
+              {
+                address: {
+                  [Op.notLike]: `%${search}%`,
+                },
+              },
+            ],
+          },
+        ],
+      };
+    }
+    if (district.trim() !== "") {
+      optionsAdsPlacement.include[0].where.district = district;
+
+      if (ward.trim() !== "") {
+        optionsAdsPlacement.include[0].where.ward = ward;
+      }
+    }
+    const resultFromDb = await AdsPlacement.findAll(optionsAdsPlacement);
+
+    resultFromDb.forEach((data) => {
+      const boards = data.Boards.map(
+        (board) => new BoardDC(board.id, board.size, board.quantity)
+      );
+      results.push(
+        new AdsPlacementDC(
+          data.id,
+          data.address,
+          data.status,
+          data.long,
+          data.lat,
+          new AreaDC(data.Area.id, data.Area.ward, data.Area.district),
+          new LocationTypeDC(
+            data.LocationType.id,
+            data.LocationType.locationType
+          ),
+          new AdsTypeDC(data.AdsType.id, data.AdsType.type),
+          boards
+        )
+      );
+    });
+
+    return results;
+  }
+
+  async createAdPlacement(data) {
+    const newAdPlacement = await AdsPlacement.create({
+      address: data.address,
+      status: "Chưa quy hoạch",
+      long: parseFloat(data.long).toFixed(6),
+      lat: parseFloat(data.lat).toFixed(6),
+      AreaId: data.area,
+      LocationTypeId: data.locationType,
+      AdsTypeId: data.adsType,
+    });
+
+    await newAdPlacement.save();
+  }
+
+  async updateAdPlacement(data) {
+    await AdsPlacement.update(
+      {
+        AreaId: data.area,
+        address: data.address,
+        LocationTypeId: data.locationType,
+        AdsTypeId: data.adType,
+        status: data.status,
+        long: parseFloat(data.long).toFixed(6),
+        lat: parseFloat(data.lat).toFixed(6),
+      },
+      {
+        where: {
+          id: data.id,
+        },
+      }
+    );
+  }
+
+  async deleteAdPlacement(data) {
+    await AdsPlacement.destroy({
+      where: {
+        id: data.id,
+      },
+    });
   }
 }
 

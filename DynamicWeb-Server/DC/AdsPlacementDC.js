@@ -7,7 +7,8 @@ class AdsPlacementDC {
   area;
   locationType;
   adsType;
-  constructor(id, address, status, long, lat, area, locationType, adsType) {
+  boards
+  constructor(id, address, status, long, lat, area, locationType, adsType, boards) {
     Object.assign(this, {
       id,
       address,
@@ -17,6 +18,7 @@ class AdsPlacementDC {
       area,
       locationType,
       adsType,
+      boards
     });
   }
 }

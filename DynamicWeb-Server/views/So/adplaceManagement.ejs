@@ -18,6 +18,8 @@
   <link rel="stylesheet" href="/css/alert.css">
   <link rel="stylesheet" href="/css/So/customDropbox.css">
   <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+  <script src="/javascript/So/adplaceManagement.js"></script>
+
 </head>
 
 
@@ -126,21 +128,21 @@
                         <div class="address">
                           <p class="property-address">
                             <%= pagination.rows[i].address %><br>
-                              <%= pagination.rows[i].Area.ward %>,
-                                <%= pagination.rows[i].Area.district %>
+                              <%= pagination.rows[i].area.ward %>,
+                                <%= pagination.rows[i].area.district %>
                           </p>
                         </div>
                         <div class="property-info">
                           <div class="property-info-item">
                             <p class="info-label">Hình thức:</p>
                             <p class="info-value">
-                              <%= pagination.rows[i].AdsType.type %>
+                              <%= pagination.rows[i].adsType.type %>
                             </p>
                           </div>
                           <div class="property-info-item">
                             <p class="info-label">Phân loại:</p>
                             <p class="info-value">
-                              <%= pagination.rows[i].LocationType.locationType %>
+                              <%= pagination.rows[i].locationType.locationType %>
                             </p>
                           </div>
 
@@ -154,17 +156,17 @@
                           <div class="property-info-item">
                             <p class="info-label">Số lượng bảng:</p>
                             <p class="info-value">
-                              <%= pagination.rows[i].Boards.length %> bảng
+                              <%= pagination.rows[i].boards.length %> bảng
                             </p>
                           </div>
                         </div>
                         <div class="property-actions">
                           <i class="fas fa-pen edit-button" style="color: #f29d38;" data-bs-toggle="modal"
                             data-bs-target="#editModal" data-id="<%= pagination.rows[i].id %>"
-                            data-adstype="<%= pagination.rows[i].AdsType.type %>"
-                            data-district="<%= pagination.rows[i].Area.district %>"
-                            data-ward="<%= pagination.rows[i].Area.ward %>"
-                            data-location="<%= pagination.rows[i].LocationType.locationType %>"
+                            data-adstype="<%= pagination.rows[i].adsType.type %>"
+                            data-district="<%= pagination.rows[i].area.district %>"
+                            data-ward="<%= pagination.rows[i].area.ward %>"
+                            data-location="<%= pagination.rows[i].locationType.locationType %>"
                             data-address="<%= pagination.rows[i].address %>"
                             data-long="<%= pagination.rows[i].long %>" data-lat="<%= pagination.rows[i].lat %>"
                             data-status="<%= pagination.rows[i].status %>" onclick="showEditAdplaceModal(this)"></i>
@@ -445,7 +447,7 @@
                       <div class="modal-footer" style="background-color: #C4D4D6;">
                         <button type="button" class="btn gray-button" data-bs-dismiss="modal">Hủy bỏ</button>
                         <button type="button" class="btn btn-success" data-bs-dismiss="modal"
-                          id="confirm-edit-button">Cập nhật</button>
+                          id="confirm-edit-button" onclick="handleEditButtonClick(this)">Cập nhật</button>
                       </div>
 
                     </fieldset>
@@ -477,7 +479,7 @@
                 <!-- Modal footer -->
                 <div class="modal-footer">
                   <button type="button" class="btn gray-button" data-bs-dismiss="modal">Hủy bỏ</button>
-                  <button class="btn red-button" id="confirm-delete-button" data-bs-dismiss="modal">Xóa</button>
+                  <button class="btn red-button" id="confirm-delete-button" data-bs-dismiss="modal" onclick="handleDeleteButtonClick(this)">Xóa</button>
                 </div>
 
               </div>
@@ -508,7 +510,6 @@
 <script src="/javascript/So/mapForAdPlacement.js"></script>
 <script src="/javascript/So/mapForAdsPlacementModal.js"></script>
 <script src="/javascript/toggleNavigation.js"></script>
-<script src="/javascript/So/adplaceManagement.js"></script>
 
 
 

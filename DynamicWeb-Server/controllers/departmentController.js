@@ -15,6 +15,13 @@ const {
   BoardRequest,
   sequelize,
 } = require("../models");
+
+const { AdsPlacementDAO } = require("../DAO/AdsPlacementDAO");
+const { AreaDAO } = require("../DAO/AreaDAO");
+const { BoardDAO } = require("../DAO/BoardDAO");
+const { AdsPlacementDC } = require("../DC/AdsPlacementDC");
+const { AreaDC } = require("../DC/AreaDC");
+const { BoardDC } = require("../DC/BoardDC");
 const severPath = "http://localhost:5000/";
 const checkInput = require("../util/checkInput");
 const { createWardDistrictPageQueryString } = require("../util/queryString");
@@ -1047,7 +1054,7 @@ class DepartmentController {
       return res.json({ status: "Fail" });
     }
   }
-  // Khiêm
+  // Khiêm hoàn thành
   async adplaceManagement(req, res) {
     const createErr = {
       error: {
@@ -1077,40 +1084,6 @@ class DepartmentController {
       content: req.flash("deleteMsgContent"),
     };
 
-    const optionsAdsPlacement = {
-      attributes: [
-        "id",
-        "address",
-        "status",
-        "long",
-        "lat",
-        "createdAt",
-        "updatedAt",
-        "AreaId",
-        "LocationTypeId",
-        "AdsTypeId",
-      ],
-      include: [
-        {
-          model: Area,
-          attributes: ["id", "district", "ward"],
-          where: {},
-        },
-        {
-          model: LocationType,
-          attributes: ["id", "locationType"],
-        },
-        {
-          model: AdsType,
-          attributes: ["id", "type"],
-        },
-        {
-          model: Board,
-          attributes: ["id", "size", "quantity"],
-        },
-        // ... other associations ...
-      ],
-    };
     let district = req.query.district || "";
     let ward = req.query.ward || "";
     let search = req.query.search || "";
@@ -1118,52 +1091,14 @@ class DepartmentController {
       currentDistrict = "",
       currentWard = "";
 
-    if (search.trim !== "") {
-      optionsAdsPlacement.where = {
-        [Op.or]: [
-          {
-            address: {
-              [Op.like]: `%${search}%`,
-            },
-          },
-          {
-            [Op.and]: [
-              {
-                [Op.or]: [
-                  {
-                    "$Area.district$": {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                  {
-                    "$Area.ward$": {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                ],
-              },
-              {
-                address: {
-                  [Op.notLike]: `%${search}%`,
-                },
-              },
-            ],
-          },
-        ],
-      };
-    }
-
     if (district.trim() !== "") {
-      optionsAdsPlacement.include[0].where.district = district;
       wards = await Area.findAll({
         where: {
           district,
         },
       });
       currentDistrict = district;
-
       if (ward.trim() !== "") {
-        optionsAdsPlacement.include[0].where.ward = ward;
         currentWard = ward;
       }
     }
@@ -1177,7 +1112,12 @@ class DepartmentController {
     if (message !== null && message.type === "delete") {
       flag = true;
     }
-    const adsPlacements = await AdsPlacement.findAll(optionsAdsPlacement);
+    const adsPlacements =
+      await AdsPlacementDAO.getInstance().getAdsPlacementByOptions(
+        district,
+        ward,
+        search
+      );
     const adsTypes = await AdsType.findAll();
     const locationsType = await LocationType.findAll();
     const currentUrl = req.url.slice(1);
@@ -1192,7 +1132,6 @@ class DepartmentController {
     );
 
     const status = ["Đã quy hoạch", "Chưa quy hoạch"];
-
     res.render("So/adplaceManagement.ejs", {
       pagination,
       adsPlacements,
@@ -1211,7 +1150,7 @@ class DepartmentController {
       search,
     });
   }
-
+  // Khiêm hoàn thành
   async createAdplace(req, res) {
     let {
       districtSelectCreateModal,
@@ -1223,7 +1162,6 @@ class DepartmentController {
       latCreateModal,
     } = req.body;
 
-    console.log(req.body);
     let createFailed = false;
     const { district, ward } = await checkInput.extractDistrictAndWard(
       await checkInput.getAddressFromLatLong(
@@ -1232,8 +1170,6 @@ class DepartmentController {
         apiKey
       )
     );
-
-    console.log(district, ward);
 
     if (districtSelectCreateModal != district) {
       req.flash("wardSelectCreateModalError", "Khác với bản đồ.");
@@ -1297,16 +1233,19 @@ class DepartmentController {
     );
 
     try {
-      const newAdsPlacement = await AdsPlacement.create({
-        address: addressCreateModal,
-        status: "Chưa quy hoạch",
-        long: parseFloat(lngCreateModal).toFixed(6),
-        lat: parseFloat(latCreateModal).toFixed(6),
-        AreaId: areaId,
-        LocationTypeId: locationTypeId,
-        AdsTypeId: adTypeId,
-      });
-      await newAdsPlacement.save();
+      let adPlacementDC = new AdsPlacementDC(
+        undefined,
+        addressCreateModal,
+        undefined,
+        lngCreateModal,
+        latCreateModal,
+        areaId,
+        locationTypeId,
+        adTypeId,
+        undefined
+      );
+      console.log(adPlacementDC);
+      await AdsPlacementDAO.getInstance().createAdPlacement(adPlacementDC);
       console.log("Kết thúc khởi tạo AdsPlacement");
       req.flash(
         "message",
@@ -1330,7 +1269,7 @@ class DepartmentController {
       return res.redirect("/department/adplaceManagement");
     }
   }
-
+  // Khiêm hoàn thành
   async editAdplace(req, res) {
     let editFailed = false;
     let {
@@ -1369,22 +1308,18 @@ class DepartmentController {
       districtSelectEditModal
     );
     try {
-      await AdsPlacement.update(
-        {
-          AreaId: areaId,
-          address: addressEditModal,
-          LocationTypeId: locationTypeId,
-          AdsTypeId: adTypeId,
-          status: statusEditModal,
-          long: parseFloat(lngEditModal).toFixed(6),
-          lat: parseFloat(latEditModal).toFixed(6),
-        },
-        {
-          where: {
-            id: idEditModal,
-          },
-        }
+      let adPlacementDC = new AdsPlacementDC(
+        idEditModal,
+        addressEditModal,
+        statusEditModal,
+        lngEditModal,
+        latEditModal,
+        areaId,
+        locationTypeId,
+        adTypeId,
+        undefined
       );
+      await AdsPlacementDAO.getInstance().updateAdPlacement(adPlacementDC);
       req.flash(
         "message",
         JSON.stringify({
@@ -1407,16 +1342,14 @@ class DepartmentController {
       return res.send("Can not update AdsPlacement");
     }
   }
-
+  // Khiêm hoàn thành
   async deleteAdplace(req, res) {
     const { adsPlacementId } = req.body;
-    console.log("da vao delete");
+    console.log("adsPlacementId: ", adsPlacementId);
     try {
-      await AdsPlacement.destroy({
-        where: {
-          id: adsPlacementId,
-        },
-      });
+      let adsPlacement =
+        await AdsPlacementDAO.getInstance().getAdsPlacementById(adsPlacementId);
+      AdsPlacementDAO.getInstance().deleteAdPlacement(adsPlacement);
       req.flash(
         "message",
         JSON.stringify({
@@ -1439,7 +1372,7 @@ class DepartmentController {
       return res.send("Can not delete adplacement!");
     }
   }
-
+  // Khiêm hoàn thành
   async getAreas(req, res) {
     let district = req.query.district || "";
 
@@ -1450,11 +1383,11 @@ class DepartmentController {
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
     const perPage = 5;
 
-    let areas = await Area.findAll({
-      where: district == "" ? {} : { district: district },
-      limit: perPage,
-      offset: (page - 1) * perPage,
-    });
+    let areas = await AreaDAO.getInstance().getAllAreas(
+      district,
+      page,
+      perPage
+    );
     const [districts] = await sequelize.query(
       `SELECT DISTINCT district FROM Areas`
     );
@@ -1477,7 +1410,7 @@ class DepartmentController {
       message: message.length == 0 ? null : message[0],
     });
   }
-
+  // Khiêm hoàn thành
   async postEditArea(req, res) {
     try {
       const { id, district, ward, path } = req.body;
@@ -1487,12 +1420,10 @@ class DepartmentController {
         return res.redirect(path);
       }
 
-      const updatedArea = await Area.update(
-        { ward: ward, district: district },
-        {
-          where: { id: id },
-        }
-      );
+      let areaDC = await AreaDAO.getInstance().getAreaById(id);
+
+      const updatedArea = await AreaDAO.getInstance().editArea(areaDC);
+
       if (updatedArea[0] === 0) {
         req.flash("manageAreaMsg", "Không có trong cơ sở dữ liệu");
         return res.redirect(path);
@@ -1504,7 +1435,7 @@ class DepartmentController {
       return res.redirect(path);
     }
   }
-
+  // Khiêm hoàn thành
   async postAddArea(req, res) {
     try {
       const { district, ward } = req.body;
@@ -1513,16 +1444,14 @@ class DepartmentController {
         return res.redirect("/department/areaManagement");
       }
 
-      const existingArea = await Area.findOne({
-        where: { district: district, ward: ward },
-      });
+      const existingArea =
+        await AreaDAO.getInstance().findAreaByWardAndDistrict(ward, district);
       if (existingArea) {
         req.flash("manageAreaMsg", "Đã tồn tại khu vực");
         return res.redirect("/department/areaManagement");
       }
 
-      const newArea = await Area.create({ district: district, ward: ward });
-      await newArea.save();
+      await AreaDAO.getInstance().createArea(existingArea);
 
       req.flash("manageAreaMsg", "Tạo thành công");
       return res.redirect("/department/areaManagement");
@@ -1531,7 +1460,7 @@ class DepartmentController {
       return res.redirect("/department/areaManagement");
     }
   }
-
+  // Khiêm hoàn thành
   async boardManagement(req, res) {
     let message = req.flash("message")[0];
     message = message == null ? null : JSON.parse(message);
@@ -1547,75 +1476,22 @@ class DepartmentController {
         weight: req.flash("weightCreateModal")[0],
       },
     };
-    const optionsBoardManagement = {
-      attributes: ["id", "size", "quantity", "boardTypeId", "adsPlacementId"],
-      include: [
-        {
-          model: BoardType,
-          attributes: ["id", "type"],
-        },
-        {
-          model: AdsPlacement,
-          attributes: ["id", "address", "areaId", "long", "lat"],
-          where: {},
 
-          include: [
-            {
-              model: Area,
-              attributes: ["id", "district", "ward"],
-              where: {},
-            },
-            {
-              model: LocationType,
-              attributes: ["id", "locationType"],
-            },
-            {
-              model: AdsType,
-              attributes: ["id", "type"],
-            },
-          ],
-        },
-      ],
-    };
-    let search = req.query.search || "";
-    if (search.trim() !== "") {
-      optionsBoardManagement.where = {
-        [Op.or]: [
-          {
-            "$AdsPlacement.Area.district$": {
-              [Op.like]: `%${search}%`,
-            },
-          },
-          {
-            "$AdsPlacement.Area.ward$": {
-              [Op.like]: `%${search}%`,
-            },
-          },
-          {
-            "$AdsPlacement.address$": {
-              [Op.like]: `%${search}%`,
-            },
-          },
-        ],
-      };
-    }
     let district = req.query.district || "";
     let ward = req.query.ward || "";
     let wards = [],
       currentDistrict = "",
       currentWard = "";
+    let search = req.query.search || "";
 
     if (district.trim() !== "") {
-      optionsBoardManagement.include[1].include[0].where.district = district;
       wards = await Area.findAll({
         where: {
           district,
         },
       });
       currentDistrict = district;
-
       if (ward.trim() !== "") {
-        optionsBoardManagement.include[1].include[0].where.ward = ward;
         currentWard = ward;
       }
     }
@@ -1631,12 +1507,15 @@ class DepartmentController {
       flag = true;
     }
 
-    const boards = await Board.findAll(optionsBoardManagement);
+    const boards = await BoardDAO.getInstance().getBoardByOption(
+      district,
+      ward,
+      search
+    );
 
     const currentUrl = req.url.slice(1);
     const boardTypes = await BoardType.findAll();
     const pagination = await getPagination(req, res, boards, 5, page, 2, flag);
-
     res.render("So/boardManagement.ejs", {
       pagination,
       boards,
@@ -1651,9 +1530,8 @@ class DepartmentController {
       search,
     });
   }
-
+  // Khiêm hoàn thành
   async createBoard(req, res) {
-    console.log(req.body);
     const {
       boardTypeSelectCreateModal,
       heightCreateModal,
@@ -1715,13 +1593,14 @@ class DepartmentController {
       return res.redirect("/department/boardManagement");
     }
     try {
-      const newBoard = await Board.create({
-        size: heightCreateModal + "m x " + weightCreateModal + "m",
-        quantity: quantityCreateModal + " trụ/bảng",
-        BoardTypeId: parseInt(boardTypeid),
-        AdsPlacementId: adPlacementId,
-      });
-      await newBoard.save();
+      let boardDC = new BoardDC(
+        undefined,
+        heightCreateModal + "m x " + weightCreateModal + "m",
+        quantityCreateModal,
+        boardTypeid,
+        adPlacementId
+      );
+      await BoardDAO.getInstance().createBoard(boardDC);
       req.flash(
         "message",
         JSON.stringify({

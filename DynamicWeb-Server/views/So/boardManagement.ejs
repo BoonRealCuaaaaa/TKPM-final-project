@@ -143,12 +143,12 @@
                                                     <%= pagination.rows[i].quantity %>
                                                 </td>
                                                 <td>
-                                                    <%= pagination.rows[i].BoardType.type %>
+                                                    <%= pagination.rows[i].boardType.type %>
                                                 </td>
                                                 <td>
-                                                    <%= pagination.rows[i].AdsPlacement.address %>,
-                                                        <%= pagination.rows[i].AdsPlacement.Area.ward %>,
-                                                            <%= pagination.rows[i].AdsPlacement.Area.district %>
+                                                    <%= pagination.rows[i].adsPlacement.address %>,
+                                                        <%= pagination.rows[i].adsPlacement.area.ward %>,
+                                                            <%= pagination.rows[i].adsPlacement.area.district %>
 
                                                 </td>
 
@@ -158,12 +158,12 @@
                                                         data-id="<%= pagination.rows[i].id %>"
                                                         data-size="<%= pagination.rows[i].size %>"
                                                         data-quantity="<%= pagination.rows[i].quantity %>"
-                                                        data-address="<%= pagination.rows[i].AdsPlacement.address %>"
-                                                        data-type="<%= pagination.rows[i].BoardType.type %>"
-                                                        data-district="<%= pagination.rows[i].AdsPlacement.Area.district %>"
-                                                        data-ward="<%= pagination.rows[i].AdsPlacement.Area.ward %>"
-                                                        data-lat="<%= pagination.rows[i].AdsPlacement.lat %>"
-                                                        data-lng="<%= pagination.rows[i].AdsPlacement.long %>"
+                                                        data-address="<%= pagination.rows[i].adsPlacement.address %>"
+                                                        data-type="<%= pagination.rows[i].boardType.type %>"
+                                                        data-district="<%= pagination.rows[i].adsPlacement.area.district %>"
+                                                        data-ward="<%= pagination.rows[i].adsPlacement.area.ward %>"
+                                                        data-lat="<%= pagination.rows[i].adsPlacement.lat %>"
+                                                        data-lng="<%= pagination.rows[i].adsPlacement.long %>"
                                                         onclick="showEditBoardModal(this)"></i>
                                                     <i class="fas fa-trash" style="color: #EB3223;"
                                                         data-bs-toggle="modal" data-bs-target="#deleteModal"

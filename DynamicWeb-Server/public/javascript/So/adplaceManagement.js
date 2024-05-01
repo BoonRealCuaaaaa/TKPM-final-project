@@ -16,39 +16,42 @@ myModalEl.addEventListener("hidden.bs.modal", function (event) {
   });
 });
 
-const confirmEditButton = document.getElementById("confirm-edit-button");
-if (confirmEditButton) {
-  confirmEditButton.addEventListener("click", async (e) => {
-    e.preventDefault();
+async function handleEditButtonClick(e) {
+  console.log("Edit button clicked");
+  e.preventDefault();
 
-    // Lấy dữ liệu từ form bằng FormData
-    const formData = new FormData(document.getElementById("editForm"));
+  // Lấy dữ liệu từ form bằng FormData
+  const formData = new FormData(document.getElementById("editForm"));
 
-    // Chuyển đổi FormData thành đối tượng JavaScript
-    const data = {};
-    formData.forEach((value, key) => {
-      data[key] = value;
+  // Chuyển đổi FormData thành đối tượng JavaScript
+  const data = {};
+  formData.forEach((value, key) => {
+    data[key] = value;
+  });
+
+  // Gửi request PUT đến server
+  try {
+    const res = await fetch("/department/adplaceManagement", {
+      method: "PUT",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(data),
     });
 
-    // Gửi request PUT đến server
-    try {
-      const res = await fetch("/department/adplaceManagement", {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Server returned ${res.status} ${res.statusText}`);
-      }
-
-      location.reload();
-    } catch (error) {
-      console.error("Error:", error);
+    if (!res.ok) {
+      throw new Error(`Server returned ${res.status} ${res.statusText}`);
     }
-  });
+
+    location.reload();
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+const confirmEditButton = document.getElementById("confirm-edit-button");
+if (confirmEditButton) {
+  confirmEditButton.addEventListener("click", handleEditButtonClick);
 }
 
 function districtSelectChange(districtSelect, wardSelect, callback) {
@@ -94,7 +97,6 @@ function districtSelectChange(districtSelect, wardSelect, callback) {
 }
 
 async function showEditAdplaceModal(button) {
-  console.log("Button clicked"); // Check if the function is triggered
   const districtField = document.querySelector("#districtSelectEditModal");
   const wardField = document.querySelector("#wardSelectEditModal");
   const id = button.dataset.id;
@@ -141,23 +143,24 @@ function showDeleteAdplaceModal(btn) {
   document.getElementById("idDeleteModal").value = id;
 }
 
+async function handleDeleteButtonClick(e) {
+  const data = {
+    adsPlacementId: document.getElementById("idDeleteModal").value,
+  };
+  console.log(data);
+  const res = await fetch("/department/adplaceManagement", {
+    method: "DELETE",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  location.reload();
+}
+
 const confirmDeleteButton = document.getElementById("confirm-delete-button");
 if (confirmDeleteButton) {
-  confirmDeleteButton.addEventListener("click", async (e) => {
-    e.preventDefault();
-    const data = {
-      adsPlacementId: document.getElementById("idDeleteModal").value,
-    };
-    console.log(data);
-    const res = await fetch("/department/adplaceManagement", {
-      method: "DELETE",
-      headers: {
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    location.reload();
-  });
+  confirmDeleteButton.addEventListener("click", handleDeleteButtonClick);
 }
 
 let yTemp,
