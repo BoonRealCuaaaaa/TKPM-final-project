@@ -18,7 +18,7 @@ const { PermitRequestDC } = require("../DC/PermitRequestDC");
 
 class PermitRequestDAO {
   static instance = null;
-  constructor() {}
+  constructor() { }
 
   static getInstance() {
     if (this.instance == null) {
@@ -50,6 +50,37 @@ class PermitRequestDAO {
       );
     } else {
       return null;
+    }
+  }
+
+  static async create(data) {
+    try {
+      let request = await PermitRequest.create({
+        content: data.content,
+        image: data.image,
+        start: data.start,
+        end: data.end,
+        status: data.status,
+        BoardId: data.boardId,
+        CompanyId: data.companyId,
+        AccountId: data.accountId,
+      });
+      return { id: request.id };
+    }
+    catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  static async destroy(id) {
+    try {
+      await PermitRequest.destroy({ where: { id: id } });
+      return true;
+    }
+    catch (error) {
+      console.error(error);
+      return false;
     }
   }
 }

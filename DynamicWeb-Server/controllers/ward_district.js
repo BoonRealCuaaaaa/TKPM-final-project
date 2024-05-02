@@ -4,6 +4,18 @@ const Op = Sequelize.Op;
 const Mailjet = require("node-mailjet");
 const controller = {};
 
+const { AdsTypeDAO } = require("../DAO/AdsTypeDAO");
+const { CompanyDAO } = require("../DAO/CompanyDAO");
+const { BoardTypeDAO } = require("../DAO/BoardTypeDAO");
+const { AccountDAO } = require("../DAO/AccountDAO");
+const { AreaDAO } = require("../DAO/AreaDAO");
+const { BoardDAO } = require("../DAO/BoardDAO");
+const { PermitRequestDAO } = require("../DAO/PermitRequestDAO");
+const { LocationTypeDAO } = require("../DAO/LocationTypeDAO");
+const { AdsPlacementDAO } = require("../DAO/AdsPlacementDAO");
+const { AdsPlacementRequestDAO } = require("../DAO/AdsPlacementRequestDAO");
+const { BoardRequestDAO } = require("../DAO/BoardRequestDAO");
+
 const mailjet = new Mailjet({
   apiKey: process.env.MJ_APIKEY_PUBLIC || "5f453b57b69003f11cdbd0d46c363385",
   apiSecret:
@@ -20,39 +32,28 @@ class WardDistrictController {
   }
 
   async home(req, res) {
-    res.locals.adsTypes = await models.AdsType.findAll();
-    res.locals.companies = await models.Company.findAll();
-    res.locals.boardTypes = await models.BoardType.findAll();
-  
-    const account = await models.Account.findOne({
-      where: { id: req.session.accountId },
-      include: [
-        {
-          model: models.Area,
-          required: true,
-        },
-      ],
-    });
-  
+    res.locals.adsTypes = await AdsTypeDAO.findAll();
+    res.locals.companies = await CompanyDAO.findAll();
+    res.locals.boardTypes = await BoardTypeDAO.findAll();
+
+    const account = await AccountDAO.findOneById(req.session.accountId);
+
     res.locals.message = req.flash("Message")[0];
-  
-    const wards = await models.Area.findAll({
-      attributes: ["ward"],
-      where: { district: account.Area.district },
-    });
+
+    const wards = await AreaDAO.findWardsByDistrict(account.area.district);
     const wardArr = wards.map((area) => {
       return area.dataValues.ward;
     });
-  
+
     return res.render("PhuongQuan/home.ejs", {
       tab: "Trang chủ",
-      area: account.Area,
+      area: account.area,
       type: account.type,
       wards: wardArr,
       path: "/home",
     });
   };
-  
+
   async addPermitRequest(req, res) {
     let redirectMethod = 1;
     let { boardId } = req.body;
@@ -60,15 +61,17 @@ class WardDistrictController {
       let { adsPlacementId, boardTypeId, boardSize, boardQuantity } = req.body;
       //Create new board
       try {
-        let newBoard = await models.Board.create({
+        const boardRawData = {
           size: boardSize,
           quantity: boardQuantity,
-          BoardTypeId: boardTypeId,
-          AdsPlacementId: adsPlacementId,
-        });
-        boardId = newBoard.id;
+          boardTypeId: boardTypeId,
+          adsPlacementId: adsPlacementId,
+        }
+        let { id } = await BoardDAO.create(boardRawData);
+        boardId = id;
         redirectMethod = 0;
       } catch (error) {
+        console.error(error);
         req.flash("Message", {
           title: "Tạo bảng QC mới thất bại",
           message: "Có lỗi xảy ra trong quá trình. Vui lòng thử lại",
@@ -80,15 +83,16 @@ class WardDistrictController {
     let { companyId } = req.body;
     if (companyId == -1) {
       let { companyName, email, phone, address } = req.body;
+      const companyRawData = {
+        name: companyName,
+        phone: phone,
+        email: email,
+        address, address
+      }
       // Create new company
       try {
-        let newCompany = await models.Company.create({
-          name: companyName,
-          phone: phone,
-          address: address,
-          email: email,
-        });
-        companyId = newCompany.id;
+        let { id } = await CompanyDAO.create(companyRawData);
+        companyId = id;
       } catch (error) {
         req.flash("Message", {
           title: "Tạo công ty mới thất bại",
@@ -99,7 +103,7 @@ class WardDistrictController {
         return res.json({ redirect: "back" });
       }
     }
-  
+
     //Create new permit request
     let { content, startDate, endDate } = req.body;
     try {
@@ -113,21 +117,25 @@ class WardDistrictController {
         imageUrl = path.join(",");
         imageUrl = imageUrl.replace(/\\/g, "/");
       }
-      let request = await models.PermitRequest.create({
+
+      const requestRawData = {
         content: content,
         image: imageUrl,
         start: startDate,
         end: endDate,
         status: "Chưa cấp phép",
-        BoardId: boardId,
-        CompanyId: companyId,
-        AccountId: req.session.accountId,
-      });
+        boardId: boardId,
+        companyId: companyId,
+        accountId: req.session.accountId,
+      }
+
+      let { id } = await PermitRequestDAO.create(requestRawData);
+
       req.flash("Message", {
         title: "Tạo yêu cầu thành công",
         message:
           "Yêu cầu cấp phép QC của bạn đã được gửi và đang chờ xét duyệt (ID: " +
-          request.id +
+          id +
           ")",
         status: "succeed",
       });
@@ -141,74 +149,50 @@ class WardDistrictController {
     if (redirectMethod == 1) return res.redirect("back");
     return res.json({ redirect: "back" });
   };
-  
+
   async showListAdsplacements(req, res) {
-    let options = {
-      include: [
-        {
-          model: models.Area,
-          where: {},
-        },
-        { model: models.LocationType },
-        { model: models.AdsType },
-      ],
-      where: {},
-    };
-  
-    options.include[0].where.district = req.session.accountDistrict;
-    if (req.user.type == "Phuong") {
-      options.where.areaId = req.user.AreaId;
-    } else {
+    let areaId = req.user.AreaId;
+    if (req.user.type == "Quan") {
       let selectedArea = req.query.selectedArea ? req.query.selectedArea : "";
-      if (selectedArea != "") {
-        options.where.areaId = selectedArea;
-      }
+      areaId = selectedArea;
     }
-  
-    let { rows, count } = await models.AdsPlacement.findAndCountAll(options);
-  
+
+    res.locals.adsPlacements = await AdsPlacementDAO.findAllByAreaId(areaId);
+
     //Adding options for select forms
-    res.locals.areas = await models.Area.findAll({
-      order: [
-        ["district", "ASC"],
-        ["ward", "ASC"],
-      ],
-    });
-    res.locals.adsTypes = await models.AdsType.findAll();
-    res.locals.locationTypes = await models.LocationType.findAll();
-    res.locals.myArea = await models.Area.findAll({
-      where: { district: req.session.accountDistrict },
-      order: [["ward", "ASC"]],
-    });
-  
+    res.locals.areas = await AreaDAO.findAll();
+    res.locals.adsTypes = await AdsTypeDAO.findAll();
+    res.locals.locationTypes = await LocationTypeDAO.findAll();
+    res.locals.myArea = await AreaDAO.findAreasByDistrict(req.session.accountDistrict);
+
     res.locals.message = req.flash("Message")[0];
-  
+
     return res.render("PhuongQuan/list-adsplacements.ejs", {
       tab: "Danh sách điểm đặt quảng cáo",
-      adsPlacements: rows,
       path: "/list-adsplacements",
     });
   };
-  
+
   async editAdsplacement(req, res) {
     let { adsplacementId, address, adsTypeId, locationTypeId, status, reason } =
       req.body;
+    const data = {
+      adsplacementId: adsplacementId,
+      address: address,
+      adsTypeId: adsTypeId,
+      locationTypeId: locationTypeId,
+      status: status,
+      reason: reason,
+      accountId: req.session.accountId,
+      requestStatus: "Chờ phê duyệt",
+    }
     try {
-      let request = await models.AdsPlacementRequest.create({
-        AdsPlacementId: adsplacementId,
-        address: address,
-        AdsTypeId: adsTypeId,
-        LocationTypeId: locationTypeId,
-        status: status,
-        reason: reason,
-        AccountId: req.session.accountId,
-        requestStatus: "Chờ phê duyệt",
-      });
+      let { id } = await AdsPlacementRequestDAO.create(data);
       req.flash("Message", {
         title: "Gửi yêu cầu thành công",
         message:
           "Yêu cầu thay đổi điểm đặt QC của bạn đã được gửi và đang chờ xét duyệt (ID: " +
-          request.id +
+          id +
           ")",
         status: "succeed",
       });
@@ -221,10 +205,10 @@ class WardDistrictController {
     }
     res.redirect("back");
   };
-  
+
   async showListBoards(req, res) {
     let id = isNaN(req.params.id) ? -1 : parseInt(req.params.id);
-  
+
     let options = {
       include: [
         {
@@ -241,19 +225,20 @@ class WardDistrictController {
         {
           model: models.PermitRequest,
           required: true,
-          include: [{model: models.Company}]
+          include: [{ model: models.Company }]
         },
         { model: models.BoardType },
       ],
       where: {},
     };
-  
+
     if (id != -1) {
       options.where.adsPlacementId = id;
+      //res.locals.boards = await BoardDAO.findAllByAdsPlacementIdAndDistrict(id, req.session.accountDistrict);
     }
-  
+
     options.include[0].include[0].where.district = req.session.accountDistrict;
-  
+
     if (req.user.type == "Phuong") {
       options.include[0].where.areaId = req.user.AreaId;
     } else {
@@ -262,10 +247,9 @@ class WardDistrictController {
         options.include[0].where.areaId = selectedArea;
       }
     }
-  
-    let { rows, count } = await models.Board.findAndCountAll(options);
-    let permitedRows = rows;
-  
+
+    res.locals.permitedBoards = await models.Board.findAll(options);
+
     options = {
       include: [
         {
@@ -282,7 +266,7 @@ class WardDistrictController {
         {
           model: models.PermitRequest,
           required: false,
-          where: { 
+          where: {
             boardId: null,
           },
         },
@@ -300,11 +284,11 @@ class WardDistrictController {
         ],
       },
     };
-  
+
     if (id != -1) options.where[Op.and].push({ adsPlacementId: id });
-  
+
     options.include[0].include[0].where.district = req.session.accountDistrict;
-  
+
     if (req.user.type == "Phuong") {
       options.include[0].where.areaId = req.user.AreaId;
     } else {
@@ -313,9 +297,9 @@ class WardDistrictController {
         options.include[0].where.areaId = selectedArea;
       }
     }
-  
+
     let emptyBoards = await models.Board.findAll(options);
-  
+
     //Adding options for select forms
     res.locals.boardTypes = await models.BoardType.findAll();
     res.locals.companies = await models.Company.findAll();
@@ -324,34 +308,34 @@ class WardDistrictController {
       where: { district: req.session.accountDistrict },
       order: [["ward", "ASC"]],
     });
-  
+
     res.locals.message = req.flash("Message")[0];
-  
+
     return res.render("PhuongQuan/list-boards", {
       tab: "Danh sách bảng quảng cáo",
-      permitedBoards: permitedRows,
       emptyBoards: emptyBoards,
       path: "/list-boards",
     });
   };
-  
+
   async editBoard(req, res) {
     let { boardId, quantity, size, boardTypeId, reason } = req.body;
     try {
-      let request = await models.BoardRequest.create({
-        BoardId: boardId,
+      const rawData = {
+        boardId: boardId,
         size: size,
         quantity: quantity,
-        BoardTypeId: boardTypeId,
+        boardTypeId: boardTypeId,
         reason: reason,
-        AccountId: req.session.accountId,
+        accountId: req.session.accountId,
         requestStatus: "Chờ phê duyệt",
-      });
+      }
+      let {id} = await BoardRequestDAO.create(rawData);
       req.flash("Message", {
         title: "Gửi yêu cầu thành công",
         message:
           "Yêu cầu thay đổi bảng quảng cáo của bạn đã được gửi và đang chờ xét duyệt (ID: " +
-          request.id +
+          id +
           ")",
         status: "succeed",
       });
@@ -364,7 +348,7 @@ class WardDistrictController {
     }
     res.redirect("back");
   };
-  
+
   async showMyRequests(req, res) {
     res.locals.adsplacementRequests = await models.AdsPlacementRequest.findAll({
       include: [{ model: models.LocationType }, { model: models.AdsType }],
@@ -373,13 +357,13 @@ class WardDistrictController {
       },
       order: [["id", "ASC"]],
     });
-  
+
     res.locals.boardRequests = await models.BoardRequest.findAll({
       include: [{ model: models.BoardType }],
       where: { accountId: req.session.accountId },
       order: [["id", "ASC"]],
     });
-  
+
     res.locals.permitRequests = await models.PermitRequest.findAll({
       include: [{ model: models.Company }],
       where: {
@@ -387,22 +371,22 @@ class WardDistrictController {
       },
       order: [["id", "ASC"]],
     });
-  
+
     res.locals.message = req.flash("Message")[0];
-  
+
     return res.render("PhuongQuan/my-requests.ejs", {
       tab: "Yêu cầu của tôi",
       selectedId: req.session.selectedAdsplacementId,
       path: "/my-requests",
     });
   };
-  
+
   async deleteRequest(req, res) {
     let { tableName, requestId } = req.body;
     console.log(req.body);
     try {
       if (tableName == "BoardRequest") {
-        await models.BoardRequest.destroy({ where: { id: requestId } });
+        await BoardRequestDAO.destroy(requestId);
         req.flash("Message", {
           title: "Xoá yêu cầu thành công",
           message: "Đã xoá yêu cầu thay đổi bảng QC (ID: " + requestId + ")",
@@ -410,7 +394,7 @@ class WardDistrictController {
         });
       }
       if (tableName == "AdsPlacementRequest") {
-        await models.AdsPlacementRequest.destroy({ where: { id: requestId } });
+        await AdsPlacementRequestDAO.destroy(requestId);
         req.flash("Message", {
           title: "Xoá yêu cầu thành công",
           message: "Đã xoá yêu cầu thay đổi điểm đặt QC (ID: " + requestId + ")",
@@ -418,7 +402,7 @@ class WardDistrictController {
         });
       }
       if (tableName == "PermitRequest") {
-        await models.PermitRequest.destroy({ where: { id: requestId } });
+        await PermitRequestDAO.destroy(requestId);
         req.flash("Message", {
           title: "Xoá yêu cầu thành công",
           message: "Đã xoá yêu cầu cấp phép bảng QC (ID: " + requestId + ")",
@@ -434,7 +418,7 @@ class WardDistrictController {
     }
     res.redirect("back");
   };
-  
+
   async showListReports(req, res) {
     let options = {
       include: [
@@ -453,9 +437,9 @@ class WardDistrictController {
       ],
       where: {},
     };
-  
+
     options.include[0].include[0].where.district = req.session.accountDistrict;
-  
+
     if (req.user.type == "Phuong") {
       options.include[0].where.areaId = req.user.AreaId;
     } else {
@@ -464,9 +448,9 @@ class WardDistrictController {
         options.include[0].where.areaId = selectedArea;
       }
     }
-  
+
     res.locals.reports = await models.Report.findAll(options);
-  
+
     options = {
       include: [
         {
@@ -477,9 +461,9 @@ class WardDistrictController {
       ],
       where: {},
     };
-  
+
     options.include[0].where.district = req.session.accountDistrict;
-  
+
     if (req.user.type == "Phuong") {
       options.where.areaId = req.user.AreaId;
     } else {
@@ -488,23 +472,23 @@ class WardDistrictController {
         options.where.areaId = selectedArea;
       }
     }
-  
+
     res.locals.locationReports = await models.LocationReport.findAll(options);
-  
+
     res.locals.myArea = await models.Area.findAll({
       where: { district: req.session.accountDistrict },
       order: [["ward", "ASC"]],
     });
-  
+
     return res.render("PhuongQuan/list-reports.ejs", {
       tab: "Danh sách báo cáo",
       path: "/list-reports",
     });
   };
-  
+
   async showReportDetails(req, res) {
     let id = isNaN(req.params.id) ? -1 : parseInt(req.params.id);
-  
+
     let options = {
       include: [
         {
@@ -522,9 +506,9 @@ class WardDistrictController {
       ],
       where: { id },
     };
-  
+
     options.include[0].include[0].where.district = req.session.accountDistrict;
-  
+
     if (req.user.type == "Phuong") {
       options.include[0].where.areaId = req.user.AreaId;
     } else {
@@ -533,25 +517,25 @@ class WardDistrictController {
         options.include[0].where.areaId = selectedArea;
       }
     }
-  
+
     let report = await models.Report.findOne(options);
-  
+
     if (!report) {
       return res.send("Báo cáo không tồn tại hoặc bạn không có quyền truy cập!");
     }
-  
+
     res.locals.message = req.flash("Message")[0];
-  
+
     return res.render("PhuongQuan/view-report-details.ejs", {
       report: report,
       tab: "Chi tiết báo cáo",
       path: "/list-reports",
     });
   };
-  
+
   async showLocationReportDetails(req, res) {
     let id = isNaN(req.params.id) ? -1 : parseInt(req.params.id);
-  
+
     let options = {
       include: [
         {
@@ -562,9 +546,9 @@ class WardDistrictController {
       ],
       where: { id },
     };
-  
+
     options.include[0].where.district = req.session.accountDistrict;
-  
+
     if (req.user.type == "Phuong") {
       options.where.areaId = req.user.AreaId;
     } else {
@@ -573,22 +557,22 @@ class WardDistrictController {
         options.where.areaId = selectedArea;
       }
     }
-  
+
     let report = await models.LocationReport.findOne(options);
-  
+
     if (!report) {
       return res.send("Báo cáo không tồn tại hoặc bạn không có quyền truy cập!");
     }
-  
+
     res.locals.message = req.flash("Message")[0];
-  
+
     return res.render("PhuongQuan/view-report-details.ejs", {
       report: report,
       tab: "Chi tiết báo cáo",
       path: "/list-reports",
     });
   };
-  
+
   async updateReportDetails(req, res) {
     let { reportId, method, status } = req.body;
     try {
@@ -605,7 +589,7 @@ class WardDistrictController {
         where: { id: req.session.accountId },
         include: [{ model: models.Area }],
       });
-  
+
       // Send email
       const request = await mailjet.post("send", { version: "v3.1" }).request({
         Messages: [
@@ -650,7 +634,7 @@ class WardDistrictController {
     }
     res.redirect("back");
   };
-  
+
   async updateLocationReportDetails(req, res) {
     let { reportId, method, status } = req.body;
     try {
@@ -669,7 +653,7 @@ class WardDistrictController {
         where: { id: req.session.accountId },
         include: [{ model: models.Area }],
       });
-  
+
       // Send email
       const request = await mailjet.post("send", { version: "v3.1" }).request({
         Messages: [
@@ -714,8 +698,8 @@ class WardDistrictController {
     }
     res.redirect("back");
   };
-  
-  
+
+
 }
 
 module.exports = WardDistrictController;

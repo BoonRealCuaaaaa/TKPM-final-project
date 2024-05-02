@@ -273,6 +273,91 @@ class AdsPlacementDAO {
 
     return boards.length;
   }
+
+  static async findAll() {
+    const results = [];
+
+    const resultFromDb = await AdsPlacement.findAll({
+      include: [
+        {
+          model: Area,
+          required: true,
+        },
+        {
+          model: LocationType,
+          required: true,
+        },
+        {
+          model: AdsType,
+          required: true,
+        },
+      ],
+    });
+
+    resultFromDb.forEach((data) => {
+      results.push(
+        new AdsPlacementDC(
+          data.id,
+          data.address,
+          data.status,
+          data.long,
+          data.lat,
+          new AreaDC(data.Area.id, data.Area.ward, data.Area.district),
+          new LocationTypeDC(
+            data.LocationType.id,
+            data.LocationType.locationType
+          ),
+          new AdsTypeDC(data.AdsType.id, data.AdsType.type)
+        )
+      );
+    });
+
+    return results;
+  }
+
+  static async findAllByAreaId(areaId) {
+    const results = [];
+
+    const resultFromDb = await AdsPlacement.findAll({
+      include: [
+        {
+          model: Area,
+          required: true,
+        },
+        {
+          model: LocationType,
+          required: true,
+        },
+        {
+          model: AdsType,
+          required: true,
+        },
+      ],
+      where: {
+        areaId: areaId
+      }
+    });
+
+    resultFromDb.forEach((data) => {
+      results.push(
+        new AdsPlacementDC(
+          data.id,
+          data.address,
+          data.status,
+          data.long,
+          data.lat,
+          new AreaDC(data.Area.id, data.Area.ward, data.Area.district),
+          new LocationTypeDC(
+            data.LocationType.id,
+            data.LocationType.locationType
+          ),
+          new AdsTypeDC(data.AdsType.id, data.AdsType.type)
+        )
+      );
+    });
+
+    return results;
+  }
 }
 
 module.exports.AdsPlacementDAO = AdsPlacementDAO;

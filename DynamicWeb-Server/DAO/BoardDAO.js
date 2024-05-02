@@ -19,6 +19,7 @@ const {
     LocationReport,
     BoardReport,
     AdsReport,
+    Company
   } = require("../models");
 
 class BoardDAO {
@@ -97,6 +98,24 @@ class BoardDAO {
 
     return results
   }
+
+  static async create(data) {
+    try {
+      let newBoard = await Board.create({
+        size: data.size,
+        quantity: data.quantity,
+        BoardTypeId: data.boardTypeId,
+        AdsPlacementId: data.adsPlacementId,
+      });
+      return { id: newBoard.id };
+    }
+    catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  
 }
 
 exports.BoardDAO=BoardDAO
