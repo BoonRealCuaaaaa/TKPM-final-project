@@ -96,6 +96,22 @@ class AdsTypeDAO {
       },
     });
   }
+
+  static async findAll() {
+    const rows = await AdsType.findAll();
+    const results = [];
+
+    rows.forEach((row) => {
+        results.push(
+            new AdsTypeDC(
+                row.id,
+                row.type
+            )
+        )
+    });
+
+    return results;
+}
 }
 
 exports.AdsTypeDAO = AdsTypeDAO;

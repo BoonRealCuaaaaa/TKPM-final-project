@@ -8,7 +8,8 @@ class PermitRequestDC {
   board;
   company;
   account;
-  constructor(id, content, image, start, end, status, board, company, account) {
+  createdAt;
+  constructor(id, content, image, start, end, status, board, company, account, createdAt) {
     Object.assign(this, {
       id,
       content,
@@ -19,6 +20,7 @@ class PermitRequestDC {
       board,
       company,
       account,
+      createdAt
     });
   }
 }

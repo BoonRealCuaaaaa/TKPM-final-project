@@ -21,7 +21,7 @@ const {
 const { ReportDC } = require("../DC/ReportDC");
 
 class SaveReportStrategy {
-  async save() {}
+  async save() { }
 }
 
 class SaveLocationReportStrategy extends SaveReportStrategy {
@@ -148,7 +148,7 @@ class SaveAdsReportStrategy extends SaveReportStrategy {
 class ReportDAO {
   static instance = null;
   saveStrategy = null;
-  constructor() {}
+  constructor() { }
 
   static getInstance() {
     if (this.instance == null) {
@@ -594,6 +594,223 @@ class ReportDAO {
   setSaveStrategy(strategy) {
     this.saveStrategy = strategy;
   }
+
+  static async findAllByAreaId(areaId) {
+    const results = [];
+
+    const boardReports = await BoardReport.findAll({
+      include: [
+        {
+          model: Board,
+          required: true,
+          include: [
+            {
+              model: AdsPlacement,
+              required: true,
+              where: { areaId: areaId }
+            }
+          ]
+        },
+        {
+          model: Report,
+          required: true,
+          include: [
+            { model: ReportType }
+          ]
+        }
+      ],
+    });
+
+    boardReports.forEach((row) => {
+      results.push(
+        new ReportDC(
+          row.Report.id,
+          row.Report.submissionTime,
+          row.Report.name,
+          row.Report.email,
+          row.Report.phone,
+          row.Report.reportContent,
+          row.Report.image,
+          row.Report.status,
+          row.Report.method,
+          new ReportTypeDC(
+            row.Report.ReportType.id,
+            row.Report.ReportType.type
+          ),
+          null,
+          row.Report.createdAt,
+        )
+      );
+    });
+
+    const adsPlacementReports = await AdsReport.findAll({
+      include: [
+        {
+          model: AdsPlacement,
+          required: true,
+          where: { areaId: areaId }
+        },
+        {
+          model: Report,
+          required: true,
+          include: [
+            { model: ReportType }
+          ]
+        }
+      ],
+    });
+
+    adsPlacementReports.forEach((row) => {
+      results.push(
+        new ReportDC(
+          row.Report.id,
+          row.Report.submissionTime,
+          row.Report.name,
+          row.Report.email,
+          row.Report.phone,
+          row.Report.reportContent,
+          row.Report.image,
+          row.Report.status,
+          row.Report.method,
+          new ReportTypeDC(
+            row.Report.ReportType.id,
+            row.Report.ReportType.type
+          ),
+          null,
+          row.Report.createdAt,
+        )
+      );
+    });
+
+    const locationReports = await LocationReport.findAll({
+      include: [
+        {
+          model: Report,
+          required: true,
+          include: [
+            { model: ReportType }
+          ]
+        }
+      ],
+      where: { areaId: areaId }
+    });
+
+    locationReports.forEach((row) => {
+      results.push(
+        new ReportDC(
+          row.Report.id,
+          row.Report.submissionTime,
+          row.Report.name,
+          row.Report.email,
+          row.Report.phone,
+          row.Report.reportContent,
+          row.Report.image,
+          row.Report.status,
+          row.Report.method,
+          new ReportTypeDC(
+            row.Report.ReportType.id,
+            row.Report.ReportType.type
+          ),
+          null,
+          row.Report.createdAt,
+        )
+      );
+    });
+
+    return results;
+  }
+
+  static async findReportById(id) {
+    const report = await Report.findOne({
+      include: [{model: ReportType}],
+      where: { id: id } 
+    });
+
+    let result = {
+      report: null,
+      subReport: null,
+      class: null,
+    }
+
+    if (report != null) {
+      result.report = new ReportDC(
+        report.id,
+        report.submissionTime,
+        report.name,
+        report.email,
+        report.phone,
+        report.reportContent,
+        report.image,
+        report.status,
+        report.method,
+        new ReportTypeDC(
+          report.ReportType.id,
+          report.ReportType.type
+        ),
+        null,
+        report.createdAt,
+      );
+
+      const boardReport = await BoardReport.findOne({
+        include: [
+          {
+            model: Board,
+            required: true,
+            include: [
+              {model: AdsPlacement}
+            ]
+          },
+        ],
+        where: {reportId: id}
+      });
+
+      if (boardReport != null) {
+        result.class = "Board";
+
+        return result;
+      }
+
+      const adsPlacementReport = await AdsReport.findOne({
+        include: [
+          {model: AdsPlacement},
+        ],
+        where: {reportId: id}
+      });
+
+      if (adsPlacementReport != null) {
+        result.class = "AdsPlacement";
+
+        return result;
+      }
+
+      const locationReport = await LocationReport.findOne({
+        where: { reportId: id }
+      });
+
+      if (locationReport != null) {
+        result.class = "Location";
+
+        return result;
+      }
+    }
+  }
+
+  static async updateReport(id, method, status, accountId) {
+    try {
+        await Report.update(
+            {
+                method: method,
+                status: status,
+                AccountId: accountId,
+            },
+            { where: { id: id } }
+        );
+        return true;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
 }
 
 exports.ReportDAO = ReportDAO;

@@ -67,14 +67,14 @@
                   <tr>
                     <td><%= place.id %></td>
                     <td><%= place.address %></td>
-                    <td><%= place.Area.ward %> <%= place.Area.district %></td>
-                    <td><%= place.LocationType.locationType %></td>
-                    <td><%= place.AdsType.type %></td>
+                    <td><%= place.area.ward %> <%= place.area.district %></td>
+                    <td><%= place.locationType.locationType %></td>
+                    <td><%= place.adsType.type %></td>
                     <td>Link</td>
                     <td><%= place.status %></td>
                     <td>
                         <a href="./list-boards/<%= place.id %>"><i class="fa-solid fa-magnifying-glass"></i></a>
-                        <a href="" data-bs-toggle="modal" data-bs-target="#locationChange" onclick="showEditAdsplacementModal(this)" data-id="<%= place.id %>" data-address="<%= place.address %>" data-area="<%= place.Area.id %>" data-ads-type="<%= place.AdsType.id %>" data-location-type="<%= place.LocationType.id %>" data-status="<%= place.status %>">
+                        <a href="" data-bs-toggle="modal" data-bs-target="#locationChange" onclick="showEditAdsplacementModal(this)" data-id="<%= place.id %>" data-address="<%= place.address %>" data-area="<%= place.area.id %>" data-ads-type="<%= place.adsType.id %>" data-location-type="<%= place.locationType.id %>" data-status="<%= place.status %>">
                           <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                     </td>
