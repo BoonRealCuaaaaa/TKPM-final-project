@@ -1,10 +1,13 @@
 const {
-    BoardRequest
+    BoardRequest,
+    BoardType
 } = require("../models");
 
 const { AccountDC } = require("../DC/AccountDC");
 const { AreaDC } = require("../DC/AreaDC");
 const { BoardRequestDC } = require("../DC/BoardRequestDC");
+const { BoardTypeDC } = require("../DC/BoardTypeDC");
+const { BoardDC } = require("../DC/BoardDC");
 
 class BoardRequestDAO {
     static instance = null;
@@ -28,7 +31,7 @@ class BoardRequestDAO {
                 reason: data.reason,
                 AccountId: data.accountId,
                 requestStatus: data.requestStatus,
-              });
+            });
             return { id: request.id };
         }
         catch (error) {
@@ -46,6 +49,43 @@ class BoardRequestDAO {
             console.error(error);
             return false;
         }
+    }
+
+    static async findAllByAccountId(accountId) {
+        const rows = await BoardRequest.findAll({
+            include: [{ model: BoardType }],
+            where: { accountId: accountId },
+            order: [["id", "ASC"]],
+        });
+
+        const results = [];
+
+        rows.forEach((row) => {
+            results.push(
+                new BoardRequestDC(
+                    row.id,
+                    row.size,
+                    row.quantity,
+                    new BoardTypeDC(
+                        row.BoardType.id,
+                        row.BoardType.type
+                    ),
+                    new BoardDC(
+                        row.BoardId,
+                        null,
+                        null,
+                        null, 
+                        null
+                    ),
+                    row.reason,
+                    row.requestStatus,
+                    null,
+                    row.createdAt
+                )
+            )
+        });
+
+        return results;
     }
 }
 

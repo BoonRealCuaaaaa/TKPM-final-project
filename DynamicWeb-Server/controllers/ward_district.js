@@ -5,6 +5,7 @@ const Mailjet = require("node-mailjet");
 const controller = {};
 
 const { AdsTypeDAO } = require("../DAO/AdsTypeDAO");
+const { ReportDAO } = require("../DAO/ReportDAO");
 const { CompanyDAO } = require("../DAO/CompanyDAO");
 const { BoardTypeDAO } = require("../DAO/BoardTypeDAO");
 const { AccountDAO } = require("../DAO/AccountDAO");
@@ -350,27 +351,11 @@ class WardDistrictController {
   };
 
   async showMyRequests(req, res) {
-    res.locals.adsplacementRequests = await models.AdsPlacementRequest.findAll({
-      include: [{ model: models.LocationType }, { model: models.AdsType }],
-      where: {
-        accountId: req.session.accountId,
-      },
-      order: [["id", "ASC"]],
-    });
+    res.locals.adsplacementRequests = await AdsPlacementRequestDAO.findAllByAccountId(req.session.accountId);
 
-    res.locals.boardRequests = await models.BoardRequest.findAll({
-      include: [{ model: models.BoardType }],
-      where: { accountId: req.session.accountId },
-      order: [["id", "ASC"]],
-    });
+    res.locals.boardRequests = await BoardRequestDAO.findAllByAccountId(req.session.accountId);
 
-    res.locals.permitRequests = await models.PermitRequest.findAll({
-      include: [{ model: models.Company }],
-      where: {
-        accountId: req.session.accountId,
-      },
-      order: [["id", "ASC"]],
-    });
+    res.locals.permitRequests = await PermitRequestDAO.findAllByAccountId(req.session.accountId);
 
     res.locals.message = req.flash("Message")[0];
 
@@ -420,65 +405,15 @@ class WardDistrictController {
   };
 
   async showListReports(req, res) {
-    let options = {
-      include: [
-        {
-          model: models.AdsPlacement,
-          attribute: ["address"],
-          include: [
-            {
-              model: models.Area,
-              where: {},
-            },
-          ],
-          where: {},
-        },
-        { model: models.ReportType },
-      ],
-      where: {},
-    };
-
-    options.include[0].include[0].where.district = req.session.accountDistrict;
-
-    if (req.user.type == "Phuong") {
-      options.include[0].where.areaId = req.user.AreaId;
-    } else {
+    let areaId = req.user.AreaId;
+    if (req.user.type == "Quan") {
       let selectedArea = req.query.selectedArea ? req.query.selectedArea : "";
-      if (selectedArea != "") {
-        options.include[0].where.areaId = selectedArea;
-      }
+      areaId = selectedArea;
     }
 
-    res.locals.reports = await models.Report.findAll(options);
+    res.locals.reports = await ReportDAO.findAllByAreaId(areaId);
 
-    options = {
-      include: [
-        {
-          model: models.Area,
-          where: {},
-        },
-        { model: models.ReportType },
-      ],
-      where: {},
-    };
-
-    options.include[0].where.district = req.session.accountDistrict;
-
-    if (req.user.type == "Phuong") {
-      options.where.areaId = req.user.AreaId;
-    } else {
-      let selectedArea = req.query.selectedArea ? req.query.selectedArea : "";
-      if (selectedArea != "") {
-        options.where.areaId = selectedArea;
-      }
-    }
-
-    res.locals.locationReports = await models.LocationReport.findAll(options);
-
-    res.locals.myArea = await models.Area.findAll({
-      where: { district: req.session.accountDistrict },
-      order: [["ward", "ASC"]],
-    });
+    res.locals.myArea = await AreaDAO.findAreasByDistrict(req.session.accountDistrict);
 
     return res.render("PhuongQuan/list-reports.ejs", {
       tab: "Danh sách báo cáo",
@@ -489,85 +424,27 @@ class WardDistrictController {
   async showReportDetails(req, res) {
     let id = isNaN(req.params.id) ? -1 : parseInt(req.params.id);
 
-    let options = {
-      include: [
-        {
-          model: models.AdsPlacement,
-          attribute: ["address"],
-          include: [
-            {
-              model: models.Area,
-              where: {},
-            },
-          ],
-          where: {},
-        },
-        { model: models.ReportType },
-      ],
-      where: { id },
-    };
+    const result = await ReportDAO.findReportById(id);
 
-    options.include[0].include[0].where.district = req.session.accountDistrict;
-
-    if (req.user.type == "Phuong") {
-      options.include[0].where.areaId = req.user.AreaId;
-    } else {
-      let selectedArea = req.query.selectedArea ? req.query.selectedArea : "";
-      if (selectedArea != "") {
-        options.include[0].where.areaId = selectedArea;
-      }
+    if (!result.report) {
+      return res.send("Báo cáo không tồn tại hoặc bạn không có quyền truy cập!");
     }
 
-    let report = await models.Report.findOne(options);
-
-    if (!report) {
-      return res.send("Báo cáo không tồn tại hoặc bạn không có quyền truy cập!");
+    res.locals.report = result.report;
+    
+    if (result.class == "Board") {
+      res.locals.className = "Báo cáo bảng QC";
+    }
+    else if (result.class == "AdsPlacement") {
+      res.locals.className = "Báo cáo điểm đặt QC";
+    }
+    else if (result.class == "Location") {
+      res.locals.className = "Báo cáo địa điểm";
     }
 
     res.locals.message = req.flash("Message")[0];
 
     return res.render("PhuongQuan/view-report-details.ejs", {
-      report: report,
-      tab: "Chi tiết báo cáo",
-      path: "/list-reports",
-    });
-  };
-
-  async showLocationReportDetails(req, res) {
-    let id = isNaN(req.params.id) ? -1 : parseInt(req.params.id);
-
-    let options = {
-      include: [
-        {
-          model: models.Area,
-          where: {},
-        },
-        { model: models.ReportType },
-      ],
-      where: { id },
-    };
-
-    options.include[0].where.district = req.session.accountDistrict;
-
-    if (req.user.type == "Phuong") {
-      options.where.areaId = req.user.AreaId;
-    } else {
-      let selectedArea = req.query.selectedArea ? req.query.selectedArea : "";
-      if (selectedArea != "") {
-        options.where.areaId = selectedArea;
-      }
-    }
-
-    let report = await models.LocationReport.findOne(options);
-
-    if (!report) {
-      return res.send("Báo cáo không tồn tại hoặc bạn không có quyền truy cập!");
-    }
-
-    res.locals.message = req.flash("Message")[0];
-
-    return res.render("PhuongQuan/view-report-details.ejs", {
-      report: report,
       tab: "Chi tiết báo cáo",
       path: "/list-reports",
     });
@@ -576,19 +453,10 @@ class WardDistrictController {
   async updateReportDetails(req, res) {
     let { reportId, method, status } = req.body;
     try {
-      await models.Report.update(
-        {
-          method: method,
-          status: status,
-          AccountId: req.session.accountId,
-        },
-        { where: { id: reportId } }
-      );
-      const report = await models.Report.findOne({ where: { id: reportId } });
-      const account = await models.Account.findOne({
-        where: { id: req.session.accountId },
-        include: [{ model: models.Area }],
-      });
+      await ReportDAO.updateReport(reportId, method, status, req.session.accountId);
+      const result = await ReportDAO.findReportById(reportId);
+      const report = result.report
+      const account = await AccountDAO.findOneById(req.session.accountId);
 
       // Send email
       const request = await mailjet.post("send", { version: "v3.1" }).request({
@@ -613,8 +481,8 @@ class WardDistrictController {
               officerName: `${account.lastName} ${account.firstName}`,
               officerType:
                 account.type == "Quan"
-                  ? `Cán bộ  ${account.Area.district.toLowerCase()}`
-                  : ` Cán bộ ${account.Area.ward.toLowerCase()}`,
+                  ? `Cán bộ  ${account.area.district.toLowerCase()}`
+                  : ` Cán bộ ${account.area.ward.toLowerCase()}`,
               email: account.email,
             },
           },
@@ -626,6 +494,7 @@ class WardDistrictController {
         status: "succeed",
       });
     } catch (error) {
+      console.log(error);
       req.flash("Message", {
         title: "Cập nhật báo cáo thất bại",
         message: "Có lỗi xảy ra trong quá trình. Vui lòng thử lại",
@@ -634,72 +503,6 @@ class WardDistrictController {
     }
     res.redirect("back");
   };
-
-  async updateLocationReportDetails(req, res) {
-    let { reportId, method, status } = req.body;
-    try {
-      await models.LocationReport.update(
-        {
-          method: method,
-          status: status,
-          AccountId: req.session.accountId,
-        },
-        { where: { id: reportId } }
-      );
-      const report = await models.LocationReport.findOne({
-        where: { id: reportId },
-      });
-      const account = await models.Account.findOne({
-        where: { id: req.session.accountId },
-        include: [{ model: models.Area }],
-      });
-
-      // Send email
-      const request = await mailjet.post("send", { version: "v3.1" }).request({
-        Messages: [
-          {
-            From: {
-              Email: "hiiback0608@gmail.com",
-              Name: "Sở văn hóa và du lịch",
-            },
-            To: [
-              {
-                Email: report.email,
-                Name: report.email,
-              },
-            ],
-            TemplateID: 5485692,
-            Subject: "Phản hồi về báo cáo",
-            TemplateLanguage: true,
-            Variables: {
-              citizenName: report.name,
-              content: method,
-              officerName: `${account.lastName} ${account.firstName}`,
-              officerType:
-                account.type == "Quan"
-                  ? `Cán bộ  ${account.Area.district.toLowerCase()}`
-                  : ` Cán bộ ${account.Area.ward.toLowerCase()}`,
-              email: account.email,
-            },
-          },
-        ],
-      });
-      req.flash("Message", {
-        title: "Cập nhật báo cáo thành công",
-        message: "Xử lý báo cáo của bạn đã được cập nhật trên hệ thống",
-        status: "succeed",
-      });
-    } catch (error) {
-      req.flash("Message", {
-        title: "Cập nhật báo cáo thất bại",
-        message: "Có lỗi xảy ra trong quá trình. Vui lòng thử lại",
-        status: "fail",
-      });
-    }
-    res.redirect("back");
-  };
-
-
 }
 
 module.exports = WardDistrictController;

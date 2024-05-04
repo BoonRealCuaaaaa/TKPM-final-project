@@ -1,5 +1,5 @@
 class AdsPlacementRequestDC {
-    constructor(id, address, status, adsPlacement, locationType, adsType, reason, requestStatus, account) {
+    constructor(id, address, status, adsPlacement, locationType, adsType, reason, requestStatus, account, createdAt) {
       Object.assign(this, {
         id,
         address,
@@ -9,7 +9,8 @@ class AdsPlacementRequestDC {
         adsType,
         reason,
         requestStatus,
-        account
+        account,
+        createdAt,
       });
     }
   }

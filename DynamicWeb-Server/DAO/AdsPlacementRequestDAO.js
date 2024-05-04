@@ -1,12 +1,17 @@
 const {
     Account,
     Area,
-    AdsPlacementRequest
+    AdsPlacementRequest,
+    LocationType,
+    AdsType
 } = require("../models");
 
 const { AccountDC } = require("../DC/AccountDC");
 const { AreaDC } = require("../DC/AreaDC");
+const { AdsPlacementDC } = require("../DC/AdsPlacementDC");
 const { AdsPlacementRequestDC } = require("../DC/AdsPlacementRequestDC");
+const { LocationTypeDC } = require("../DC/LocationTypeDC");
+const { AdsTypeDC } = require("../DC/AdsTypeDC");
 
 class AdsPlacementRequestDAO {
     static instance = null;
@@ -48,6 +53,52 @@ class AdsPlacementRequestDAO {
             console.error(error);
             return false;
         }
+    }
+
+    static async findAllByAccountId(accountId) {
+        const rows = await AdsPlacementRequest.findAll({
+            include: [{ model: LocationType }, { model: AdsType }],
+            where: {
+                accountId: accountId,
+            },
+            order: [["id", "ASC"]],
+        });
+
+        const results = [];
+
+        rows.forEach((row) => {
+            results.push(
+                new AdsPlacementRequestDC(
+                    row.id,
+                    row.address,
+                    row.status,
+                    new AdsPlacementDC(
+                        row.AdsPlacementId,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                    ),
+                    new LocationTypeDC(
+                        row.LocationType.id,
+                        row.LocationType.locationType
+                    ),
+                    new AdsTypeDC(
+                        row.AdsType.id,
+                        row.AdsType.type
+                    ),
+                    row.reason,
+                    row.requestStatus,
+                    null,
+                    row.createdAt
+                )
+            )
+        });
+
+        return results;
     }
 }
 

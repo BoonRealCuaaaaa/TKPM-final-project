@@ -1,5 +1,5 @@
 class BoardRequestDC {
-    constructor(id, size, quantity, boardType, board, reason, requestStatus, account) {
+    constructor(id, size, quantity, boardType, board, reason, requestStatus, account, createdAt) {
       Object.assign(this, {
         id,
         size,
@@ -8,7 +8,8 @@ class BoardRequestDC {
         board,
         reason,
         requestStatus,
-        account
+        account,
+        createdAt
       });
     }
   }

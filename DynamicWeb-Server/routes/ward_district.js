@@ -46,8 +46,8 @@ router.get("/my-requests", title.role, wardDistrictController.showMyRequests);
 router.post("/my-requests", wardDistrictController.deleteRequest);
 router.get("/list-reports", title.role, wardDistrictController.showListReports);
 router.get("/list-reports/:id", title.role, wardDistrictController.showReportDetails);
-router.get("/list-reports/location-report/:id", title.role, wardDistrictController.showLocationReportDetails);
+//router.get("/list-reports/location-report/:id", title.role, wardDistrictController.showLocationReportDetails);
 router.post("/list-reports/", title.role, wardDistrictController.updateReportDetails);
-router.post("/list-reports/location-report", title.role, wardDistrictController.updateLocationReportDetails);
+//router.post("/list-reports/location-report", title.role, wardDistrictController.updateLocationReportDetails);
 
 module.exports = router;

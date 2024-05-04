@@ -12,9 +12,12 @@ const {
   LocationReport,
   BoardReport,
   AdsReport,
+  Company
 } = require("../models");
 
 const { PermitRequestDC } = require("../DC/PermitRequestDC");
+const { CompanyDC } = require("../DC/CompanyDC");
+const { BoardDC } = require("../DC/BoardDC");
 
 class PermitRequestDAO {
   static instance = null;
@@ -82,6 +85,49 @@ class PermitRequestDAO {
       console.error(error);
       return false;
     }
+  }
+
+  static async findAllByAccountId(accountId) {
+    const rows = await PermitRequest.findAll({
+      include: [{ model: Company }],
+      where: {
+        accountId: accountId,
+      },
+      order: [["id", "ASC"]],
+    });
+
+    const results = [];
+
+    rows.forEach((row) => {
+      results.push(
+        new PermitRequestDC(
+          row.id,
+          row.content,
+          row.image,
+          row.start,
+          row.end,
+          row.status,
+          new BoardDC(
+            row.BoardId,
+            null,
+            null,
+            null,
+            null,
+          ),
+          new CompanyDC(
+            row.Company.id,
+            row.Company.name,
+            row.Company.phone,
+            row.Company.address,
+            row.Company.email
+          ),
+          null,
+          row.createdAt
+        )
+      )
+    });
+
+    return results;
   }
 }
 
