@@ -21,7 +21,7 @@ const {
 
 class LocationTypeDAO {
   static instance = null;
-  constructor() {}
+  constructor() { }
 
   static getInstance() {
     if (this.instance == null) {
@@ -95,6 +95,22 @@ class LocationTypeDAO {
         id: data.id,
       },
     });
+  }
+
+  static async findAll() {
+    const rows = await LocationType.findAll();
+    const results = [];
+
+    rows.forEach((row) => {
+      results.push(
+        new LocationTypeDC(
+          row.id,
+          row.locationType
+        )
+      )
+    });
+
+    return results;
   }
 }
 

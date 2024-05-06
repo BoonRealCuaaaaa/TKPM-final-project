@@ -56,10 +56,10 @@
             <% adsplacementRequests.forEach(request => { %>
               <tr>
                 <td><%= request.id %></td>
-                <td><%= request.AdsPlacementId %></td>
+                <td><%= request.adsPlacement.id %></td>
                 <td><%= request.address %></td>
-                <td><%= request.AdsType.type %></td>
-                <td><%= request.LocationType.locationType %></td>
+                <td><%= request.adsType.type %></td>
+                <td><%= request.locationType.locationType %></td>
                 <td><%= request.status %></td>
                 <td><%= request.reason %></td>
                 <td><%= request.createdAt.toLocaleString() %></td>
@@ -104,10 +104,10 @@
             <% boardRequests.forEach(request => { %>
               <tr>
                 <td><%= request.id %></td>
-                <td><%= request.BoardId %></td>
+                <td><%= request.board.id %></td>
                 <td><%= request.size %></td>
                 <td><%= request.quantity %></td>
-                <td><%= request.BoardType.type %></td>
+                <td><%= request.boardType.type %></td>
                 <td><%= request.reason %></td>
                 <td><%= request.createdAt.toLocaleString() %></td>
                 <td><%= request.requestStatus %></td>
@@ -150,9 +150,9 @@
             <% permitRequests.forEach(request => { %>
               <tr>
                 <td><%= request.id %></td>
-                <td><%= request.BoardId %></td>
+                <td><%= request.board.id %></td>
                 <td><%= request.content %></td>
-                <td><%= request.Company.name %></td>
+                <td><%= request.company.name %></td>
                 <td><%= request.status %></td>
                 <td><%= request.start.toLocaleString() %></td>
                 <td><%= request.end.toLocaleString() %></td>

@@ -32,6 +32,22 @@ class BoardTypeDAO {
     return this.instance;
   }
 
+  static async findAll() {
+    const rows = await BoardType.findAll();
+    const results = [];
+
+    rows.forEach((row) => {
+        results.push(
+            new BoardTypeDC(
+                row.id,
+                row.type
+            )
+        )
+    });
+
+    return results;
+}
+
   async getBoardTypeById(id) {
     const resultFromDb = await BoardType.findByPk(id);
     const boardType = new BoardTypeDC(resultFromDb.id, resultFromDb.type);

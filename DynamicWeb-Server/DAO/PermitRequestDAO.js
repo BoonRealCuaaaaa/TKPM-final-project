@@ -12,13 +12,16 @@ const {
   LocationReport,
   BoardReport,
   AdsReport,
+  Company
 } = require("../models");
 
 const { PermitRequestDC } = require("../DC/PermitRequestDC");
+const { CompanyDC } = require("../DC/CompanyDC");
+const { BoardDC } = require("../DC/BoardDC");
 
 class PermitRequestDAO {
   static instance = null;
-  constructor() {}
+  constructor() { }
 
   static getInstance() {
     if (this.instance == null) {
@@ -51,6 +54,80 @@ class PermitRequestDAO {
     } else {
       return null;
     }
+  }
+
+  static async create(data) {
+    try {
+      let request = await PermitRequest.create({
+        content: data.content,
+        image: data.image,
+        start: data.start,
+        end: data.end,
+        status: data.status,
+        BoardId: data.boardId,
+        CompanyId: data.companyId,
+        AccountId: data.accountId,
+      });
+      return { id: request.id };
+    }
+    catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  static async destroy(id) {
+    try {
+      await PermitRequest.destroy({ where: { id: id } });
+      return true;
+    }
+    catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
+
+  static async findAllByAccountId(accountId) {
+    const rows = await PermitRequest.findAll({
+      include: [{ model: Company }],
+      where: {
+        accountId: accountId,
+      },
+      order: [["id", "ASC"]],
+    });
+
+    const results = [];
+
+    rows.forEach((row) => {
+      results.push(
+        new PermitRequestDC(
+          row.id,
+          row.content,
+          row.image,
+          row.start,
+          row.end,
+          row.status,
+          new BoardDC(
+            row.BoardId,
+            null,
+            null,
+            null,
+            null,
+          ),
+          new CompanyDC(
+            row.Company.id,
+            row.Company.name,
+            row.Company.phone,
+            row.Company.address,
+            row.Company.email
+          ),
+          null,
+          row.createdAt
+        )
+      )
+    });
+
+    return results;
   }
 }
 

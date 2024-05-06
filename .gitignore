@@ -1,2 +1,4 @@
 DynamicWeb-Server/.env
 DynamicWeb-Server/node_modules/
+DynamicWeb-Server/config/
+DynamicWeb-Server/images/
