@@ -1208,9 +1208,5 @@ const handleViewReportButton = async (e) => {
   }
 
   //Fix
-  if (selectedReport.type == 1) {
-    window.location.href = `${serverPath}/${path}/list-reports/${selectedReport.id}`;
-  } else if (selectedReport.type == 2) {
-    window.location.href = `${serverPath}/${path}/list-reports/location-report/${selectedReport.id}`;
-  }
+  window.location.href = `${serverPath}/${path}/list-reports/${selectedReport.id}`;
 };
