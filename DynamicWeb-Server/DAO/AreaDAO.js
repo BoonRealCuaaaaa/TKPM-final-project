@@ -18,7 +18,7 @@ const {
 
 class AreaDAO {
   static instance = null;
-  constructor() {}
+  constructor() { }
 
   static getInstance() {
     if (this.instance == null) {
@@ -98,6 +98,57 @@ class AreaDAO {
       district: data.district,
     });
     newArea.save();
+  }
+
+  static async findWardsByDistrict(district) {
+    const wards = await Area.findAll({
+      attributes: ["ward"],
+      where: { district: district },
+    });
+
+    return wards;
+  }
+
+  static async findAll() {
+    const rows = await Area.findAll({
+      order: [
+        ["district", "ASC"],
+        ["ward", "ASC"],
+      ],
+    });
+    const results = [];
+
+    rows.forEach((row) => {
+      results.push(
+        new AreaDC(
+          row.id,
+          row.ward,
+          row.district
+        )
+      )
+    });
+
+    return results;
+  }
+
+  static async findAreasByDistrict(district) {
+    const rows = await Area.findAll({
+      where: { district: district },
+      order: [["ward", "ASC"]],
+    });
+    const results = [];
+
+    rows.forEach((row) => {
+      results.push(
+        new AreaDC(
+          row.id,
+          row.ward,
+          row.district
+        )
+      )
+    });
+
+    return results;
   }
 }
 

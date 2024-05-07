@@ -1,6 +1,7 @@
 "use strict"
 
-const {AccountDC} = require("../DC/AccountDC");
+const { AccountDC } = require("../DC/AccountDC");
+const { AreaDC } = require("../DC/AreaDC");
 const {
   Area,
   Account,
@@ -32,6 +33,33 @@ class AccountDAO {
 
     constructor() {}
 
+    
+    static async findOneById(id) {
+      const account = await Account.findOne({
+          where: { id: id },
+          include: [
+              {
+                  model: Area,
+                  required: true
+              }
+          ]
+      })
+
+      return new AccountDC(
+          account.id,
+          account.firstName,
+          account.lastName,
+          account.userName,
+          account.type,
+          account.email,
+          account.birth,
+          account.phone,
+          account.otp,
+          account.expiredOtp,
+          new AreaDC(account.Area.id, account.Area.ward, account.Area.district),
+      );
+  }
+
     async findAccountsByDistrictAndWard(accountId, district = "", ward = "") {
         const options = {
             attributes: ["id", "firstName", "lastName", "email", "type"],
@@ -61,7 +89,7 @@ class AccountDAO {
           }
         let accounts = await Account.findAll(options);
         return accounts.map((account) => {
-            return new AccountDC(account.id, account.firstName, account.lastName, account.username, account.password, account.type, account.email, account.birth, account.phone, account.otp, account.expiredOtp, account.Area);
+            return new AccountDC(account.id, account.firstName, account.lastName, account.username, account.type, account.email, account.birth, account.phone, account.otp, account.expiredOtp, account.Area);
         })
     }
 

@@ -45,7 +45,7 @@
             <div class="container row bg-secondary text-white ">
                 <div class="col text-center">
                     <p class="fs-2 text-center py-2 m-0">
-                        Báo cáo Điểm đặt QC / Bảng QC
+                        Danh sách báo cáo
                     </p> 
             </div>
             </div>
@@ -55,7 +55,6 @@
                     <th scope="col">ID</th>
                     <th scope="col">Thời gian gửi</th>
                     <th scope="col">Tên người gửi</th>
-                    <th scope="col">Địa điểm</th>
                     <th scope="col">Loại hình báo cáo</th>
                     <th scope="col">Tình trạng</th>
                     <th scope="col">Chức năng</th>
@@ -67,8 +66,7 @@
                       <td><%= report.id %></td>
                       <td><%= report.createdAt.toLocaleString() %></td>
                       <td><%= report.name %></td>
-                      <td><%= report.AdsPlacement.address %></td>
-                      <td><%= report.ReportType.type %></td>
+                      <td><%= report.reportType.type %></td>
                       <td><%= report.status %></td>
                       <td>
                           <a href="list-reports/<%= report.id %>">
@@ -82,45 +80,7 @@
         </div>
     </div>
     <div class="container-fluid pt-4 pe-4 text-left ">
-      <div class="row justify-content-center table-responsive">
-          <div class="container row bg-secondary text-white ">
-              <div class="col text-center">
-                  <p class="fs-2 text-center py-2 m-0">
-                      Báo cáo Địa điểm
-                  </p> 
-          </div>
-          </div>
-          <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th scope="col">ID</th>
-                  <th scope="col">Thời gian gửi</th>
-                  <th scope="col">Tên người gửi</th>
-                  <th scope="col">Địa điểm</th>
-                  <th scope="col">Loại hình báo cáo</th>
-                  <th scope="col">Tình trạng</th>
-                  <th scope="col">Chức năng</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% locationReports.forEach(report => { %>
-                  <tr>
-                    <td><%= report.id %></td>
-                    <td><%= report.createdAt.toLocaleString() %></td>
-                    <td><%= report.name %></td>
-                    <td><%= report.address %></td>
-                    <td><%= report.ReportType.type %></td>
-                    <td><%= report.status %></td>
-                    <td>
-                        <a href="list-reports/location-report/<%= report.id %>">
-                          <i class="fa-solid fa-pen-to-square"></i>
-                        </a>
-                    </td>
-                  </tr>
-                <% }); %>
-              </tbody>
-            </table>
-      </div>
+      
   </div>
   </main> 
   <!-- Footer -->

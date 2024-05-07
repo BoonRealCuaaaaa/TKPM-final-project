@@ -123,20 +123,20 @@
                   <td></td>
                   <td></td>
                 <% } else { %>
-                  <% if (pagination.rows[i].type === 'Phuong' && pagination.rows[i].Area.ward != null) { %> 
-                    <td> <%= pagination.rows[i].Area.ward %></td>
+                  <% if (pagination.rows[i].type === 'Phuong' && pagination.rows[i].area.ward != null) { %> 
+                    <td> <%= pagination.rows[i].area.ward %></td>
                     <% } else {%>
                       <td></td>
                     <% } %>
-                    <% if (pagination.rows[i].Area.district != null) { %> 
-                      <td> <%= pagination.rows[i].Area.district %></td>
+                    <% if (pagination.rows[i].area.district != null) { %> 
+                      <td> <%= pagination.rows[i].area.district %></td>
                     <% } else {%>
                       <td></td>
                     <% } %>
                 <% } %> 
                 <td><%= pagination.rows[i].type %></td>
                 <td class="function-icons text-center">
-                  <i class="fas fa-pen" style="color: #f29d38;" data-bs-toggle="modal" data-bs-target="#editModal" data-id="<%= pagination.rows[i].id %>" data-type="<%= pagination.rows[i].type %>" data-district="<%= pagination.rows[i].Area.district %>" data-ward="<%= pagination.rows[i].Area.ward %>" onclick="showEditAccountModal(this)"></i>
+                  <i class="fas fa-pen" style="color: #f29d38;" data-bs-toggle="modal" data-bs-target="#editModal" data-id="<%= pagination.rows[i].id %>" data-type="<%= pagination.rows[i].type %>" data-district="<%= pagination.rows[i].area.district %>" data-ward="<%= pagination.rows[i].area.ward %>" onclick="showEditAccountModal(this)"></i>
                   <i class="fas fa-trash" style="color: #EB3223;" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="<%= pagination.rows[i].id %>" onclick="showDeleteAccountModal(this)"></i>
                 </td>
               </tr>

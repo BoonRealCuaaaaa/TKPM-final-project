@@ -1,25 +1,19 @@
-class PermitRequestDC {
-    id;
-    size;
-    quantity;
-    reason;
-    requestStatus;
-    boardType;
-    board;
-    account;
-    constructor(id, size, quantity, reason, requestStatus, boardType, board, account) {
+
+class BoardRequestDC {
+    constructor(id, size, quantity, boardType, board, reason, requestStatus, account, createdAt) {
       Object.assign(this, {
         id,
         size,
         quantity,
-        reason,
-        requestStatus,
         boardType,
         board,
+        reason,
+        requestStatus,
         account,
+        createdAt
       });
     }
-  }
+}
   
-  exports.PermitRequestDC=PermitRequestDC
+exports.BoardRequestDC = BoardRequestDC;
   
