@@ -28,6 +28,19 @@ class AreaDAO {
     return this.instance;
   }
 
+  async findAreaByDistrict(district) {
+    let option = {};
+    if (district != null && district !== "") {
+      option = { 
+        where: { district, } 
+      }
+    }
+    const areas = await Area.findAll(option);
+    return areas.map(area => {
+      return new AreaDC(area.id, area.ward, area.district);
+    })
+  }
+
   async findAreaByWardAndDistrict(ward, district) {
     const selectedArea = await Area.findOne({
       where: {
@@ -45,6 +58,13 @@ class AreaDAO {
     }
 
     return null;
+  }
+
+  async getAllDistinctDistrict() {
+    const [districts] = await sequelize.query(
+      `SELECT DISTINCT district FROM Areas`
+    );
+    return districts;
   }
 
   async getAllAreas(district, page, perPage) {

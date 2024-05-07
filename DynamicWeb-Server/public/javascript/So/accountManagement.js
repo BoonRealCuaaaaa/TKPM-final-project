@@ -26,6 +26,7 @@ function districtSelectChange(accountTypeSelect, districtSelect, wardSelect, cal
         option.setAttribute("value", "");
         option.textContent = "Phường";
         wardSelect.appendChild(option);
+        console.log(">>>wards::: ", data);
 
         for (let i = 0; i < data.length; i++) {
           option = document.createElement("option");

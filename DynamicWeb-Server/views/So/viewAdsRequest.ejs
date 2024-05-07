@@ -103,10 +103,10 @@
             <% if (pagination.rows.length > 0) { %>
               <% for (let i = 0; i < pagination.rows.length; i++) { %>
                 <tr>
-                  <td><%= pagination.rows[i].Board.BoardType.type %></td>
-                  <td><%= pagination.rows[i].Board.AdsPlacement.address %>, <%=  pagination.rows[i].Board.AdsPlacement.Area.ward %>, <%= pagination.rows[i].Board.AdsPlacement.Area.district %>, Thành phố Hồ Chí Minh</td>
+                  <td><%= pagination.rows[i].board.BoardType.type %></td>
+                  <td><%= pagination.rows[i].board.AdsPlacement.address %>, <%=  pagination.rows[i].board.AdsPlacement.Area.ward %>, <%= pagination.rows[i].board.AdsPlacement.Area.district %>, Thành phố Hồ Chí Minh</td>
                   <td><%= pagination.rows[i].content %></td>
-                  <td><%= pagination.rows[i].Company.name %></td>
+                  <td><%= pagination.rows[i].company.name %></td>
                   <td><%= formatDate(pagination.rows[i].start) %></td>
                   <td><%= formatDate(pagination.rows[i].end) %></td>
                   <td>
@@ -131,7 +131,7 @@
               <% } %>
             <% } else { %>
               <tr>
-                <td colspan="7" class="text-center fs-5">Không có bất kì yêu cầu cấp phép nào</td>
+                <td colspan="8" class="text-center fs-5">Không có bất kì yêu cầu cấp phép nào</td>
               </tr>
             <% } %>
           </tbody>

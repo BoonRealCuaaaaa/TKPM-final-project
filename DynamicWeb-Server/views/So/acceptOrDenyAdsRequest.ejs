@@ -42,14 +42,14 @@
       <div class="container row mt-3">
         <div class="row gx-5 gy-2">
           <h3 class="col-5 col-md-3 col-xl-2 fs-5">Bảng quảng cáo:</h3>
-          <p class="col-7 col-md-5 col-xl-6"><%= permitRequest.Board.BoardType.type %></p>
+          <p class="col-7 col-md-5 col-xl-6"><%= permitRequest.board.BoardType.type %></p>
 
           <h3 class="col-5 col-md-2 fs-5 p-md-0">Trạng thái:</h3>
           <p class="col-7 col-md-2 p-md-0"><%= permitRequest.status %></p>
         </div>
         <div class="row gx-5 gy-2">
           <h3 class="col-md-3 col-xl-2 col-5 fs-5">Điểm đặt tương ứng:</h3>
-          <p class="col-md-9 col-xl-10 col-7"><%= permitRequest.Board.AdsPlacement.address %>, <%=  permitRequest.Board.AdsPlacement.Area.ward %>, <%= permitRequest.Board.AdsPlacement.Area.district %>, Thành phố Hồ Chí Minh</p>
+          <p class="col-md-9 col-xl-10 col-7"><%= permitRequest.board.AdsPlacement.address %>, <%=  permitRequest.board.AdsPlacement.Area.ward %>, <%= permitRequest.board.AdsPlacement.Area.district %>, Thành phố Hồ Chí Minh</p>
         </div>
         <div class="row gx-5 gy-2">
           <h3 class="col-md-3 col-xl-2 col-5 fs-5">Nội dung quảng cáo:</h3>
@@ -58,28 +58,28 @@
 
         <div class="row gx-5 gy-2">
           <h3 class="col-5 col-md-3 col-xl-2 fs-5">Tên công ty đặt quảng cáo:</h3>
-          <p class="col-7 col-md-5 col-xl-6"><%= permitRequest.Company.name %></p>
+          <p class="col-7 col-md-5 col-xl-6"><%= permitRequest.company.name %></p>
 
           <h3 class="col-5 col-md-2 fs-5 p-md-0">Số điện thoại:</h3>
-          <p class="col-7 col-md-2 p-md-0"><%= permitRequest.Company.phone %></p>
+          <p class="col-7 col-md-2 p-md-0"><%= permitRequest.company.phone %></p>
         </div>
 
         <div class="row gx-5 gy-2">
           <h3 class="col-5 col-md-3 col-xl-2 fs-5">Địa chỉ công ty:</h3>
-          <p class="col-7 col-md-5 col-xl-6"><%= permitRequest.Company.address %></p>
+          <p class="col-7 col-md-5 col-xl-6"><%= permitRequest.company.address %></p>
 
           <h3 class="col-5 col-md-2 fs-5 p-md-0">Email:</h3>
-          <p class="col-7 col-md-2 p-md-0"><%= permitRequest.Company.email %></p>
+          <p class="col-7 col-md-2 p-md-0"><%= permitRequest.company.email %></p>
         </div>
 
         <div class="row gx-5 gy-2">
           <h3 class="col-5 col-md-3 col-xl-2 fs-5">Cán bộ xử lý:</h3>
-          <p class="col-7 col-md-5 col-xl-6"><%= permitRequest.Account.lastName %> <%= permitRequest.Account.firstName%></p>
+          <p class="col-7 col-md-5 col-xl-6"><%= permitRequest.account.lastName %> <%= permitRequest.account.firstName%></p>
           <h3 class="col-5 col-md-2 fs-5 p-md-0">Loại tài khoản:</h3>
           <p class="col-7 col-md-2 p-md-0">Cấp 
-            <% if (permitRequest.Account.type === "So"){ %>
+            <% if (permitRequest.account.type === "So"){ %>
               Sở 
-            <% } else if (permitRequest.Account.type === 'Quan'){ %>
+            <% } else if (permitRequest.account.type === 'Quan'){ %>
               Quận 
             <% } else {%>
               Phường 
@@ -88,7 +88,7 @@
 
         <div class="row gx-5 gy-2">
           <h3 class="col-md-3 col-xl-2 col-5 fs-5">Email của cán bộ:</h3>
-          <p class="col-md-9 col-xl-10 col-7"><%= permitRequest.Account.email %></p>
+          <p class="col-md-9 col-xl-10 col-7"><%= permitRequest.account.email %></p>
         </div>
       </div>
   </div>
@@ -122,7 +122,7 @@
           previousUrl: e.target.dataset.previousUrl,
         };
         if (e.target.matches("#accept-btn")) {
-          data.status = "Cấp phép";
+          data.status = "Đã cấp phép";
         } else {
           data.status = "Bị từ chối";
         }

@@ -282,6 +282,14 @@ class BoardDAO {
     );
   }
 
+  async updateBoardById(boardId, updateObject) {
+    await Board.update(
+      updateObject,
+      { where: { id: boardId } }
+    );
+
+  }
+
   async deleteBoard(data) {
     const board = await Board.destroy({
       where: {

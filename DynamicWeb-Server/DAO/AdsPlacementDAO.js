@@ -430,6 +430,17 @@ class AdsPlacementDAO {
     );
   }
 
+  async updateAdPlacementById(id, updateObject) {
+    await AdsPlacement.update(
+      updateObject,
+      {
+        where: {
+          id,
+        },
+      }
+    );
+  }
+
   async deleteAdPlacement(data) {
     await AdsPlacement.destroy({
       where: {

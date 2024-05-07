@@ -28,6 +28,12 @@ const { BoardDC } = require("../DC/BoardDC");
 const { AdsTypeDC } = require("../DC/AdsTypeDC");
 const { LocationTypeDC } = require("../DC/LocationTypeDC");
 const { BoardTypeDC } = require("../DC/BoardTypeDC");
+const { AccountDAO } = require("../DAO/AccountDAO");
+const { BoardRequestDAO } = require("../DAO/BoardRequestDAO");
+const {PermitRequestDAO} = require("../DAO/PermitRequestDAO");
+const {ReportTypeDAO} = require("../DAO/ReportTypeDAO");
+const {AdsPlacementRequestDAO} = require("../DAO/AdsPlacementRequestDAO");
+const {ReportDAO, GetBoardReportStrategy, GetAdsReportStrategy, GetLocationReportStrategy} = require("../DAO/ReportDAO");
 const severPath = "http://localhost:5000/";
 const checkInput = require("../util/checkInput");
 const { createWardDistrictPageQueryString } = require("../util/queryString");
@@ -35,6 +41,7 @@ const bcrypt = require("bcrypt");
 
 const controller = {};
 const { Op } = require("sequelize");
+const { LocationReportDC } = require("../DC/LocationReportDC");
 
 const apiKey = "8c7c7c956fdd4a598e2301d88cb48135";
 
@@ -129,62 +136,16 @@ class DepartmentController {
     let message = req.flash("messageAccountManagement")[0];
     message = message == null ? null : JSON.parse(message);
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
-    let district = req.query.district || "";
-    let ward = req.query.ward || "";
-    const options = {
-      attributes: ["id", "firstName", "lastName", "email", "type"],
-      where: {
-        id: { [Op.ne]: req.session.accountId },
-      },
-      include: [
-        {
-          model: Area,
-          attributes: ["id", "district", "ward"],
-          where: {},
-        },
-      ],
-    };
-    let wards = [],
-      currentDistrict = "",
-      currentWard = "";
-    if (district.trim() !== "") {
-      options.include[0].where.district = district;
-      options.where = {
-        [Op.or]: [{ type: "Quan" }, { type: "Phuong" }],
-      };
-      wards = await Area.findAll({
-        where: {
-          district,
-        },
-      });
-      currentDistrict = district;
-      if (ward.trim() !== "") {
-        options.include[0].where.ward = ward;
-        options.where = {
-          type: "Phuong",
-        };
-        currentWard = ward;
-      }
-    }
-
+    let currentDistrict = req.query.district || "", currentWard = req.query.ward || "";
+    let accounts = await AccountDAO.getInstance().findAccountsByDistrictAndWard(req.session.accountId, currentDistrict, currentWard);
+    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
     const accountTypes = ["Phuong", "Quan", "So"];
-    const [districts] = await sequelize.query(
-      `SELECT DISTINCT district FROM Areas`
-    );
-    let accounts = await Account.findAll(options);
+    const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
     let flag = false;
-    if (message != null && message.type === "delete") {
+    if (message != null && message.type === "delete" && accounts.length > 0) {
       flag = true;
     }
-    const pagination = await getPagination(
-      req,
-      res,
-      accounts,
-      5,
-      page,
-      2,
-      flag
-    );
+    const pagination = await getPagination(req, res, accounts, 5, page, 2, flag);
     const currentUrl = req.url.slice(1);
 
     return res.render("So/accountManagement.ejs", {
@@ -201,19 +162,9 @@ class DepartmentController {
   }
 
   async getWardsWithSpecificDistrict(req, res) {
-    const district = req.query.district || "";
-
-    const options = {
-      attributes: ["ward"],
-    };
-    if (district.trim() !== "") {
-      options.where = {
-        district,
-      };
-    }
-    const wards = await Area.findAll(options);
-
-    return res.json(wards);
+    const currentDistrict = req.query.district || "";
+    let areas = await AreaDAO.getInstance().findAreaByDistrict(currentDistrict);
+    return res.json(areas);
   }
 
   async createAccount(req, res) {
@@ -341,21 +292,19 @@ class DepartmentController {
       );
       return res.redirect("/department/accountManagement");
     }
-    console.log("Phone: ", phoneCreateModal);
     try {
       const hashPassword = await bcrypt.hash(passwordCreateModal, 12);
       let areaId = 1;
       if (accountTypeSelectCreateModal !== "So") {
-        const options = {
-          where: {
-            district: districtSelectCreateModal,
-          },
-        };
         if (accountTypeSelectCreateModal === "Phuong") {
-          options.where.ward = wardSelectCreateModal;
+          const area = await AreaDAO.getInstance().findAreaByWardAndDistrict(wardSelectCreateModal, districtSelectCreateModal) 
+          areaId = area != null ? area.id : areaId;
+        } else {
+          const areas = await AreaDAO.getInstance().findAreaByDistrict(districtSelectCreateModal);
+          areaId = areas.length > 0 ? areas[0].id : areaId;
         }
       }
-      const newAccount = await Account.create({
+      const result = await AccountDAO.getInstance().createAccount({
         firstName: firstNameCreateModal,
         lastName: lastNameCreateModal,
         username: usernameCreateModal,
@@ -364,9 +313,8 @@ class DepartmentController {
         type: accountTypeSelectCreateModal,
         birth: birthDayCreateModal,
         phone: phoneCreateModal,
-        AreaId: areaId,
+        areaId,
       });
-      console.log(newAccount);
       req.flash(
         "messageAccountManagement",
         JSON.stringify({
@@ -399,20 +347,19 @@ class DepartmentController {
     try {
       let areaId = 1;
       if (accountTypeSelectEditModal !== "So") {
-        const options = {
-          where: {
-            district: districtSelectEditModal,
-          },
-        };
         if (accountTypeSelectEditModal === "Phuong") {
-          options.where.ward = wardSelectEditModal;
+          const area = await AreaDAO.getInstance().findAreaByWardAndDistrict(wardSelectEditModal, districtSelectEditModal) 
+          areaId = area != null ? area.id : areaId;
+        } else {
+          const areas = await AreaDAO.getInstance().findAreaByDistrict(districtSelectEditModal);
+          areaId = areas.length > 0 ? areas[0].id : areaId;
         }
-        areaId = (await Area.findOne(options)).id;
       }
-      await Account.update(
-        { type: accountTypeSelectEditModal, AreaId: areaId },
-        { where: { id: idEditModal } }
-      );
+      await AccountDAO.getInstance().assignAreaForAccountById({
+        accountId: idEditModal,
+        accountType: accountTypeSelectEditModal,
+        areaId
+      })
       req.flash(
         "messageAccountManagement",
         JSON.stringify({
@@ -439,7 +386,7 @@ class DepartmentController {
   async deleteAccount(req, res) {
     const { accountId } = req.body;
     try {
-      await Account.destroy({ where: { id: accountId } });
+      await AccountDAO.getInstance().deleteAccountById({accountId});
       req.flash(
         "messageAccountManagement",
         JSON.stringify({
@@ -465,67 +412,17 @@ class DepartmentController {
 
   async viewAdsRequests(req, res) {
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
-    let district = req.query.district || "";
-    let ward = req.query.ward || "";
+    let currentDistrict = req.query.district || "";
+    let currentWard = req.query.ward || "";
 
-    let whereCondition = {};
-    let wards = [],
-      currentDistrict = "",
-      currentWard = "";
-    if (district.trim() !== "") {
-      wards = await Area.findAll({
-        where: {
-          district,
-        },
-      });
-      whereCondition.district = district;
-      currentDistrict = district;
-      if (ward.trim() !== "") {
-        currentWard = ward;
-        whereCondition.ward = ward;
-      }
-    }
+    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
+    const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
 
-    const [districts] = await sequelize.query(
-      `SELECT DISTINCT district FROM Areas`
-    );
-    let permitRequests = await PermitRequest.findAll({
-      include: [
-        Company,
-        {
-          model: Board,
-          include: [
-            BoardType,
-            {
-              model: AdsPlacement,
-              include: [
-                {
-                  model: Area,
-                  where: whereCondition,
-                  required: true,
-                },
-              ],
-              required: true,
-            },
-          ],
-          required: true,
-        },
-        {
-          model: Account,
-          attributes: ["firstName", "lastName", "type", "email"],
-        },
-      ],
-    });
+    let permitRequests = await PermitRequestDAO.getInstance().getAllPermitRequestsByDistrictAndWard(currentDistrict, currentWard);
     const permitRequestsPerPage = 5;
-    let pagination = await getPagination(
-      req,
-      res,
-      permitRequests,
-      permitRequestsPerPage,
-      page
-    );
+    let pagination = await getPagination(req, res, permitRequests, permitRequestsPerPage, page);
+    
     const currentUrl = req.url.slice(1);
-
     return res.render("So/viewAdsRequest.ejs", {
       formatDate: (date) => {
         return date.toLocaleDateString({
@@ -546,28 +443,7 @@ class DepartmentController {
   async detailRequest(req, res) {
     const previousUrl = req.query.previousUrl || "";
     const id = isNaN(req.params.id) ? -1 : parseInt(req.params.id);
-    let permitRequest = await PermitRequest.findOne({
-      include: [
-        Company,
-        {
-          model: Board,
-          include: [
-            BoardType,
-            {
-              model: AdsPlacement,
-              include: [Area],
-            },
-          ],
-        },
-        {
-          model: Account,
-          attributes: ["firstName", "lastName", "type", "email"],
-        },
-      ],
-      where: {
-        id,
-      },
-    });
+    let permitRequest = await PermitRequestDAO.getInstance().getPermitRequestDetailById(id);
     return res.render("So/acceptOrDenyAdsRequest.ejs", {
       permitRequest,
       previousUrl,
@@ -577,12 +453,7 @@ class DepartmentController {
   async acceptOrDenyAdsRequest(req, res) {
     const { status, id, previousUrl } = req.body;
     try {
-      await PermitRequest.update(
-        {
-          status,
-        },
-        { where: { id } }
-      );
+      await PermitRequestDAO.getInstance().updatePermitRequestById(id, {status});
       return res.json({
         status: "success",
         redirect: `${req.baseUrl}/${previousUrl}`,
@@ -597,96 +468,12 @@ class DepartmentController {
 
   async viewReports(req, res) {
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
-    let district = req.query.district || "";
-    let ward = req.query.ward || "";
+    let currentDistrict = req.query.district || "";
+    let currentWard = req.query.ward || "";
     let type = req.query.type || "";
-
-    let wards = [],
-      currentDistrict = "",
-      currentWard = "";
-    let whereCondition = {};
-    if (district.trim() !== "") {
-      wards = await Area.findAll({
-        where: {
-          district,
-        },
-      });
-      whereCondition.district = district;
-      currentDistrict = district;
-      if (ward.trim() !== "") {
-        currentWard = ward;
-        whereCondition.ward = ward;
-      }
-    }
-
-    const [districts] = await sequelize.query(
-      `SELECT DISTINCT district FROM Areas`
-    );
-
-    let reports;
-    if (type.trim() === "reports") {
-      reports = await Report.findAll({
-        include: [
-          ReportType,
-          {
-            model: AdsPlacement,
-            include: [
-              {
-                model: Area,
-                where: whereCondition,
-                required: true,
-              },
-            ],
-            required: true,
-          },
-        ],
-        required: true,
-      });
-    } else if (type.trim() === "locationReports") {
-      reports = await LocationReport.findAll({
-        include: [
-          ReportType,
-          {
-            model: Area,
-            where: whereCondition,
-            required: true,
-          },
-        ],
-        required: true,
-      });
-      console.log(reports);
-    } else {
-      reports = await Report.findAll({
-        include: [
-          ReportType,
-          {
-            model: AdsPlacement,
-            include: [
-              {
-                model: Area,
-                where: whereCondition,
-                required: true,
-              },
-            ],
-            required: true,
-          },
-        ],
-        required: true,
-      });
-      let locationReports = await LocationReport.findAll({
-        include: [
-          ReportType,
-          {
-            model: Area,
-            where: whereCondition,
-            required: true,
-          },
-        ],
-        required: true,
-      });
-      reports = reports.concat(locationReports);
-    }
-
+    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
+    const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
+    let reports = await ReportDAO.getInstance().getAllReportsByDistrictWardAndType(currentDistrict, currentWard, type);
     const reportsPerPage = 4;
     const pagination = await getPagination(
       req,
@@ -703,7 +490,7 @@ class DepartmentController {
       let newWard =
         key === "ward="
           ? { key, value }
-          : { key: ward === "" ? "" : "ward=", value: ward };
+          : { key: currentWard === "" ? "" : "ward=", value: currentWard };
       let newPage = key === "page=" ? { key, value } : { key: "", value: "" };
       let newDistrict;
       if (key === "district=") {
@@ -711,8 +498,8 @@ class DepartmentController {
         newWard = { key: "", value: "" };
       } else {
         newDistrict = {
-          key: district === "" ? "" : "district=",
-          value: district,
+          key: currentDistrict === "" ? "" : "district=",
+          value: currentDistrict,
         };
       }
       let newUrl = req.originalUrl;
@@ -722,9 +509,6 @@ class DepartmentController {
       }
 
       newUrl = newUrl.slice(0, index + 1);
-      console.log(">>> req: ", newUrl);
-      console.log(">>> index: ", index);
-
       let temp = newUrl.length;
       newUrl =
         newUrl +
@@ -744,9 +528,7 @@ class DepartmentController {
       }
       return newUrl;
     };
-    res.locals.createWardDistrictPageTypeQueryString =
-      createWardDistrictPageTypeQueryString;
-    // console.log(pagination.rows);
+    res.locals.createWardDistrictPageTypeQueryString = createWardDistrictPageTypeQueryString;
     const currentUrl = req.url.slice(1);
     return res.render("So/viewReports.ejs", {
       formatDate: (date) => {
@@ -770,42 +552,26 @@ class DepartmentController {
     const type = req.query.type || "";
     const id = isNaN(req.params.id) ? -1 : parseInt(req.params.id);
     let report;
-    if (type.trim() === "") {
-      report = await Report.findOne({
-        include: [
-          ReportType,
-          {
-            model: AdsPlacement,
-            include: [Area],
-          },
-          {
-            model: Account,
-            attributes: ["firstName", "lastName", "type", "email"],
-          },
-        ],
-        where: {
-          id,
-        },
-      });
-    } else {
-      report = await LocationReport.findOne({
-        include: [
-          ReportType,
-          {
-            model: Area,
-            required: true,
-          },
-          {
-            model: Account,
-            attributes: ["firstName", "lastName", "type", "email"],
-          },
-        ],
-        where: {
-          id,
-        },
-      });
+    let strategy = null;
+    switch (type) {
+      case "LOCATION":
+        strategy = new GetLocationReportStrategy();
+        break;
+      case "BOARD":
+        strategy = new GetBoardReportStrategy();
+        break;
+      case "ADSPLACEMENT":
+        strategy = new GetAdsReportStrategy();
+        break;
     }
-
+    if (strategy != null) {
+      ReportDAO.getInstance().setGetStrategy(strategy);
+      report = await ReportDAO.getInstance().findOneReportById(id);
+      console.log(">>>report::: ", report);
+    }
+    if (report == null) {
+      return res.render("404.ejs")
+    }
     report.image = report.image.split(", ");
     return res.render("So/detailReport.ejs", {
       report,
@@ -816,36 +582,10 @@ class DepartmentController {
   async statisticReport(req, res) {
     let { type, size } = req.body;
     try {
-      let reports = await Report.findAll({
-        where: {
-          updatedAt: {
-            [Op.lt]: new Date(),
-            [Op.gt]: new Date(
-              new Date() -
-                size * (type === "month" ? 31 : 1) * 24 * 60 * 60 * 1000
-            ),
-          },
-          status: "Chưa xử lý",
-        },
-      });
-      let locationReports = await LocationReport.findAll({
-        where: {
-          updatedAt: {
-            [Op.lt]: new Date(),
-            [Op.gt]: new Date(
-              new Date() -
-                size * (type === "month" ? 31 : 1) * 24 * 60 * 60 * 1000
-            ),
-          },
-          status: "Chưa xử lý",
-        },
-      });
-      reports = reports.concat(locationReports);
-
-      let labels = [],
-        numberOfReportsList = [],
-        waiting = 0,
-        processed = 0;
+      let reports = await ReportDAO.getInstance().getAllReportsWithStatusInTimeFrame("Đã xử lý", new Date(
+        new Date() - size * (type === "month" ? 31 : 1) * 24 * 60 * 60 * 1000
+      ), new Date());
+      let labels = [], numberOfReportsList = [], waiting = 0, processed = 0;
       if (type === "day") {
         for (let i = size - 1; i >= 0; i--) {
           let date = new Date(new Date() - i * 24 * 60 * 60 * 1000);
@@ -877,9 +617,9 @@ class DepartmentController {
         let index = labels.indexOf(dateStr);
         if (index > -1) {
           numberOfReportsList[index] += 1;
-          if (reports[i].method == null) {
+          if (reports[i].status == "Đang xử lý") {
             waiting += 1;
-          } else {
+          } else if (reports[i].status == "Đã xử lý") {
             processed += 1;
           }
         }
@@ -899,15 +639,13 @@ class DepartmentController {
 
   async getWaitingAndProcessedReport(req, res) {
     try {
-      let reports = await Report.findAll();
-      let locationReports = await LocationReport.findAll();
-      reports = reports.concat(locationReports);
-      let waitingReports = reports.filter((report) => report.method == null);
+      let waitingReports = await ReportDAO.getInstance().getAlldReportWithStatus("Đang xử lý");
+      let processedReports = await ReportDAO.getInstance().getAlldReportWithStatus("Đã xử lý");
 
       return res.json({
         status: "success",
         waiting: waitingReports.length,
-        processed: reports.length - waitingReports.length,
+        processed: processedReports.length,
       });
     } catch (err) {
       console.error(err);
@@ -921,101 +659,16 @@ class DepartmentController {
 
   async viewEditRequest(req, res) {
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
-    let district = req.query.district || "";
-    let ward = req.query.ward || "";
     const currentStatus = req.query.status || "";
     const status = ["Chờ phê duyệt", "Đã được duyệt", "Bị từ chối"];
-    console.log(currentStatus);
-    let whereCondition = {};
-    let wards = [],
-      currentDistrict = "",
-      currentWard = "";
-    if (district.trim() !== "") {
-      wards = await Area.findAll({
-        where: {
-          district,
-        },
-      });
-      whereCondition.district = district;
-      currentDistrict = district;
-      if (ward.trim() !== "") {
-        currentWard = ward;
-        whereCondition.ward = ward;
-      }
-    }
-
-    const [districts] = await sequelize.query(
-      `SELECT DISTINCT district FROM Areas`
-    );
-    let boardRequest;
-    if (currentStatus !== "") {
-      boardRequest = await BoardRequest.findAll({
-        include: [
-          BoardType,
-          {
-            model: Board,
-            include: [
-              BoardType,
-              {
-                model: AdsPlacement,
-                include: [
-                  {
-                    model: Area,
-                    where: whereCondition,
-                    required: true,
-                  },
-                ],
-                required: true,
-              },
-            ],
-            required: true,
-          },
-          {
-            model: Account,
-            attributes: ["firstName", "lastName", "type", "email"],
-          },
-        ],
-        where: {
-          requestStatus: currentStatus,
-        },
-      });
-    } else {
-      boardRequest = await BoardRequest.findAll({
-        include: [
-          BoardType,
-          {
-            model: Board,
-            include: [
-              BoardType,
-              {
-                model: AdsPlacement,
-                include: [
-                  {
-                    model: Area,
-                    where: whereCondition,
-                    required: true,
-                  },
-                ],
-                required: true,
-              },
-            ],
-            required: true,
-          },
-          {
-            model: Account,
-            attributes: ["firstName", "lastName", "type", "email"],
-          },
-        ],
-      });
-    }
+    let currentDistrict = req.query.district || "";
+    let currentWard = req.query.ward || "";
+    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
+    const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
+    let boardRequest = await BoardRequestDAO.getInstance().getAllBoardRequestsByDistrictWardAndStatus(currentDistrict, currentWard, currentStatus);
+    
     const editRequestsPerPage = 5;
-    let pagination = await getPagination(
-      req,
-      res,
-      boardRequest,
-      editRequestsPerPage,
-      page
-    );
+    let pagination = await getPagination(req, res, boardRequest, editRequestsPerPage, page);
     const currentUrl = req.url.slice(1);
 
     return res.render("So/acceptOrDenyEditRequest.ejs", {
@@ -1041,20 +694,15 @@ class DepartmentController {
     const { boardRequestId, size, quantity, boardTypeId, boardId, status } =
       req.body;
     try {
-      await BoardRequest.update(
-        {
-          size,
-          quantity,
-          requestStatus: status,
-        },
-        { where: { id: boardRequestId } }
-      );
-      await Board.update(
-        {
-          BoardTypeId: boardTypeId,
-        },
-        { where: { id: boardId } }
-      );
+      await BoardRequestDAO.instance.updateBoardRequestById(boardRequestId, {
+        size,
+        quantity,
+        requestStatus: status,
+      });
+
+      await BoardDAO.instance.updateBoardById(boardId, {
+        BoardTypeId: boardTypeId,
+      });
       return res.json({ status: "Success" });
     } catch (err) {
       return res.json({ status: "Fail" });
@@ -2267,15 +1915,6 @@ class DepartmentController {
         Name: req.flash("nameCreateModal")[0],
       },
     };
-    const optionReportTypes = {
-      attributes: ["id", "type"],
-      include: [
-        {
-          model: Report,
-          attributes: ["id"], // Thay thế bằng các thuộc tính của Report mà bạn muốn hiển thị
-        },
-      ],
-    };
     let search = req.query.search || "";
 
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
@@ -2284,27 +1923,13 @@ class DepartmentController {
     if (message !== null && message.type === "delete") {
       flag = true;
     }
-    const ReportTypes = await ReportType.findAll(optionReportTypes);
-    // Khởi tạo mảng để lưu trữ reportsCount
-    const reportsCounts = [];
+    const ReportTypes = await ReportTypeDAO.getInstance().getReportTypesJoinReport(["id", "type"], ["id"]);
+
 
     for (const reportType of ReportTypes) {
-      const reportsCount = await Report.count({
-        where: {
-          ReportTypeId: reportType.id,
-        },
-      });
-
-      reportType.setDataValue("reportsCount", reportsCount);
-
-      // Lưu giá trị reportsCount vào mảng
-      reportsCounts.push(reportsCount);
+      const reportsCount = await ReportDAO.getInstance().countReportsWithSpecificReportType(reportType.id);
+      reportType.reportsCount = reportsCount;
     }
-
-    // Gán mảng reportsCounts vào mỗi phần tử của ReportTypes
-    ReportTypes.forEach((reportType, index) => {
-      reportType.setDataValue("reportsCounts", reportsCounts[index]);
-    });
 
     const currentUrl = req.url.slice(1);
     const pagination = await getPagination(
@@ -2343,9 +1968,7 @@ class DepartmentController {
       return res.redirect("/department/reportTypeManagement");
     }
     try {
-      await ReportType.create({
-        type: nameCreateModal,
-      });
+      await ReportTypeDAO.getInstance().createReportType(nameCreateModal);
       req.flash(
         "message",
         JSON.stringify({
@@ -2384,16 +2007,9 @@ class DepartmentController {
     }
 
     try {
-      await ReportType.update(
-        {
-          type: nameEditModal,
-        },
-        {
-          where: {
-            id: idEditModal,
-          },
-        }
-      );
+      await ReportTypeDAO.getInstance().updateReportTypeById(idEditModal, {          
+        type: nameEditModal,
+      });
 
       req.flash(
         "message",
@@ -2426,18 +2042,10 @@ class DepartmentController {
 
     try {
       // Delete Reports associated with the ReportType
-      await Report.destroy({
-        where: {
-          ReportTypeId: reportTypeId,
-        },
-      });
+      await ReportDAO.getInstance().deleteReportByReportTypeId(reportTypeId);
 
       // Finally, delete the ReportType itself
-      await ReportType.destroy({
-        where: {
-          id: reportTypeId,
-        },
-      });
+      await ReportTypeDAO.getInstance().deleteReportTypeById(reportTypeId);
 
       req.flash(
         "message",
@@ -2467,86 +2075,15 @@ class DepartmentController {
 
   async viewEditAdplaceRequest(req, res) {
     const page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
-    const district = req.query.district || "";
-    const ward = req.query.ward || "";
+    const currentDistrict = req.query.district || "";
+    const currentWard = req.query.ward || "";
     const currentStatus = req.query.status || "";
-    let whereCondition = {};
 
-    let wards = [],
-      currentDistrict = "",
-      currentWard = "";
-    if (district.trim() !== "") {
-      wards = await Area.findAll({
-        where: {
-          district,
-        },
-      });
-      whereCondition.district = district;
-      currentDistrict = district;
-      if (ward.trim() !== "") {
-        currentWard = ward;
-        whereCondition.ward = ward;
-      }
-    }
-    const status = ["Chờ phê duyệt", "Đã được duyệt", "Bị từ chối"];
-
-    const [districts] = await sequelize.query(
-      `SELECT DISTINCT district FROM Areas`
-    );
-
-    let adsPlacementRequests;
-
-    if (currentStatus !== "") {
-      adsPlacementRequests = await AdsPlacementRequest.findAll({
-        include: [
-          {
-            model: Account,
-            attributes: ["firstName", "lastName", "type", "email"],
-          },
-          {
-            model: AdsPlacement,
-            include: [
-              {
-                model: Area,
-                where: whereCondition,
-                attributes: ["ward", "district"],
-                required: true,
-              },
-            ],
-            required: true,
-          },
-          LocationType,
-          AdsType,
-        ],
-        where: {
-          requestStatus: currentStatus,
-        },
-      });
-    } else {
-      adsPlacementRequests = await AdsPlacementRequest.findAll({
-        include: [
-          {
-            model: Account,
-            attributes: ["firstName", "lastName", "type", "email"],
-          },
-          {
-            model: AdsPlacement,
-            include: [
-              {
-                model: Area,
-                where: whereCondition,
-                attributes: ["ward", "district"],
-                required: true,
-              },
-            ],
-            required: true,
-          },
-          LocationType,
-          AdsType,
-        ],
-      });
-    }
-
+    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
+    const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
+    
+    let adsPlacementRequests = await AdsPlacementRequestDAO
+    .getInstance().getAdsPlacementRequestsWithByDistrictWardAndStatus(currentDistrict, currentWard, currentStatus);
     const adsPlacementRequestsPerPage = 5;
     let pagination = await getPagination(
       req,
@@ -2555,8 +2092,56 @@ class DepartmentController {
       adsPlacementRequestsPerPage,
       page
     );
-    const currentUrl = req.url.slice(1);
 
+    const currentUrl = req.url.slice(1);
+    const status = ["Chờ phê duyệt", "Đã được duyệt", "Bị từ chối"];
+    const createWardDistrictPageTypeQueryString = (key, value) => {
+      let newStatus =
+        key === "status="
+          ? { key: value === "" ? value : key, value }
+          : { key: currentStatus === "" ? "" : "status=", value: currentStatus };
+      let newWard =
+        key === "ward="
+          ? { key, value }
+          : { key: currentWard === "" ? "" : "ward=", value: currentWard };
+      let newPage = key === "page=" ? { key, value } : { key: "", value: "" };
+      let newDistrict;
+      if (key === "district=") {
+        newDistrict = { key, value };
+        newWard = { key: "", value: "" };
+      } else {
+        newDistrict = {
+          key: currentDistrict === "" ? "" : "district=",
+          value: currentDistrict,
+        };
+      }
+      let newUrl = req.originalUrl;
+      let index = newUrl.indexOf("?");
+      if (index === -1) {
+        return newUrl + "?" + key + value;
+      }
+
+      newUrl = newUrl.slice(0, index + 1);
+      let temp = newUrl.length;
+      newUrl =
+        newUrl +
+        newPage.key +
+        newPage.value +
+        (newWard.key !== "" ? "&" : "") +
+        newWard.key +
+        newWard.value +
+        (newDistrict.key !== "" ? "&" : "") +
+        newDistrict.key +
+        newDistrict.value +
+        (newStatus.key !== "" ? "&" : "") +
+        newStatus.key +
+        newStatus.value;
+      if (newUrl.charAt(temp) === "&") {
+        newUrl = newUrl.slice(0, temp) + newUrl.slice(temp + 1);
+      }
+      return newUrl;
+    };
+    res.locals.createWardDistrictPageTypeQueryString = createWardDistrictPageTypeQueryString;
     return res.render("So/acceptOrDenyEditAdsPlacementRequest.ejs", {
       formatDate: (date) => {
         return date.toLocaleDateString({
@@ -2577,8 +2162,6 @@ class DepartmentController {
   }
 
   async acceptOrDenyEditAdplaceRequest(req, res) {
-    console.log(req.body);
-
     const {
       adsplacementId,
       adPlacecRequestId,
@@ -2594,42 +2177,26 @@ class DepartmentController {
       adTypeId,
     } = req.body;
     if (result == "Chấp nhận") {
-      await AdsPlacement.update(
-        {
+      try {
+        await AdsPlacementDAO.getInstance().updateAdPlacementById(adsplacementId, {
           AreaId: areaId,
           address: address,
           LocationTypeId: locationTypeId,
           AdsTypeId: adTypeId,
           status: status,
-        },
-        {
-          where: {
-            id: adsplacementId,
-          },
-        }
-      );
-      await AdsPlacementRequest.update(
-        {
+        });
+        await AdsPlacementRequestDAO.getInstance().updateAdsPlacementRequestById(adPlacecRequestId, {
           requestStatus: "Đã được duyệt",
-        },
-        {
-          where: {
-            id: adPlacecRequestId,
-          },
-        }
-      );
-      return res.json({ status: "Success" });
+        });
+        return res.json({ status: "Success" });
+      } catch(err) {
+        console.error(err);
+        return res.json({ status: "Fail" });
+      }      
     } else {
-      await AdsPlacementRequest.update(
-        {
-          requestStatus: "Bị từ chối",
-        },
-        {
-          where: {
-            id: adPlacecRequestId,
-          },
-        }
-      );
+      await AdsPlacementRequestDAO.getInstance().updateAdsPlacementRequestById(adPlacecRequestId, {
+        requestStatus: "Bị từ chối",
+      });
       return res.json({ status: "Fail" });
     }
   }

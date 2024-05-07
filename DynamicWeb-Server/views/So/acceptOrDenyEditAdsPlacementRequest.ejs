@@ -70,6 +70,7 @@
                                         <a class="dropdown-item"
                                             href="<%= createWardDistrictPageQueryString(currentUrl, 'district=', districts[i].district)%>">
                                             <%= districts[i].district %>
+                                            
                                         </a>
                                     </li>
                                     <% } %>
@@ -124,13 +125,13 @@
                                 <% for (let i=0; i < pagination.rows.length; i++) { %>
                                     <tr>
                                         <td>
-                                            <%= pagination.rows[i].Account.lastName %>
-                                                <%= pagination.rows[i].Account.firstName %>
+                                            <%= pagination.rows[i].account.lastName %>
+                                                <%= pagination.rows[i].account.firstName %>
                                         </td>
                                         <td>
-                                            <%= pagination.rows[i].AdsPlacement.address %>,
-                                                <%= pagination.rows[i].AdsPlacement.Area.ward %>,
-                                                    <%= pagination.rows[i].AdsPlacement.Area.district %>, Thành phố
+                                            <%= pagination.rows[i].adsPlacement.address %>,
+                                                <%= pagination.rows[i].adsPlacement.Area.ward %>,
+                                                    <%= pagination.rows[i].adsPlacement.Area.district %>, Thành phố
                                                         Hồ
                                                         Chí Minh
                                         </td>
@@ -156,16 +157,16 @@
                                             <button class="btn btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#locationChange"
                                                 data-address="<%= pagination.rows[i].address %>"
-                                                data-adplaceid="<%= pagination.rows[i].AdsPlacement.id %>"
+                                                data-adplaceid="<%= pagination.rows[i].adsPlacement.id %>"
                                                 data-id="<%= pagination.rows[i].id %>"
-                                                data-locationType="<%= pagination.rows[i].LocationType.locationType %> "
-                                                data-adType="<%= pagination.rows[i].AdsType.type %>"
+                                                data-locationType="<%= pagination.rows[i].locationType.locationType %> "
+                                                data-adType="<%= pagination.rows[i].adsType.type %>"
                                                 data-status="<%= pagination.rows[i].status %>"
                                                 data-reason="<%= pagination.rows[i].reason %>"
-                                                data-ward=" <%= pagination.rows[i].AdsPlacement.Area.ward %>"
-                                                data-district="<%= pagination.rows[i].AdsPlacement.Area.district %>"
-                                                data-locationtypeid="<%= pagination.rows[i].LocationTypeId %>"
-                                                data-adtypeid="<%= pagination.rows[i].AdsTypeId %>"
+                                                data-ward=" <%= pagination.rows[i].adsPlacement.Area.ward %>"
+                                                data-district="<%= pagination.rows[i].adsPlacement.Area.district %>"
+                                                data-locationtypeid="<%= pagination.rows[i].locationType.id %>"
+                                                data-adtypeid="<%= pagination.rows[i].adsType.id %>"
                                                 data-requeststatus="<%= pagination.rows[i].requestStatus %>"
                                                 onclick="setDataToAdsPlacementRequestModal(this)">
                                                 Xem chi tiết
@@ -184,8 +185,40 @@
                 </div>
 
                 <!-- Pagination section -->
-
-                <div
+                <div class="pagination-container d-flex flex-sm-row flex-column justify-content-between align-items-center py-2">
+                    <p class="pagination-text mb-0">Showing <b><%= pagination.currentPage %></b> Out of <b><%= pagination.maxPage %></b></p>
+                    <nav aria-label="Page navigation example">
+                      <ul class="pagination mb-0">
+                        <% if (pagination.currentPage === pagination.minPage) { %>
+                          <li class="page-item"><button class="page-link text-dark fw-bold border-0" disabled>Previous</button></li>
+                        <% }else{%>
+                          <li class="page-item"><a class="page-link text-dark fw-bold border-0" href="<%= createWardDistrictPageTypeQueryString('page=', pagination.currentPage - 1) %>">Previous</a></li>
+                        <% } %>
+              
+                        <% for (let i = pagination.currentPage - pagination.limitPage; i < pagination.currentPage; i++) { %>
+                          <% if (i >= pagination.minPage){ %>
+                            <li class="page-item"><a class="page-link text-dark fw-bold border-0" href="<%= createWardDistrictPageTypeQueryString('page=', i) %>"><%=i%></a></li>
+                          <% } %>
+                        <% } %>
+              
+                        <li class="page-item" aria-current="page"><a class="page-link text-dark fw-bold border-0" href="<%= createWardDistrictPageTypeQueryString('page=', pagination.currentPage) %>"  style="background-color: #0FC2C0;"><%= pagination.currentPage %></a></li>
+              
+                        <% for (let i = pagination.currentPage + 1; i <= pagination.currentPage + pagination.limitPage; i++) { %>
+                          <% if (i <= pagination.maxPage) { %>
+                            <li class="page-item"><a class="page-link text-dark fw-bold border-0" href="<%= createWardDistrictPageTypeQueryString('page=', i) %>"><%=i%></a></li>
+                          <% } %>
+                        <% } %>
+              
+                        <% if (pagination.currentPage === pagination.maxPage) { %>
+                          <li class="page-item"><button class="page-link text-dark fw-bold border-0" disabled>Next</button></li>
+                        <% }else{%>
+                          <li class="page-item"><a class="page-link text-dark fw-bold border-0" href="<%= createWardDistrictPageTypeQueryString('page=', pagination.currentPage + 1)%>">Next</a></li>
+                        <% } %>
+              
+                      </ul>
+                    </nav>
+                  </div>
+                <!-- <div
                     class="pagination-container d-flex flex-sm-row flex-column justify-content-between align-items-center py-2">
                     <p class="pagination-text mb-0">Showing <b>
                             <%= pagination.currentPage %>
@@ -247,7 +280,7 @@
 
                         </ul>
                     </nav>
-                </div>
+                </div> -->
             </main>
 
             <!-- Footer -->

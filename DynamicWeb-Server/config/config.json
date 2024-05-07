@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "ntk123",
+    "password": "mysql@0406",
     "database": "ptudw_ntk_test",
     "host": "localhost",
     "dialect": "mysql",

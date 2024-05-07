@@ -94,15 +94,17 @@
         <div class="row gx-0 gx-md-5 gy-2">
           <h3 class="col-5 col-md-3 col-xl-2 fs-5">Đối tượng báo cáo:</h3>
           <p class="col-7 col-md-5 col-xl-6">
-            <% if (type === "locationReport") { %>
+            <% if (type === "LOCATION") { %>
               Địa điểm
+            <% } else if (type == "BOARD"){ %>
+              Bảng quảng cáo
             <% } else { %>
-              Biển quảng cáo
+              Quảng cáo
             <% }  %>
           </p>
   
           <h3 class="col-5 col-md-2 fs-5 p-md-0">Loại báo cáo:</h3>
-          <p class="col-7 col-md-2 p-md-0"><%= report.ReportType.type %></p>
+          <p class="col-7 col-md-2 p-md-0"><%= report.reportType.type %></p>
         </div>
   
         <div class="row gx-0 gx-md-5 gy-2">
@@ -135,28 +137,31 @@
           <p class="col-7 col-md-2 p-md-0"><%= report.phone %></p>
         </div>
   
-        <% if (report.Account != null && report.status !== 'Chưa xử lý') { %>
+        <% if (report.account != null && report.status !== 'Chưa xử lý') { %>
         <div class="row gx-0 gx-md-5 gy-2">
           <h3 class="col-md-3 col-xl-2 col-5 fs-5">Cán bộ xử lý:</h3>
-          <p class="col-md-9 col-xl-10 col-7"><%= report.Account.lastName %> <%= report.Account.firstName %></p>
+          <p class="col-md-9 col-xl-10 col-7"><%= report.account.lastName %> <%= report.account.firstName %></p>
         </div>
 
         <div class="row gx-0 gx-md-5 gy-2">
           <h3 class="col-5 col-md-3 col-xl-2 fs-5">Email:</h3>
-          <p class="col-7 col-md-5 col-xl-6"><%= report.Account.email %></p>
+          <p class="col-7 col-md-5 col-xl-6"><%= report.account.email %></p>
   
           <h3 class="col-5 col-md-2 fs-5 p-md-0">Loại tài khoản:</h3>
-          <p class="col-7 col-md-2 p-md-0"><%= report.Account.type %></p>
+          <p class="col-7 col-md-2 p-md-0"><%= report.account.type %></p>
         </div>
         <% } %>
         <div class="row gx-0 gx-md-5 gy-2">
           <h3 class="col-md-3 col-xl-2 col-5 fs-5">Địa chỉ báo cáo:</h3>
           <p class="col-md-9 col-xl-10 col-7">
-            <% if (type === "locationReport") { %>
-              <%= report.address %>, <%=  report.Area.ward %>, <%= report.Area.district %>, Thành phố Hồ Chí Minh
-            <% } else { %>
-              <%= report.AdsPlacement.address %>, <%=  report.AdsPlacement.Area.ward %>, <%= report.AdsPlacement.Area.district %>, Thành phố Hồ Chí Minh
+            <% if (type === "LOCATION") { %>
+              <%= report.address %>, <%= report.area.ward %>, <%= report.area.district %>  
+            <% } else if (type == "BOARD"){ %>
+              <%= report.board.AdsPlacement.address %>, <%= report.board.AdsPlacement.Area.ward %>, <%= report.board.AdsPlacement.Area.district %>  
+            <% } else if (type == "ADSPLACEMENT"){ %>
+              <%= report.adsPlacement.address %>, <%= report.adsPlacement.Area.ward %>, <%= report.adsPlacement.Area.district %>  
             <% }  %>
+            
           </p>
         </div>
   
