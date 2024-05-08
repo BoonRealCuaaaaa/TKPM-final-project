@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "root",
-    "password": "mysql@0406",
-    "database": "ptudw_ntk_test",
+    "username": "springstudent",
+    "password": "springstudent",
+    "database": "adsmanager_new",
     "host": "localhost",
     "dialect": "mysql",
     "logging": false,

@@ -447,6 +447,12 @@ const toggleEvent = (e, targetLayer) => {
               BÁO CÁO VI PHẠM
           </button>
     </div>`;
+
+    const reportBoardButton = document.querySelector("#board-report");
+    reportBoardButton.addEventListener("click", async (e) => {
+      getReportTable(e, 1);
+    });
+    
     document.querySelectorAll(".toBCVP").forEach((item) => {
       item.addEventListener("click", () => {
         var triggerEl = document.querySelector("#myTab #report-tab");
@@ -537,6 +543,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   } else if (flag == 1) {
     type = "board";
     prevReportTableState = flag;
+    console.log("Im here");
     let page =
       document.querySelector(".page-item.active") != null
         ? document.querySelector(".page-item.active").innerText
@@ -563,11 +570,6 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
         selfReportedData = JSON.parse(selfReportedData);
       }
 
-      // if (selfReportedRandomData == null) {
-      //   selfReportedRandomData = [];
-      // } else {
-      //   selfReportedRandomData = JSON.parse(selfReportedRandomData);
-      // }
       respond = await fetch(`${serverPath}/citizen/post-self-report`, {
         method: "POST",
         headers: {
@@ -595,7 +597,6 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   }
 
   const reportData = JSON.parse(data);
-  console.log(reportData);
 
   const handled = reportData.filter((item) => {
     return item.status == "Đã xử lý";
@@ -997,7 +998,6 @@ map.on("load", async () => {
       isClickPoint = 1;
     }
     const tempData = e.features[0];
-    console.log(e.features[0].properties);
     const { lng, lat } = e.features[0].properties;
     let reportIdArr;
     reportIdArr = JSON.parse(localStorage.getItem("reportedData"));
@@ -1017,7 +1017,6 @@ map.on("load", async () => {
     );
     const data = await fetchData.json();
     rpData = JSON.parse(data);
-    console.log(rpData);
 
     const HTMLReportType = document.querySelector("#report-type");
     const HTMLReportName = document.querySelector("#reporter-name");
@@ -1029,8 +1028,6 @@ map.on("load", async () => {
     const HTMLModalImg1 = document.querySelector("#report-detail-first-img");
     const HTMLModalImg2 = document.querySelector("#report-detail-second-img");
     const HTMLModalMethod = document.querySelector("#report-detail-method");
-
-    console.log(rpData[0]);
 
     if (rpData.length == 0) {
       HTMLReportType.innerHTML = "Chưa có thông tin";
@@ -1321,7 +1318,7 @@ map.on("click", async (e) => {
   if (controlMapBeforeLayer == 0) {
     mapBeforeLayer = true;
   }
-  console.log("map");
+
   //Reset Report section
   if (isClickPoint == 1 && mapBeforeLayer == false) {
     isClickPoint = 0;
@@ -1571,7 +1568,6 @@ formSubmit.addEventListener("click", async (e) => {
     const area = JSON.parse(selectedLocation.properties.area);
     const fullAddr = `${selectedLocation.properties.address}, ${area.ward}, ${area.district}`;
     const returnData = JSON.parse(respondJSON);
-    console.log(returnData);
 
     selfReportedLocation.features.push({
       type: "Feature",
@@ -1725,7 +1721,6 @@ formRandomBtn.addEventListener("click", async (e) => {
     }
   );
   const respondJSON = await respond.json();
-  console.log(respondJSON);
   const returnData = respondJSON.newReport;
 
   let selfReportedLocation = localStorage.getItem("reportedLocation");
@@ -1750,7 +1745,7 @@ formRandomBtn.addEventListener("click", async (e) => {
       location.geometry.coordinates[1] == returnData.lat
     );
   });
-  console.log(returnData);
+
   if (!isExists) {
     selfReportedLocation.features.push({
       type: "Feature",
