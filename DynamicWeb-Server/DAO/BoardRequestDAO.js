@@ -20,7 +20,7 @@ class BoardRequestDAO {
   
     static getInstance() {
       if (this.instance == null) {
-        this.instance = new PermitRequestDAO();
+        this.instance = new BoardRequestDAO();
       }
   
       return this.instance;

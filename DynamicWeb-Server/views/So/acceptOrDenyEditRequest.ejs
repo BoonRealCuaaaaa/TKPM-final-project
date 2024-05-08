@@ -129,7 +129,7 @@
                 <% for (let i=0; i < pagination.rows.length; i++) { %>
                   <tr>
                     <td>
-                      <%= pagination.rows[i].Board.BoardType.type %>
+                      <%= pagination.rows[i].board.BoardType.type %>
                     </td>
                     <td>
                       <%= pagination.rows[i].size %>
@@ -138,9 +138,9 @@
                       <%= pagination.rows[i].quantity %>
                     </td>
                     <td>
-                      <%= pagination.rows[i].Board.AdsPlacement.address %>, <%=
-                          pagination.rows[i].Board.AdsPlacement.Area.ward %>, <%=
-                            pagination.rows[i].Board.AdsPlacement.Area.district %>, Thành phố Hồ Chí Minh
+                      <%= pagination.rows[i].board.AdsPlacement.address %>, <%=
+                          pagination.rows[i].board.AdsPlacement.Area.ward %>, <%=
+                            pagination.rows[i].board.AdsPlacement.Area.district %>, Thành phố Hồ Chí Minh
                     </td>
                     <td>
                       <%= formatDate(pagination.rows[i].createdAt) %>
@@ -165,9 +165,9 @@
                         data-quantity="<%= pagination.rows[i].quantity%>" data-size="<%= pagination.rows[i].size%>"
                         data-reason="<%= pagination.rows[i].reason %>"
                         data-request-status="<%= pagination.rows[i].requestStatus %>"
-                        data-board-id="<%= pagination.rows[i].Board.id %>"
-                        data-board-type="<%= pagination.rows[i].BoardType.type %>"
-                        data-board-type-id="<%= pagination.rows[i].BoardType.id %>"
+                        data-board-id="<%= pagination.rows[i].board.id %>"
+                        data-board-type="<%= pagination.rows[i].boardType.type %>"
+                        data-board-type-id="<%= pagination.rows[i].boardType.id %>"
                         data-board-request-id="<%= pagination.rows[i].id %>"
                         onclick="setDataToBoardRequestModal(event)">
                         Xem chi tiết</button>

@@ -169,7 +169,7 @@ class GetAdsReportStrategy extends GetReportStrategy{
         {
           model: Report,
           required: true,
-          include: [{ model: ReportType, required: true }, { model: Account, required: true }],
+          include: [{ model: ReportType, required: true }, { model: Account}],
         },
       ],
       where: {
@@ -191,7 +191,7 @@ class GetBoardReportStrategy extends GetReportStrategy {
         {
           model: Report,
           required: true,
-          include: [{ model: ReportType, required: true }, { model: Account, required: true }],
+          include: [{ model: ReportType, required: true }, { model: Account }],
         },
         {
           model: Board,
@@ -229,7 +229,7 @@ class GetLocationReportStrategy extends GetReportStrategy {
         {
           model: Report,
           required: true,
-          include: [{ model: ReportType, required: true }, { model: Account, required: true }],
+          include: [{ model: ReportType, required: true }, { model: Account}],
         },
         {
           model: Area,
