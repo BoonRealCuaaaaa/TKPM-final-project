@@ -260,9 +260,16 @@ class CitizenController {
       (ward = data[0].compound.commune), (district = data[0].compound.district);
     }
 
+
     if (!ward.includes("0") && /\d/.test(ward)) {
+      console.log(ward)
       let parts = ward.split(" ");
-      ward = parts[0] + " " + "0" + parts[1];
+
+      if(parts[1].length==1) {
+        parts[1]="0"+parts[1]
+      }
+      
+      ward = parts[0] + " "  + parts[1];
     }
 
     if (!ward.includes("Phường")) {
@@ -297,7 +304,7 @@ class CitizenController {
       typeId: typeId,
     });
 
-    console.log(newReport);
+    console.log("Line 300"+newReport);
 
     return res.status(200).json({ newReport });
   }
