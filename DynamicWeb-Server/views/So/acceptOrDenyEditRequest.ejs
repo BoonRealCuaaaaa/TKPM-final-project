@@ -14,6 +14,7 @@
 
   <!-- Font awesome -->
   <script src="https://kit.fontawesome.com/5990078b0a.js" crossorigin="anonymous"></script>
+  <script src="/javascript/queryString.js"></script>
 
   <!--Css link -->
   <link rel="stylesheet" href="/css/So/style.css">
@@ -38,7 +39,7 @@
                 <button
                     class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center"
                     type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <% if (currentStatus !=='' ) { %>
+                    <% if (currentStatus !== '' ) { %>
                         <%= currentStatus %>
                     <% } else { %>
                         Trạng thái 

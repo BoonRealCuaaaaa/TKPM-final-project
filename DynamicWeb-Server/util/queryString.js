@@ -16,6 +16,8 @@ const createWardDistrictPageQueryString = (url, key, value) => {
   let district = getObjectFromUrl(url, "district=");
   let ward = key === "ward=" ? { key, value } : getObjectFromUrl(url, "ward=");
   let page = key === "page=" ? { key, value } : { key: "", value: "" };
+  let status =
+    key === "status=" ? { key, value } : getObjectFromUrl(url, "status=");
   if (key === "district=") {
     district = { key, value };
     ward = { key: "", value: "" };
@@ -37,7 +39,10 @@ const createWardDistrictPageQueryString = (url, key, value) => {
     ward.value +
     (district.key !== "" ? "&" : "") +
     district.key +
-    district.value;
+    district.value +
+    (status.key !== "" ? "&" : "") +
+    status.key +
+    status.value;
   if (newUrl.charAt(temp) === "&") {
     newUrl = newUrl.slice(0, temp) + newUrl.slice(temp + 1);
   }

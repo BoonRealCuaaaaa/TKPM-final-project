@@ -30,10 +30,15 @@ const { LocationTypeDC } = require("../DC/LocationTypeDC");
 const { BoardTypeDC } = require("../DC/BoardTypeDC");
 const { AccountDAO } = require("../DAO/AccountDAO");
 const { BoardRequestDAO } = require("../DAO/BoardRequestDAO");
-const {PermitRequestDAO} = require("../DAO/PermitRequestDAO");
-const {ReportTypeDAO} = require("../DAO/ReportTypeDAO");
-const {AdsPlacementRequestDAO} = require("../DAO/AdsPlacementRequestDAO");
-const {ReportDAO, GetBoardReportStrategy, GetAdsReportStrategy, GetLocationReportStrategy} = require("../DAO/ReportDAO");
+const { PermitRequestDAO } = require("../DAO/PermitRequestDAO");
+const { ReportTypeDAO } = require("../DAO/ReportTypeDAO");
+const { AdsPlacementRequestDAO } = require("../DAO/AdsPlacementRequestDAO");
+const {
+  ReportDAO,
+  GetBoardReportStrategy,
+  GetAdsReportStrategy,
+  GetLocationReportStrategy,
+} = require("../DAO/ReportDAO");
 const severPath = "http://localhost:5000/";
 const checkInput = require("../util/checkInput");
 const { createWardDistrictPageQueryString } = require("../util/queryString");
@@ -136,16 +141,32 @@ class DepartmentController {
     let message = req.flash("messageAccountManagement")[0];
     message = message == null ? null : JSON.parse(message);
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
-    let currentDistrict = req.query.district || "", currentWard = req.query.ward || "";
-    let accounts = await AccountDAO.getInstance().findAccountsByDistrictAndWard(req.session.accountId, currentDistrict, currentWard);
-    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
+    let currentDistrict = req.query.district || "",
+      currentWard = req.query.ward || "";
+    let accounts = await AccountDAO.getInstance().findAccountsByDistrictAndWard(
+      req.session.accountId,
+      currentDistrict,
+      currentWard
+    );
+    let wards =
+      currentDistrict.trim() !== ""
+        ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict)
+        : [];
     const accountTypes = ["Phuong", "Quan", "So"];
     const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
     let flag = false;
     if (message != null && message.type === "delete" && accounts.length > 0) {
       flag = true;
     }
-    const pagination = await getPagination(req, res, accounts, 5, page, 2, flag);
+    const pagination = await getPagination(
+      req,
+      res,
+      accounts,
+      5,
+      page,
+      2,
+      flag
+    );
     const currentUrl = req.url.slice(1);
 
     return res.render("So/accountManagement.ejs", {
@@ -297,10 +318,15 @@ class DepartmentController {
       let areaId = 1;
       if (accountTypeSelectCreateModal !== "So") {
         if (accountTypeSelectCreateModal === "Phuong") {
-          const area = await AreaDAO.getInstance().findAreaByWardAndDistrict(wardSelectCreateModal, districtSelectCreateModal) 
+          const area = await AreaDAO.getInstance().findAreaByWardAndDistrict(
+            wardSelectCreateModal,
+            districtSelectCreateModal
+          );
           areaId = area != null ? area.id : areaId;
         } else {
-          const areas = await AreaDAO.getInstance().findAreaByDistrict(districtSelectCreateModal);
+          const areas = await AreaDAO.getInstance().findAreaByDistrict(
+            districtSelectCreateModal
+          );
           areaId = areas.length > 0 ? areas[0].id : areaId;
         }
       }
@@ -348,18 +374,23 @@ class DepartmentController {
       let areaId = 1;
       if (accountTypeSelectEditModal !== "So") {
         if (accountTypeSelectEditModal === "Phuong") {
-          const area = await AreaDAO.getInstance().findAreaByWardAndDistrict(wardSelectEditModal, districtSelectEditModal) 
+          const area = await AreaDAO.getInstance().findAreaByWardAndDistrict(
+            wardSelectEditModal,
+            districtSelectEditModal
+          );
           areaId = area != null ? area.id : areaId;
         } else {
-          const areas = await AreaDAO.getInstance().findAreaByDistrict(districtSelectEditModal);
+          const areas = await AreaDAO.getInstance().findAreaByDistrict(
+            districtSelectEditModal
+          );
           areaId = areas.length > 0 ? areas[0].id : areaId;
         }
       }
       await AccountDAO.getInstance().assignAreaForAccountById({
         accountId: idEditModal,
         accountType: accountTypeSelectEditModal,
-        areaId
-      })
+        areaId,
+      });
       req.flash(
         "messageAccountManagement",
         JSON.stringify({
@@ -386,7 +417,7 @@ class DepartmentController {
   async deleteAccount(req, res) {
     const { accountId } = req.body;
     try {
-      await AccountDAO.getInstance().deleteAccountById({accountId});
+      await AccountDAO.getInstance().deleteAccountById({ accountId });
       req.flash(
         "messageAccountManagement",
         JSON.stringify({
@@ -415,13 +446,26 @@ class DepartmentController {
     let currentDistrict = req.query.district || "";
     let currentWard = req.query.ward || "";
 
-    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
+    let wards =
+      currentDistrict.trim() !== ""
+        ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict)
+        : [];
     const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
 
-    let permitRequests = await PermitRequestDAO.getInstance().getAllPermitRequestsByDistrictAndWard(currentDistrict, currentWard);
+    let permitRequests =
+      await PermitRequestDAO.getInstance().getAllPermitRequestsByDistrictAndWard(
+        currentDistrict,
+        currentWard
+      );
     const permitRequestsPerPage = 5;
-    let pagination = await getPagination(req, res, permitRequests, permitRequestsPerPage, page);
-    
+    let pagination = await getPagination(
+      req,
+      res,
+      permitRequests,
+      permitRequestsPerPage,
+      page
+    );
+
     const currentUrl = req.url.slice(1);
     return res.render("So/viewAdsRequest.ejs", {
       formatDate: (date) => {
@@ -443,7 +487,8 @@ class DepartmentController {
   async detailRequest(req, res) {
     const previousUrl = req.query.previousUrl || "";
     const id = isNaN(req.params.id) ? -1 : parseInt(req.params.id);
-    let permitRequest = await PermitRequestDAO.getInstance().getPermitRequestDetailById(id);
+    let permitRequest =
+      await PermitRequestDAO.getInstance().getPermitRequestDetailById(id);
     return res.render("So/acceptOrDenyAdsRequest.ejs", {
       permitRequest,
       previousUrl,
@@ -453,7 +498,9 @@ class DepartmentController {
   async acceptOrDenyAdsRequest(req, res) {
     const { status, id, previousUrl } = req.body;
     try {
-      await PermitRequestDAO.getInstance().updatePermitRequestById(id, {status});
+      await PermitRequestDAO.getInstance().updatePermitRequestById(id, {
+        status,
+      });
       return res.json({
         status: "success",
         redirect: `${req.baseUrl}/${previousUrl}`,
@@ -471,9 +518,17 @@ class DepartmentController {
     let currentDistrict = req.query.district || "";
     let currentWard = req.query.ward || "";
     let type = req.query.type || "";
-    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
+    let wards =
+      currentDistrict.trim() !== ""
+        ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict)
+        : [];
     const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
-    let reports = await ReportDAO.getInstance().getAllReportsByDistrictWardAndType(currentDistrict, currentWard, type);
+    let reports =
+      await ReportDAO.getInstance().getAllReportsByDistrictWardAndType(
+        currentDistrict,
+        currentWard,
+        type
+      );
     const reportsPerPage = 4;
     const pagination = await getPagination(
       req,
@@ -528,7 +583,8 @@ class DepartmentController {
       }
       return newUrl;
     };
-    res.locals.createWardDistrictPageTypeQueryString = createWardDistrictPageTypeQueryString;
+    res.locals.createWardDistrictPageTypeQueryString =
+      createWardDistrictPageTypeQueryString;
     const currentUrl = req.url.slice(1);
     return res.render("So/viewReports.ejs", {
       formatDate: (date) => {
@@ -570,7 +626,7 @@ class DepartmentController {
       console.log(">>>report::: ", report);
     }
     if (report == null) {
-      return res.render("404.ejs")
+      return res.render("404.ejs");
     }
     report.image = report.image.split(", ");
     return res.render("So/detailReport.ejs", {
@@ -582,10 +638,19 @@ class DepartmentController {
   async statisticReport(req, res) {
     let { type, size } = req.body;
     try {
-      let reports = await ReportDAO.getInstance().getAllReportsWithStatusInTimeFrame("Đã xử lý", new Date(
-        new Date() - size * (type === "month" ? 31 : 1) * 24 * 60 * 60 * 1000
-      ), new Date());
-      let labels = [], numberOfReportsList = [], waiting = 0, processed = 0;
+      let reports =
+        await ReportDAO.getInstance().getAllReportsWithStatusInTimeFrame(
+          "Đã xử lý",
+          new Date(
+            new Date() -
+              size * (type === "month" ? 31 : 1) * 24 * 60 * 60 * 1000
+          ),
+          new Date()
+        );
+      let labels = [],
+        numberOfReportsList = [],
+        waiting = 0,
+        processed = 0;
       if (type === "day") {
         for (let i = size - 1; i >= 0; i--) {
           let date = new Date(new Date() - i * 24 * 60 * 60 * 1000);
@@ -639,8 +704,10 @@ class DepartmentController {
 
   async getWaitingAndProcessedReport(req, res) {
     try {
-      let waitingReports = await ReportDAO.getInstance().getAlldReportWithStatus("Đang xử lý");
-      let processedReports = await ReportDAO.getInstance().getAlldReportWithStatus("Đã xử lý");
+      let waitingReports =
+        await ReportDAO.getInstance().getAlldReportWithStatus("Đang xử lý");
+      let processedReports =
+        await ReportDAO.getInstance().getAlldReportWithStatus("Đã xử lý");
 
       return res.json({
         status: "success",
@@ -660,15 +727,34 @@ class DepartmentController {
   async viewEditRequest(req, res) {
     let page = isNaN(req.query.page) ? 1 : parseInt(req.query.page);
     const currentStatus = req.query.status || "";
+    const previousStatus = req.session.previousStatus || "";
+    if (currentStatus !== previousStatus) {
+      page = 1;
+    }
+    req.session.previousStatus = currentStatus;
     const status = ["Chờ phê duyệt", "Đã được duyệt", "Bị từ chối"];
     let currentDistrict = req.query.district || "";
     let currentWard = req.query.ward || "";
-    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
+    let wards =
+      currentDistrict.trim() !== ""
+        ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict)
+        : [];
     const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
-    let boardRequest = await BoardRequestDAO.getInstance().getAllBoardRequestsByDistrictWardAndStatus(currentDistrict, currentWard, currentStatus);
-    
+    let boardRequest =
+      await BoardRequestDAO.getInstance().getAllBoardRequestsByDistrictWardAndStatus(
+        currentDistrict,
+        currentWard,
+        currentStatus
+      );
+
     const editRequestsPerPage = 5;
-    let pagination = await getPagination(req, res, boardRequest, editRequestsPerPage, page);
+    let pagination = await getPagination(
+      req,
+      res,
+      boardRequest,
+      editRequestsPerPage,
+      page
+    );
     const currentUrl = req.url.slice(1);
 
     return res.render("So/acceptOrDenyEditRequest.ejs", {
@@ -1923,11 +2009,17 @@ class DepartmentController {
     if (message !== null && message.type === "delete") {
       flag = true;
     }
-    const ReportTypes = await ReportTypeDAO.getInstance().getReportTypesJoinReport(["id", "type"], ["id"]);
-
+    const ReportTypes =
+      await ReportTypeDAO.getInstance().getReportTypesJoinReport(
+        ["id", "type"],
+        ["id"]
+      );
 
     for (const reportType of ReportTypes) {
-      const reportsCount = await ReportDAO.getInstance().countReportsWithSpecificReportType(reportType.id);
+      const reportsCount =
+        await ReportDAO.getInstance().countReportsWithSpecificReportType(
+          reportType.id
+        );
       reportType.reportsCount = reportsCount;
     }
 
@@ -2007,7 +2099,7 @@ class DepartmentController {
     }
 
     try {
-      await ReportTypeDAO.getInstance().updateReportTypeById(idEditModal, {          
+      await ReportTypeDAO.getInstance().updateReportTypeById(idEditModal, {
         type: nameEditModal,
       });
 
@@ -2079,11 +2171,18 @@ class DepartmentController {
     const currentWard = req.query.ward || "";
     const currentStatus = req.query.status || "";
 
-    let wards = currentDistrict.trim() !== "" ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict) : [];
+    let wards =
+      currentDistrict.trim() !== ""
+        ? await AreaDAO.getInstance().findAreaByDistrict(currentDistrict)
+        : [];
     const districts = await AreaDAO.getInstance().getAllDistinctDistrict();
-    
-    let adsPlacementRequests = await AdsPlacementRequestDAO
-    .getInstance().getAdsPlacementRequestsWithByDistrictWardAndStatus(currentDistrict, currentWard, currentStatus);
+
+    let adsPlacementRequests =
+      await AdsPlacementRequestDAO.getInstance().getAdsPlacementRequestsWithByDistrictWardAndStatus(
+        currentDistrict,
+        currentWard,
+        currentStatus
+      );
     const adsPlacementRequestsPerPage = 5;
     let pagination = await getPagination(
       req,
@@ -2099,7 +2198,10 @@ class DepartmentController {
       let newStatus =
         key === "status="
           ? { key: value === "" ? value : key, value }
-          : { key: currentStatus === "" ? "" : "status=", value: currentStatus };
+          : {
+              key: currentStatus === "" ? "" : "status=",
+              value: currentStatus,
+            };
       let newWard =
         key === "ward="
           ? { key, value }
@@ -2141,7 +2243,8 @@ class DepartmentController {
       }
       return newUrl;
     };
-    res.locals.createWardDistrictPageTypeQueryString = createWardDistrictPageTypeQueryString;
+    res.locals.createWardDistrictPageTypeQueryString =
+      createWardDistrictPageTypeQueryString;
     return res.render("So/acceptOrDenyEditAdsPlacementRequest.ejs", {
       formatDate: (date) => {
         return date.toLocaleDateString({
@@ -2178,25 +2281,34 @@ class DepartmentController {
     } = req.body;
     if (result == "Chấp nhận") {
       try {
-        await AdsPlacementDAO.getInstance().updateAdPlacementById(adsplacementId, {
-          AreaId: areaId,
-          address: address,
-          LocationTypeId: locationTypeId,
-          AdsTypeId: adTypeId,
-          status: status,
-        });
-        await AdsPlacementRequestDAO.getInstance().updateAdsPlacementRequestById(adPlacecRequestId, {
-          requestStatus: "Đã được duyệt",
-        });
+        await AdsPlacementDAO.getInstance().updateAdPlacementById(
+          adsplacementId,
+          {
+            AreaId: areaId,
+            address: address,
+            LocationTypeId: locationTypeId,
+            AdsTypeId: adTypeId,
+            status: status,
+          }
+        );
+        await AdsPlacementRequestDAO.getInstance().updateAdsPlacementRequestById(
+          adPlacecRequestId,
+          {
+            requestStatus: "Đã được duyệt",
+          }
+        );
         return res.json({ status: "Success" });
-      } catch(err) {
+      } catch (err) {
         console.error(err);
         return res.json({ status: "Fail" });
-      }      
+      }
     } else {
-      await AdsPlacementRequestDAO.getInstance().updateAdsPlacementRequestById(adPlacecRequestId, {
-        requestStatus: "Bị từ chối",
-      });
+      await AdsPlacementRequestDAO.getInstance().updateAdsPlacementRequestById(
+        adPlacecRequestId,
+        {
+          requestStatus: "Bị từ chối",
+        }
+      );
       return res.json({ status: "Fail" });
     }
   }
