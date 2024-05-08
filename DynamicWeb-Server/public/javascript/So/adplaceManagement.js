@@ -18,7 +18,6 @@ myModalEl.addEventListener("hidden.bs.modal", function (event) {
 
 async function handleEditButtonClick(e) {
   console.log("Edit button clicked");
-  e.preventDefault();
 
   // Lấy dữ liệu từ form bằng FormData
   const formData = new FormData(document.getElementById("editForm"));

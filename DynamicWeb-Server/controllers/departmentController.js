@@ -1010,6 +1010,7 @@ class DepartmentController {
   // Khiêm hoàn thành
   async editAdplace(req, res) {
     let editFailed = false;
+    console.log("Đã vào adplace");
     let {
       idEditModal,
       districtSelectEditModal,
@@ -1057,6 +1058,7 @@ class DepartmentController {
         adTypeId,
         undefined
       );
+      console.log("adPlacementDC: ", adPlacementDC);
       await AdsPlacementDAO.getInstance().updateAdPlacement(adPlacementDC);
       req.flash(
         "message",
@@ -1158,9 +1160,11 @@ class DepartmentController {
         return res.redirect(path);
       }
 
-      let areaDC = await AreaDAO.getInstance().getAreaById(id);
+      let areaDC = new AreaDC(id, ward, district);
 
       const updatedArea = await AreaDAO.getInstance().editArea(areaDC);
+
+      areaDC = await AreaDAO.getInstance().getAreaById(id);
 
       if (updatedArea[0] === 0) {
         req.flash("manageAreaMsg", "Không có trong cơ sở dữ liệu");
@@ -1188,8 +1192,8 @@ class DepartmentController {
         req.flash("manageAreaMsg", "Đã tồn tại khu vực");
         return res.redirect("/department/areaManagement");
       }
-
-      await AreaDAO.getInstance().createArea(existingArea);
+      let areaDC = new AreaDC(undefined, ward, district);
+      await AreaDAO.getInstance().createArea(areaDC);
 
       req.flash("manageAreaMsg", "Tạo thành công");
       return res.redirect("/department/areaManagement");
