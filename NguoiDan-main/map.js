@@ -12,22 +12,27 @@ let selectedBoard = undefined;
 let isClickPoint = 0;
 let mapBeforeLayer = false;
 let controlMapBeforeLayer = 0;
+
 const sipulatedPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
 });
+
 const nonSipulatedPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
 });
+
 const reportedPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
 });
+
 const selfReportedPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
 });
+
 const previousSelected = {
   type: undefined,
   id: undefined,
@@ -96,6 +101,7 @@ const mouseEnterEventUnclustered = (e, layer) => {
   const { id, address, adsType, area, locationType, status } =
     e.features[0].properties;
   const areaObj = JSON.parse(area);
+
   while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
   }
@@ -106,6 +112,7 @@ const mouseEnterEventUnclustered = (e, layer) => {
 
 const mouseLeaveEventUnclustered = (layer) => {
   let popup;
+
   if (layer == "sipulated") {
     popup = sipulatedPopup;
   } else if (layer == "nonSipulated") {
@@ -122,10 +129,11 @@ const mouseLeaveEventUnclustered = (layer) => {
 
 const getInfoOnclickUnclustered = async (e) => {
   controlMapBeforeLayer += 1;
-  console.log("layer");
+
   //Display report button
   document.querySelector("#location-report").style.display = "inline-block";
   document.querySelector("#board-report").style.display = "inline-block";
+
   if (mapBeforeLayer == false) {
     isClickPoint = 1;
   }
@@ -206,10 +214,8 @@ const getInfoOnclickUnclustered = async (e) => {
   paginationData += `<li class="page-item disabled">
     <a class="page-link" href="#" aria-label="Previous">
       <span aria-hidden="true">&laquo;</span></a></li>`;
+
   for (let i = 0; i < adsData.length; i++) {
-    // if (i == 3) {
-    //   break;
-    // }
     if (i == 0) {
       paginationData += `<li class="page-item active" aria-current="page"><a class="page-link" href="#">${
         i + 1
@@ -220,6 +226,7 @@ const getInfoOnclickUnclustered = async (e) => {
       }</a></li>`;
     }
   }
+
   if (adsData.length <= 1) {
     paginationData += `<li class="page-item disabled">
       <a class="page-link" href="#" aria-label="Next">
@@ -228,13 +235,16 @@ const getInfoOnclickUnclustered = async (e) => {
     paginationData += `<li class="page-item "><a class="page-link" href="#" aria-label="Next">
       <span aria-hidden="true">&raquo;</span></a></li>`;
   }
+
   HTMLpagination.innerHTML = paginationData;
+
   //Pagination feature
   const pagePrev = document.querySelector('.page-link[aria-label="Previous"]');
   const pageNext = document.querySelector('.page-link[aria-label="Next"]');
   const pageItems = document.querySelectorAll(
     '.page-item[aria-current="page"]'
   );
+
   pageItems.forEach((item) => {
     item.addEventListener("click", (e) => {
       e.preventDefault();
@@ -269,9 +279,6 @@ const getInfoOnclickUnclustered = async (e) => {
       HTMLclassification.innerHTML =
         adsData[page - 1].adsPlacement.locationType.locationType;
       HTMLthumbnail.src = `${serverPath}/${adsData[page - 1].image}`;
-      // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
-      //   adsData[page - 1].image
-      // }`;
 
       HTMLboardContract.setAttribute(
         "data-bs-content",
@@ -295,6 +302,7 @@ const getInfoOnclickUnclustered = async (e) => {
       }
     });
   });
+
   pagePrev.addEventListener("click", (e) => {
     if (pagePrev.parentNode.classList.contains("disabled")) {
       return;
@@ -329,9 +337,6 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLclassification.innerHTML =
       adsData[page - 1].adsPlacement.locationType.locationType;
     HTMLthumbnail.src = `${serverPath}/${adsData[page - 1].image}`;
-    // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
-    //   adsData[page - 1].image
-    // }`;
 
     HTMLboardContract.setAttribute(
       "data-bs-content",
@@ -352,6 +357,7 @@ const getInfoOnclickUnclustered = async (e) => {
       pagePrev.parentNode.classList.add("disabled");
     }
   });
+
   pageNext.addEventListener("click", (e) => {
     if (pageNext.parentNode.classList.contains("disabled")) {
       return;
@@ -386,9 +392,6 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLclassification.innerHTML =
       adsData[page - 1].adsPlacement.locationType.locationType;
     HTMLthumbnail.src = `${serverPath}/${adsData[page - 1].image}`;
-    // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
-    //   adsData[page - 1].image
-    // }`;
     HTMLboardContract.setAttribute(
       "data-bs-content",
       `Ngày hết hạn: ${
@@ -481,6 +484,7 @@ const toggleEvent = (e, targetLayer) => {
 
 const searchFunc = async (e) => {
   e.preventDefault();
+
   if (locationInput.value == "" || locationInput.value == undefined) {
     return;
   }
@@ -496,6 +500,7 @@ const searchFunc = async (e) => {
       query
     )}&api_key=7iVK3dd86pgsEJggbfiky0xOrcRa9xJMNTtX22nS`
   );
+
   try {
     if (!respond.ok) {
       throw new Error("Network response was not ok");
@@ -506,10 +511,7 @@ const searchFunc = async (e) => {
       alert("Không tìm thấy địa chỉ tương ứng");
       return;
     }
-    // if (data.results.length == 0) {
 
-    // }
-    // const geometry = data.results[0].geometry;
     const geometry = results[0].geometry.location;
     map.flyTo({ center: geometry });
   } catch (err) {
@@ -690,8 +692,9 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
       });
     }
   });
-  //Assign to previous select targer
+  //Assign to previous select target
   previousSelected.type = type;
+
   if (flag == 0) {
     previousSelected.id = selectedLocation;
   } else if (flag == 1) {
@@ -1001,10 +1004,7 @@ map.on("load", async () => {
     const { lng, lat } = e.features[0].properties;
     let reportIdArr;
     reportIdArr = JSON.parse(localStorage.getItem("reportedData"));
-    // if (type == 1) {
-    // } else if (type == 2) {
 
-    // }
     const fetchData = await fetch(
       `${serverPath}/citizen/get-report-by-lnglat?lng=${lng}&lat=${lat}`,
       {
@@ -1369,12 +1369,7 @@ map.on("click", async (e) => {
   }
   const { lat, lng } = e.lngLat;
   fowardMaker.setLngLat([lng, lat]).addTo(map);
-  // const query = `${lat}+${lng}`;
-  // const apiUrl = "https://api.opencagedata.com/geocode/v1/json";
-  // const apiKey = "8c7c7c956fdd4a598e2301d88cb48135";
-  // const requestUrl = `${apiUrl}?key=${apiKey}&q=${encodeURIComponent(
-  //   query
-  // )}&pretty=1&no_annotations=1`;
+
   const requestUrl = `https://rsapi.goong.io/Geocode?latlng=${lat},%20${lng}&api_key=7iVK3dd86pgsEJggbfiky0xOrcRa9xJMNTtX22nS`;
   const respond = await fetch(requestUrl);
   try {
@@ -1507,6 +1502,7 @@ formSubmit.addEventListener("click", async (e) => {
   const type = document.querySelector("#form-report-type").value;
   const content = editor.getData();
   const imageId = "#form-report-images";
+  
   //Validate
   if (!formValidation({ name, email, phone, type, content, imageId })) {
     formSubmitResult.innerHTML = `<h6 class="mb-3 text-danger"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn chưa được gửi, vui lòng thực hiện lại</h6>`;
@@ -1544,7 +1540,6 @@ formSubmit.addEventListener("click", async (e) => {
   }
 
   //Report location handle
-
   formData.append("name", name);
   formData.append("email", email);
   formData.append("phone", phone);

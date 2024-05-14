@@ -42,7 +42,7 @@ class AdsPlacementDAO {
 
     const resultFromDb = await AdsPlacement.findAll({
       where: {
-        status: "Đã quy hoạch",
+        status: status,
       },
       include: [
         {
